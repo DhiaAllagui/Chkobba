@@ -1326,8 +1326,6 @@
         style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">♦️ L'7AYYA!</div>
       <div id="ekherJarya" class="ekher-jarya-toast">EKHER JARYA</div>
 
-      <div id="ekherJarya" class="ekher-jarya-toast">EKHER JARYA</div>
-
       <!-- LOG -->
       <div class="log-area" id="logArea"></div>
 
@@ -2147,15 +2145,23 @@
                 // Populate opponents with dummy cards based on mode
                 engine.players[1].hand = [...dummyCards];
                 if (window.currentGameMode === '2v2') {
-                  engine.players[2].hand = [...dummyCards];
-                  engine.players[3].hand = [...dummyCards];
+                  if (engine.players[2]) engine.players[2].hand = [...dummyCards];
+                  if (engine.players[3]) engine.players[3].hand = [...dummyCards];
                 } else {
-                  engine.players[2].hand = [];
-                  engine.players[3].hand = [];
+                  if (engine.players[2]) engine.players[2].hand = [];
+                  if (engine.players[3]) engine.players[3].hand = [];
                 }
                 updateUI(true);
               };
               waitForAnimations();
+            });
+
+            socket.on('jarya-started', (data) => {
+              const { table, currentTurn } = data;
+              engine.table = table;
+              engine.currentPlayer = currentTurn;
+              hasShownEkherJarya = false;
+              updateUI(true);
             });
 
             socket.on('jarya-ended', (data) => {
@@ -2232,6 +2238,7 @@
                 tr.innerHTML = `<td>${r.label}</td><td class="${myClass}">${r.my}</td><td class="${oppClass}">${r.opp}</td>`;
                 tbody.appendChild(tr);
               });
+
 
               const nBtn = document.getElementById('btn-next-action');
               nBtn.disabled = false;
@@ -2376,7 +2383,8 @@
           const deckPileEl = document.querySelector('.deck-pile');
           if (deckPileEl) deckPileEl.style.display = deckCount === 0 ? 'none' : 'flex';
 
-          if (deckCount === 0 && !hasShownEkherJarya) {
+          const hasCardsInPlay = engine.players.some(p => p.hand.length > 0);
+          if (deckCount === 0 && !hasShownEkherJarya && hasCardsInPlay) {
             showEkherJarya();
             hasShownEkherJarya = true;
           }
@@ -3003,11 +3011,13 @@
 
         function startNextRound() {
           engine.deck = engine._buildDeck(); engine._shuffle(engine.deck); engine.table = [];
-          engine.players[0].hand = []; engine.players[0].pile = []; engine.players[0].chkobba = 0; engine.players[0].chkobbas = [];
-          engine.players[1].hand = []; engine.players[1].pile = []; engine.players[1].chkobba = 0; engine.players[1].chkobbas = [];
+          engine.players.forEach(p => {
+            p.hand = []; p.pile = []; p.chkobba = 0; p.chkobbas = [];
+          });
 
           firstPlayerOfRound = 1 - firstPlayerOfRound;
           engine.currentPlayer = firstPlayerOfRound;
+          hasShownEkherJarya = false;
 
           engine.lastCaptor = -1; engine.roundOver = false; engine.dealInitial();
           document.getElementById('screen-end').style.display = 'none'; document.getElementById('screen-game').style.display = 'flex';
