@@ -14,6 +14,8 @@
   --green-felt-light: #2a5040;
   --green-felt-dark: #0f2218;
   --blue: #1a2a5a;
+  --blue-light: #3498db;
+  --orange: #e67e22;
   --shadow: rgba(0, 0, 0, 0.6);
   --card-w: 110px;
   --card-h: 165px;
@@ -84,6 +86,54 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+/* ── LOBBY BASE ── */
+.lobby-wrap {
+  width: 100%;
+  max-width: 480px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  padding: 40px 30px;
+  border-radius: 24px;
+  border: 1px solid rgba(201, 168, 76, 0.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  position: relative;
+  overflow: visible; /* Important for chairs */
+  margin: auto;
+}
+
+.lobby-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.lobby-screen.active {
+  display: flex !important;
+}
+
+.lobby-title {
+  font-family: 'Cinzel', serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 6px;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.lobby-subtitle {
+  font-size: 13px;
+  color: var(--parchment);
+  opacity: 0.6;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 /* Menu specifically for standalone page */
@@ -259,9 +309,10 @@ body::after {
 
 .settings-label {
   font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 1px;
-  color: var(--gold-dim);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: #d4af37;
+  /* Brighter gold */
   white-space: nowrap;
 }
 
@@ -521,39 +572,200 @@ body.menu-page .menu-btn {
 }
 
 #zone-bot {
-  padding-left: 180px;
+  padding-left: 140px;
 }
 
 #zone-player {
-  padding-left: 180px;
+  padding-left: 140px;
 }
 
 .player-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   background: linear-gradient(135deg, rgba(30, 30, 30, 0.85), rgba(10, 10, 10, 0.98));
-  padding: 15px 12px;
-  border-radius: 15px;
+  padding: 10px 8px;
+  border-radius: 12px;
   border: 1px solid var(--gold-dim);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(201, 168, 76, 0.1);
-  width: 140px;
-  position: fixed;
+  width: 110px;
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  transform: translateY(-50%);
   z-index: 2000;
   transition: border-color 0.3s, transform 0.2s;
-  pointer-events: none;
-  /* Let clicks pass through to deck if needed */
+  pointer-events: auto;
 }
 
-.bot-info-panel {
-  top: 40px;
+/* Specific 1v1 refinements if needed */
+.info-top {
+  border-color: rgba(255, 100, 100, 0.5) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 50, 50, 0.2);
+}
+
+.info-bottom {
+  border-color: rgba(100, 255, 100, 0.5) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(50, 255, 50, 0.2);
+}
+
+/* ── Side player color themes ── */
+.p2-left {
+  border-color: rgba(255, 200, 100, 0.5) !important; /* Gold/Amber */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 150, 50, 0.2);
+}
+
+.p3-right {
+  border-color: rgba(100, 150, 255, 0.6) !important; /* BLUE as requested */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(50, 100, 255, 0.2);
+}
+
+/* ── 2v2 MODE: Side Player Panels ── */
+/* Hidden by default (1v1 and single-player mode) */
+.side-zone {
+  display: none !important;
+}
+
+/* Show side panels only when #screen-game has .mode-2v2 */
+.mode-2v2 .side-zone {
+  display: flex !important;
+}
+
+/* In 2v2, unfix the avatars so they group beautifully next to the hands */
+.mode-2v2 .player-info {
+  position: relative;
+  /* Break out of fixed screen-corners */
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none;
+  z-index: 10;
+}
+
+/* Top & Bottom Zones (Row alignment) */
+.mode-2v2 #zone-bot,
+.mode-2v2 #zone-player {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+/* Side Zones (Column alignment locked to screen edges) */
+.mode-2v2 .side-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 140px;
+}
+
+.mode-2v2 .zone-left {
   left: 220px;
 }
 
-.player-info-panel {
-  bottom: 40px;
+.mode-2v2 .zone-right {
   right: 220px;
+}
+
+/* ── VERTICAL HANDS FOR SIDE PLAYERS ── */
+.hand-vertical {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: -110px !important; /* Force overlap: cards stack vertically */
+  min-height: 250px;
+  width: 100%;
+}
+
+/* Individual card styling for Left/Right players */
+.zone-left .hand-vertical .card {
+  transform: rotate(90deg) scale(0.85); /* Normal card but turned sideways */
+  margin-bottom: -105px; /* Adjust overlap for scaled cards */
+}
+
+.zone-right .hand-vertical .card {
+  transform: rotate(-90deg) scale(0.85); /* Normal card but turned sideways */
+  margin-bottom: -105px; /* Adjust overlap for scaled cards */
+}
+
+/* Scale cards down slightly to fit the table edges comfortably */
+.hand-vertical .card {
+  transform: scale(0.85);
+  margin: 0 -15px;
+}
+
+/* ── TURN INDICATOR (compass arrows) ── */
+.turn-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px; /* Expanded to sit outside the table cards */
+  height: 530px;
+  z-index: 1500;
+  pointer-events: none;
+}
+
+.turn-arrow {
+  position: absolute;
+  font-size: 28px; /* Bigger arrows */
+  color: var(--gold-dim);
+  opacity: 0.25;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  line-height: 1;
+  user-select: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.turn-arrow.active {
+  color: var(--gold);
+  opacity: 1;
+  transform: scale(1.3) !important; /* Scale up the active arrow */
+  text-shadow: 0 0 15px var(--gold), 0 0 30px rgba(201, 168, 76, 0.5);
+  animation: arrow-pulse 1.5s infinite;
+}
+
+@keyframes arrow-pulse {
+  0% { transform: scale(1.3); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+.turn-arrow-up {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+}
+
+.turn-arrow-down {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.turn-arrow-left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.turn-arrow-right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* In 1v1, hide left/right arrows */
+#screen-game:not(.mode-2v2) .turn-arrow-left,
+#screen-game:not(.mode-2v2) .turn-arrow-right {
+  display: none;
 }
 
 /* Enhanced Table Selection Highlight */
@@ -564,8 +776,8 @@ body.menu-page .menu-btn {
 }
 
 .player-avatar {
-  width: 70px;
-  height: 70px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: 2px solid var(--gold-dim);
   object-fit: cover;
@@ -581,16 +793,16 @@ body.menu-page .menu-btn {
 
 .player-name {
   font-family: 'Cinzel', serif;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: var(--gold);
   text-transform: uppercase;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .player-score-display {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 300;
   color: var(--cream);
   line-height: 1;
@@ -2572,3 +2784,349 @@ body.menu-page .menu-btn {
     display: none;
   }
 }
+
+/* Global Footer */
+.site-footer {
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  text-align: center;
+  padding: 12px 0;
+  font-size: 0.8rem;
+  color: rgba(201, 168, 76, 0.4);
+  pointer-events: none;
+  z-index: 1000;
+  letter-spacing: 0.5px;
+}
+
+/* Button Icons */
+.btn-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+  
+  /* Team Selection Grid (Legacy columns removed) */
+  
+  /* Square Table Lobby */
+  .lobby-table-wrapper {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 50px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .lobby-felt-table {
+    position: absolute;
+    inset: 45px;
+    background: var(--green-felt);
+    border: 3px solid var(--gold-dim);
+    border-radius: 50%;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.6), 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 1;
+    overflow: hidden;
+  }
+  
+  .lobby-felt-table::after {
+    content: 'CHKOBBA';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: 16px;
+    color: var(--gold-dim);
+    opacity: 0.15;
+    letter-spacing: 4px;
+  }
+  
+  .lobby-chair {
+    position: absolute;
+    width: 90px;
+    height: 110px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .lobby-chair.top    { top: -45px; left: 50%; transform: translateX(-50%); }
+  .lobby-chair.bottom { bottom: -45px; left: 50%; transform: translateX(-50%); }
+  .lobby-chair.left   { left: -45px; top: 50%; transform: translateY(-50%); }
+  .lobby-chair.right  { right: -45px; top: 50%; transform: translateY(-50%); }
+  
+  .chair-avatar-wrap {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.4);
+    border: 2px solid var(--gold-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    overflow: hidden;
+    cursor: pointer;
+    transition: inherit;
+  }
+  
+  .lobby-chair:hover:not(.occupied) .chair-avatar-wrap {
+    border-color: var(--gold);
+    background: rgba(201, 168, 76, 0.1);
+    transform: scale(1.05);
+  }
+
+  /* ── 3D CARD LOADER ── */
+  .waiting-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .waiting-indicator span {
+    font-size: 13px;
+    color: var(--parchment);
+    opacity: 0.6;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .card-loader {
+    width: 60px;
+    height: 84px;
+    perspective: 1000px;
+  }
+
+  .card-loader-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    animation: cardRotate 3s infinite linear;
+  }
+
+  .card-loader-front, .card-loader-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 6px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  }
+
+  .card-loader-front {
+    background-image: url('/cards/7carreau.png');
+    background-color: white;
+  }
+
+  .card-loader-back {
+    background-image: url('/cards/back4.png');
+    transform: rotateY(180deg);
+  }
+
+  @keyframes cardRotate {
+    0%   { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+  }
+
+  /* ── CHAT SYSTEM ── */
+  .chat-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 32px;
+    height: 32px;
+    background: black;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+
+  .chat-btn img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  .chat-btn:hover {
+    transform: scale(1.2) rotate(10deg);
+    background: #fff;
+  }
+
+  .chat-menu {
+    position: absolute;
+    bottom: 40px;
+    right: -5px;
+    width: 180px;
+    background: rgba(18, 18, 18, 0.98);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    padding: 8px;
+    display: none;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    z-index: 1001;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    transform-origin: bottom right;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.2) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .chat-menu.show { display: grid; }
+
+  .chat-phrase {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    color: var(--parchment);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .chat-phrase:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: #000;
+  }
+
+  /* SPEECH BUBBLE */
+  .bubble {
+    position: absolute;
+    background: white;
+    color: #2c2c2c;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    z-index: 2000;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    pointer-events: none;
+    animation: bubblePop 3.5s forwards ease-out;
+  }
+
+  .bubble::after {
+    content: '';
+    position: absolute;
+    border: 8px solid transparent;
+  }
+
+  /* Positioning and tails per player zone */
+  .info-bottom .bubble { bottom: 110%; left: 50%; transform: translateX(-50%); }
+  .info-bottom .bubble::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: white; }
+
+  .info-top .bubble { top: 110%; left: 50%; transform: translateX(-50%); }
+  .info-top .bubble::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: white; }
+
+  .p2-left .bubble { left: 110%; top: 50%; transform: translateY(-50%); }
+  .p2-left .bubble::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: white; }
+
+  .p3-right .bubble { right: 110%; top: 50%; transform: translateY(-50%); }
+  .p3-right .bubble::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: white; }
+
+  @keyframes bubblePop {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+    5% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    90% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -10px) scale(0.8); }
+  }
+
+  /* Reset transform in keyframes override for side bubbles */
+  .p2-left .bubble { animation-name: bubblePopLeft; }
+  .p3-right .bubble { animation-name: bubblePopRight; }
+
+  @keyframes bubblePopLeft {
+    0% { opacity: 0; transform: translateY(-50%) translateX(-10px); }
+    5% { opacity: 1; transform: translateY(-50%) translateX(0); }
+    90% { opacity: 1; transform: translateY(-50%) translateX(0); }
+    100% { opacity: 0; transform: translateY(-50%) translateX(-10px); }
+  }
+  @keyframes bubblePopRight {
+    0% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+    5% { opacity: 1; transform: translateY(-50%) translateX(0); }
+    90% { opacity: 1; transform: translateY(-50%) translateX(0); }
+    100% { opacity: 0; transform: translateY(-50%) translateX(10px); }
+  }
+
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  
+  .lobby-chair.my-chair .chair-avatar-wrap {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+  }
+  
+  .chair-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .chair-join-icon {
+    font-size: 24px;
+    color: var(--gold-dim);
+    font-weight: 900;
+  }
+  
+  .chair-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .chair-name {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--cream);
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 2px black;
+  }
+  
+  .chair-label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 900;
+    color: var(--gold-dim);
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
+  
+  .lobby-chair.occupied .chair-join-icon { display: none; }
+  .lobby-chair:not(.occupied) .chair-name { display: none; }

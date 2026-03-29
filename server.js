@@ -114,7 +114,8 @@ io.on('connection', (socket) => {
     rooms[code] = {
       host: socket.id,
       settings: { mode: '1v1', score: 21 },
-      players: [{ id: socket.id, name: name || 'Host', avatar: avatar || '', sessionToken: sessionToken || '' }],
+      players: [{ id: socket.id, name: name || 'Host', avatar: avatar || '', sessionToken: sessionToken || '', role: 'host' }],
+      teams: { 1: [socket.id, null], 2: [null, null] },
       reconnectTimers: {},
       gameStarted: false,
     };
@@ -124,7 +125,12 @@ io.on('connection', (socket) => {
     socket.data.name = name;
     socket.data.sessionToken = sessionToken;
 
-    socket.emit('party-created', { code, settings: rooms[code].settings });
+    socket.emit('party-created', { 
+      code, 
+      settings: rooms[code].settings, 
+      teams: rooms[code].teams,
+      players: rooms[code].players 
+    });
     console.log(`[ROOM] Created: ${code} by ${name}`);
   });
 
@@ -156,8 +162,8 @@ io.on('connection', (socket) => {
       socket.data.code = code;
       socket.data.name = name;
       socket.data.sessionToken = sessionToken;
-      io.to(code).emit('players-updated', { players: room.players });
-      socket.emit('rejoin-success', { code, settings: room.settings, players: room.players });
+      io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
+      socket.emit('rejoin-success', { code, settings: room.settings, players: room.players, teams: room.teams });
       io.to(code).emit('player-reconnected', { name });
       return;
     }
@@ -174,9 +180,41 @@ io.on('connection', (socket) => {
     socket.data.name = name;
     socket.data.sessionToken = sessionToken;
 
-    socket.emit('join-success', { code, settings: room.settings, players: room.players, isHost: false });
-    io.to(code).emit('players-updated', { players: room.players });
+    socket.emit('join-success', { code, settings: room.settings, players: room.players, teams: room.teams, isHost: false });
+    io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
     console.log(`[ROOM] ${name} joined ${code} (${room.players.length} players)`);
+  });
+
+  // ── QUICK CHAT ────────────────────────────────────────────────
+  socket.on('player-msg', ({ text }) => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    if (!room) return;
+    io.to(code).emit('new-msg', { text, senderId: socket.id });
+  });
+
+  // ── PICK TEAM/SLOT (2v2) ──────────────────────────────────────
+  socket.on('pick-team', ({ team, slot }) => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    if (!room || room.gameStarted) return;
+    if (room.settings.mode !== '2v2') return;
+
+    // Remove player from any team first
+    for (let t in room.teams) {
+      room.teams[t] = room.teams[t].map(sid => sid === socket.id ? null : sid);
+    }
+
+    // Toggle: if they picked it again to leave, we're done
+    // Logic: the above loop already removed them.
+    // To 'Join' - check if slot empty
+    if (team && slot !== undefined) {
+      if (room.teams[team][slot] === null) {
+        room.teams[team][slot] = socket.id;
+      }
+    }
+
+    io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
   });
 
   // ── UPDATE SETTINGS (host only) ───────────────────────────────
@@ -197,20 +235,37 @@ io.on('connection', (socket) => {
     const required = room.settings.mode === '2v2' ? 4 : 2;
     if (room.players.length < required) return;
     
+    // For 2v2, ensure teams are full
+    if (room.settings.mode === '2v2') {
+      const allFilled = room.teams[1].every(s => s !== null) && room.teams[2].every(s => s !== null);
+      if (!allFilled) return;
+      
+      // Reorder room.players to Match Seating: 
+      // [T1S0, T2S0, T1S1, T2S1]
+      const canonicalOrder = [
+        room.teams[1][0],
+        room.teams[2][0],
+        room.teams[1][1],
+        room.teams[2][1]
+      ];
+      room.players = canonicalOrder.map(sid => room.players.find(p => p.id === sid));
+    }
+    
     room.gameStarted = true;
     
     // Initialize Server-Authoritative State
     const deck = generateDeck();
     const table = [];
-    const hands = [[], []]; // [Host Hand, Guest Hand]
+    const numPlayers = room.settings.mode === '2v2' ? 4 : 2;
+    const hands = Array.from({ length: numPlayers }, () => []);
     
     // Deal 4 to table
-    for(let i=0; i<4; i++) {
+    for (let i = 0; i < 4; i++) {
         table.push(deck.pop());
     }
     // Deal 3 to each player
-    for(let p=0; p<2; p++) {
-        for(let i=0; i<3; i++) {
+    for (let p = 0; p < numPlayers; p++) {
+        for (let i = 0; i < 3; i++) {
             hands[p].push(deck.pop());
         }
     }
@@ -219,12 +274,13 @@ io.on('connection', (socket) => {
         deck: deck,
         table: table,
         hands: hands,
-        piles: [[], []],
-        chkobbas: [[], []],
+        piles:              [[], []], // 2 Teams (Slot 0/2 vs Slot 1/3)
+        chkobbas:           [[], []],
         lastCaptor: -1,
-        totalScores: [0, 0],
-        readyForNextRound: [false, false],
-        currentTurn: 1, // Let Guest (slot 1) play first
+        totalScores:        [0, 0],
+        readyForNextRound:  Array.from({ length: numPlayers }, () => false),
+        currentTurn: 1, // slot-1 (Top) plays first
+        numPlayers: numPlayers,
     };
 
     io.to(code).emit('game-init', {
@@ -233,7 +289,7 @@ io.on('connection', (socket) => {
       players: room.players,
       hostId: room.host
     });
-    console.log(`[ROOM] Game started in ${code}`);
+    console.log(`[ROOM] Game started in ${code} (${numPlayers}P)`);
   });
 
   // ── GAME ROOM HANDLERS ───────────────────────────────────────
@@ -249,7 +305,7 @@ io.on('connection', (socket) => {
           
           socket.join(code);
           socket.data.code = code;
-          socket.data.slotIdx = playerIdx; // 0 or 1
+          socket.data.slotIdx = playerIdx; // 0, 1, 2, or 3
           
           const response = {
               players: room.players,
@@ -260,7 +316,9 @@ io.on('connection', (socket) => {
               response.gameState = {
                   table: room.gameState.table,
                   myHand: room.gameState.hands[playerIdx],
-                  currentTurn: room.gameState.currentTurn
+                  currentTurn: room.gameState.currentTurn,
+                  numPlayers: room.gameState.numPlayers || 2,
+                  deckRemaining: room.gameState.deck.length
               };
           }
           
@@ -271,7 +329,9 @@ io.on('connection', (socket) => {
                       clientResponse.gameState = {
                           table: room.gameState.table,
                           myHand: room.gameState.hands[idx],
-                          currentTurn: room.gameState.currentTurn
+                          currentTurn: room.gameState.currentTurn,
+                          numPlayers: room.gameState.numPlayers || 2,
+                          deckRemaining: room.gameState.deck.length
                       };
                   }
                   io.to(p.id).emit('room-data', clientResponse);
@@ -317,36 +377,41 @@ io.on('connection', (socket) => {
     // Apply move to server state
     state.hands[mySlotIdx] = state.hands[mySlotIdx].filter(c => c.id !== cardId);
     
+    // Team identification
+    const teamIdx = mySlotIdx % 2;
+    
     let chkobba = false;
     if (capturedIds && capturedIds.length > 0) {
         const capturedCards = state.table.filter(c => capturedIds.includes(c.id));
         state.table = state.table.filter(c => !capturedIds.includes(c.id));
-        state.piles[mySlotIdx].push(cardObj, ...capturedCards);
-        state.lastCaptor = mySlotIdx;
+        state.piles[teamIdx].push(cardObj, ...capturedCards);
+        state.lastCaptor = teamIdx;
         
-        const isLastCardOfJarya = state.deck.length === 0 && state.hands[mySlotIdx].length === 0 && state.hands[1-mySlotIdx].length === 0;
+        const isLastCardOfJarya = state.deck.length === 0 && state.hands.every(h => h.length === 0);
         
         if (state.table.length === 0 && !isLastCardOfJarya) {
-            state.chkobbas[mySlotIdx].push(cardObj);
+            state.chkobbas[teamIdx].push(cardObj);
             chkobba = true;
         }
     } else {
         state.table.push(cardObj);
     }
     
-    // Toggle turn
-    state.currentTurn = 1 - state.currentTurn;
+    // Advance turn (supports 2 or 4 players)
+    const np = state.numPlayers || 2;
+    state.currentTurn = (state.currentTurn + 1) % np;
     
-    // Check if both hands are empty for dealing more cards
-    const bothHandsEmpty = state.hands[0].length === 0 && state.hands[1].length === 0;
+    // Check if all hands are empty for dealing more cards
+    const bothHandsEmpty = state.hands.every(h => h.length === 0);
     let newCardsDealt = false;
     let jaryaEnded = false;
     let results = null;
     
     if (bothHandsEmpty) {
         if (state.deck.length > 0) {
-            for(let p=0; p<2; p++) {
-                for(let i=0; i<3; i++) {
+            const np2 = state.numPlayers || 2;
+            for (let p = 0; p < np2; p++) {
+                for (let i = 0; i < 3; i++) {
                     state.hands[p].push(state.deck.pop());
                 }
             }
@@ -377,10 +442,11 @@ io.on('connection', (socket) => {
     });
     
     if (newCardsDealt) {
-        const player0 = room.players[0];
-        const player1 = room.players[1];
-        if (player0 && player0.id) io.to(player0.id).emit('deal-cards', { myHand: state.hands[0] });
-        if (player1 && player1.id) io.to(player1.id).emit('deal-cards', { myHand: state.hands[1] });
+        const np3 = state.numPlayers || 2;
+        for (let i = 0; i < np3; i++) {
+            const p = room.players[i];
+            if (p && p.id) io.to(p.id).emit('deal-cards', { myHand: state.hands[i] });
+        }
     } else if (jaryaEnded) {
         setTimeout(() => {
             io.to(code).emit('jarya-ended', {
@@ -399,27 +465,29 @@ io.on('connection', (socket) => {
       if (!room || !room.gameState) return;
       
       const state = room.gameState;
+      const np = state.numPlayers || 2;
       state.readyForNextRound[mySlotIdx] = true;
       
       io.to(code).emit('player-ready', { playerIdx: mySlotIdx });
       
-      if (state.readyForNextRound[0] && state.readyForNextRound[1]) {
+      // Check all players are ready
+      const allReady = state.readyForNextRound.slice(0, np).every(r => r);
+      if (allReady) {
           // Restart Jarya
           const deck = generateDeck();
           const table = [];
-          for(let i=0; i<4; i++) table.push(deck.pop());
-          const hands = [[], []];
-          for(let p=0; p<2; p++) {
-              for(let i=0; i<3; i++) hands[p].push(deck.pop());
+          for (let i = 0; i < 4; i++) table.push(deck.pop());
+          const hands = Array.from({ length: np }, () => []);
+          for (let p = 0; p < np; p++) {
+              for (let i = 0; i < 3; i++) hands[p].push(deck.pop());
           }
           state.deck = deck;
           state.table = table;
           state.hands = hands;
-          state.piles = [[], []];
-          state.chkobbas = [[], []];
+          state.piles     = [[], []]; // 2 Teams
+          state.chkobbas  = [[], []];
           state.lastCaptor = -1;
-          state.readyForNextRound = [false, false];
-          // Guest starts first hand again
+          state.readyForNextRound = Array.from({ length: np }, () => false);
           state.currentTurn = 1;
           
           io.to(code).emit('jarya-started', {
@@ -427,10 +495,10 @@ io.on('connection', (socket) => {
               currentTurn: state.currentTurn
           });
           
-          const p0 = room.players[0];
-          const p1 = room.players[1];
-          if (p0 && p0.id) io.to(p0.id).emit('deal-cards', { myHand: hands[0] });
-          if (p1 && p1.id) io.to(p1.id).emit('deal-cards', { myHand: hands[1] });
+          for (let i = 0; i < np; i++) {
+              const p = room.players[i];
+              if (p && p.id) io.to(p.id).emit('deal-cards', { myHand: hands[i] });
+          }
       }
   });
 
