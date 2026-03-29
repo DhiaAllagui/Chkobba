@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chkobba — The Tunisian Card Game</title>
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/rules.js"></script>
@@ -992,7 +992,7 @@
 
   <!-- CHKOBBA TOAST -->
   <div class="chkobba-toast" id="chkobbaToast">⭐ CHKOBBA!</div>
-  <div class="chkobba-toast" id="hayyaToast" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">💎 L'7AYYA!</div>
+  <div class="chkobba-toast" id="hayyaToast" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">♦️ L'7AYYA!</div>
   <div id="ekherJarya" class="ekher-jarya-toast">EKHER JARYA</div>
 
   <!-- Tunisian Café Radio Widget (FAB) -->
@@ -1072,9 +1072,9 @@
 
     <!-- Table -->
     <div class="table-area">
-      <div class="table-label">◆ Table ◆</div>
+      <div class="table-label"> ◆ Table ◆ </div>
       <div id="captureConfirmArea"
-        style="height:40px; display:flex; justify-content:center; align-items:center; margin-bottom:5px;"></div>
+        style="display:flex; justify-content:center; align-items:center;"></div>
       <div class="table-cards" id="tableCards"></div>
       <div id="turn-timer" class="turn-timer-container" style="display:none;">
         <div id="turn-timer-bar" class="turn-timer-bar"></div>
@@ -1132,42 +1132,13 @@
       <tbody id="scoreTbody"></tbody>
     </table>
     <div id="matchStatus" class="match-status-text"></div>
-    <div style="margin-top:24px; display:flex; gap:16px;">
-      <button class="menu-btn" id="btn-next-action" style="width:180px;margin:0">Play Again</button>
-      <button class="menu-btn" onclick="showMenu()" style="width:180px;margin:0">Main Menu</button>
+    <div class="end-btn-row">
+      <button class="menu-btn end-action-btn" id="btn-next-action">Play Again</button>
+      <button class="menu-btn end-action-btn" onclick="showMenu()">Main Menu</button>
     </div>
   </div> <!-- End of view-game -->
 
-  <!-- ── CONFIRMATION MODAL ── -->
-  <div class="confirm-overlay" id="confirmModal">
-    <div class="confirm-window">
-      <div class="confirm-msg" id="confirmMsg">Are you sure?</div>
-      <div class="confirm-btns">
-        <button class="confirm-btn confirm-btn-no" onclick="closeConfirm()">No</button>
-        <button class="confirm-btn confirm-btn-yes" id="confirmYesBtn">Yes</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- ── RULES MODAL ── -->
-  <div class="modal-overlay" id="rulesModal">
-    <div class="modal-window">
-      <div class="modal-header">
-        <div class="modal-lang-toggle">
-          <button class="lang-btn active" id="btn-lang-en" onclick="setRulesLang('en')">English</button>
-          <button class="lang-btn" id="btn-lang-tn" onclick="setRulesLang('tn')">Derja</button>
-        </div>
-        <button class="modal-close" onclick="closeRules()">&times;</button>
-      </div>
-      <div class="modal-body" id="rulesBody">
-        <h2 class="modal-title" id="rulesTitle"></h2>
-        <p style="text-align:center; font-style:italic; margin-bottom: 24px; opacity:0.8;" id="rulesIntro"></p>
-        <div id="rulesSections"></div>
-      </div>
-    </div>
-  </div>
-
-  <script src="../js/rules.js"></script>
   <script>
     // ═══════════════════════════════════════════════════════════
     //  AUDIO & GLOBALS
@@ -1467,14 +1438,29 @@
     let firstPlayerOfRound = 0;
     let myPlayerSlot = 0; // Default to host
     let endScreenTimer = null; // Auto-next round timer
+    let botThinkTimeout = null;
+
+    function cleanupGame() {
+      if (turnTimerInterval) clearInterval(turnTimerInterval);
+      if (endScreenTimer) clearTimeout(endScreenTimer);
+      if (botThinkTimeout) clearTimeout(botThinkTimeout);
+      turnTimerInterval = null;
+      endScreenTimer = null;
+      botThinkTimeout = null;
+      engine = null;
+      bot = null;
+      if (mode === 'online' && typeof socket !== 'undefined') socket.emit('leave-match');
+    }
 
     function showMenu() {
       if (engine && !engine.roundOver) {
         showConfirm("Are you sure you want to quit the game?", () => {
+          cleanupGame();
           showView('view-menu');
         });
         return;
       }
+      cleanupGame();
       showView('view-menu');
     }
 
@@ -2221,7 +2207,7 @@
             show7ayyaToast(pname);
             if (sfxEnabled) { sfx7ayya.currentTime = 0; sfx7ayya.play().catch(e => e); }
             if (window.radioPlayer) window.radioPlayer.duck();
-            addLog(`💎 L'7AYYA! for ${pname}`, 'chkobba');
+            addLog(`♦️ L'7AYYA! for ${pname}`, 'chkobba');
           }
         } else { addLog(`${pname} throws ${engine.getCardName(card)}`); }
         selectedCard = null; selectedCapture = null; updateUI();
@@ -2242,13 +2228,13 @@
     }
 
     function botTurn() {
-      if (mode === 'online') return; // DISABLE BOT IN ONLINE MODE
+      if (!engine || mode === 'online') return; // DISABLE BOT IN ONLINE MODE OR IF QUITTED
       if (engine.currentPlayer !== 1 || engine.roundOver || isPaused) return;
-      if (isAnimating) { setTimeout(botTurn, 500); return; } // Robust retry if animation still pending
+      if (isAnimating) { botThinkTimeout = setTimeout(botTurn, 500); return; } // Robust retry if animation still pending
       
       setStatus('Bot is thinking…');
-      setTimeout(() => { 
-        if (isPaused) return; // Safety check
+      botThinkTimeout = setTimeout(() => { 
+        if (isPaused || !engine) return; // Safety check
         const move = bot.chooseMove(1, engine.table); 
         executeMove(1, move.card, move.captured); 
       }, 1000); // 1s "thinking" time
@@ -2391,7 +2377,7 @@
 
     function show7ayyaToast(pname) {
       const t = document.getElementById('hayyaToast');
-      t.textContent = `💎 L'7AYYA! (${pname})`;
+      t.textContent = `♦️ L'7AYYA! (${pname})`;
       t.classList.add('show');
       document.body.classList.add('shake-screen');
       setTimeout(() => {
@@ -2424,5 +2410,44 @@
   </script>
   <script src="/js/radio.js"></script>
 </div>
+
+<script>
+  /*
+   * Touch support note:
+   * Cards have `touch-action: manipulation` in CSS, which tells the browser
+   * to fire click events immediately on tap (no 300ms delay) without any
+   * extra JS needed. A synthetic click dispatch here was causing DOUBLE-FIRE:
+   * touchend synthetic click + native click = toggleTableCapture called twice
+   * (select card, then immediately deselect it). Removed to fix sum-capture on mobile.
+   */
+</script>
+<!-- ── CONFIRMATION MODAL ── -->
+  <div class="confirm-overlay" id="confirmModal">
+    <div class="confirm-window">
+      <div class="confirm-msg" id="confirmMsg">Are you sure?</div>
+      <div class="confirm-btns">
+        <button class="confirm-btn confirm-btn-no" onclick="closeConfirm()">No</button>
+        <button class="confirm-btn confirm-btn-yes" id="confirmYesBtn">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RULES MODAL ── -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-lang-toggle">
+          <button class="lang-btn active" id="btn-lang-en" onclick="setRulesLang('en')">English</button>
+          <button class="lang-btn" id="btn-lang-tn" onclick="setRulesLang('tn')">Derja</button>
+        </div>
+        <button class="modal-close" onclick="closeRules()">&times;</button>
+      </div>
+      <div class="modal-body" id="rulesBody">
+        <h2 class="modal-title" id="rulesTitle"></h2>
+        <p style="text-align:center; font-style:italic; margin-bottom: 24px; opacity:0.8;" id="rulesIntro"></p>
+        <div id="rulesSections"></div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

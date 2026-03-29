@@ -17,6 +17,7 @@
   --shadow: rgba(0, 0, 0, 0.6);
   --card-w: 110px;
   --card-h: 165px;
+  --glass: rgba(0, 0, 0, 0.4);
 }
 
 *,
@@ -33,7 +34,9 @@ body {
   color: var(--cream);
   min-height: 100vh;
   min-height: 100svh;
+  /* Prevent horizontal scroll on all screens */
   overflow-x: hidden;
+  max-width: 100vw;
   position: relative;
 }
 
@@ -104,13 +107,20 @@ body::after {
   margin-top: 20px;
   font-weight: 700;
   letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── SHARED MENU STYLES ── */
@@ -167,14 +177,14 @@ body::after {
   overflow: hidden;
   border: 3px solid var(--gold-dim);
   cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .avatar-wrapper:hover {
   transform: scale(1.05);
   border-color: var(--gold);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 15px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 15px rgba(201, 168, 76, 0.3);
 }
 
 .avatar-wrapper img {
@@ -188,7 +198,7 @@ body::after {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0,0,0,0.73);
+  background: rgba(0, 0, 0, 0.73);
   color: var(--gold);
   font-size: 10px;
   font-weight: 900;
@@ -333,7 +343,8 @@ body::after {
 }
 
 .carousel-viewport {
-  width: 130px; /* 120px card + minimal buffer */
+  width: 130px;
+  /* 120px card + minimal buffer */
   overflow: hidden;
   border-radius: 6px;
   padding: 0;
@@ -509,24 +520,30 @@ body.menu-page .menu-btn {
   min-height: 180px;
 }
 
-#zone-bot { padding-left: 180px; }
-#zone-player { padding-left: 180px; }
+#zone-bot {
+  padding-left: 180px;
+}
+
+#zone-player {
+  padding-left: 180px;
+}
 
 .player-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(30,30,30,0.85), rgba(10,10,10,0.98));
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.85), rgba(10, 10, 10, 0.98));
   padding: 15px 12px;
   border-radius: 15px;
   border: 1px solid var(--gold-dim);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.7), 0 0 20px rgba(201,168,76,0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(201, 168, 76, 0.1);
   width: 140px;
   position: fixed;
   z-index: 2000;
   transition: border-color 0.3s, transform 0.2s;
-  pointer-events: none; /* Let clicks pass through to deck if needed */
+  pointer-events: none;
+  /* Let clicks pass through to deck if needed */
 }
 
 .bot-info-panel {
@@ -552,7 +569,7 @@ body.menu-page .menu-btn {
   border-radius: 50%;
   border: 2px solid var(--gold-dim);
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   background: #111;
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -637,15 +654,20 @@ body.menu-page .menu-btn {
   justify-content: center;
   cursor: pointer;
   position: relative;
+  /* Use translate3d for GPU-accelerated 60fps transitions */
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, border-color 0.2s;
+  will-change: transform;
   user-select: none;
   flex-shrink: 0;
   box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.4);
   overflow: hidden;
+  /* Generous tap target padding for thumbs */
+  padding: 4px;
+  touch-action: manipulation;
 }
 
 .card:hover {
-  transform: translateY(-8px) scale(1.05); /* Default subtle zoom */
+  transform: translate3d(0, -8px, 0) scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   z-index: 50;
 }
@@ -660,14 +682,14 @@ body.menu-page .menu-btn {
 
 /* Specific intense zoom for player's active hand */
 .player-zone#zone-player .hand .card:hover {
-  transform: translateY(-25px) scale(1.2) !important;
+  transform: translate3d(0, -25px, 0) scale(1.2) !important;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7) !important;
   border-color: var(--gold) !important;
   z-index: 200 !important;
 }
 
 .card.selected {
-  transform: translateY(-30px) scale(1.22);
+  transform: translate3d(0, -30px, 0) scale(1.22);
   border-color: var(--gold) !important;
   box-shadow: 0 20px 45px rgba(201, 168, 76, 0.6) !important;
   z-index: 210;
@@ -1037,7 +1059,10 @@ body.menu-page .menu-btn {
 /* Custom Confirmation Modal */
 .confirm-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   z-index: 10000;
@@ -1057,12 +1082,12 @@ body.menu-page .menu-btn {
 .confirm-window {
   width: 90%;
   max-width: 400px;
-  background: linear-gradient(135deg, rgba(30,30,30,0.9), rgba(15,15,15,0.95));
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(15, 15, 15, 0.95));
   border: 1px solid var(--gold-dim);
   border-radius: 12px;
   padding: 30px;
   text-align: center;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(201, 168, 76, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(201, 168, 76, 0.1);
   transform: translateY(20px);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -1222,9 +1247,11 @@ body.menu-page .menu-btn {
 /* Paused Screen Overlay */
 .pause-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   z-index: 5000;
   display: flex;
@@ -1234,18 +1261,21 @@ body.menu-page .menu-btn {
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
+
 .pause-overlay.show {
   opacity: 1;
   pointer-events: auto;
 }
+
 .pause-window {
   text-align: center;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   border: 1px solid rgba(201, 168, 76, 0.3);
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
+
 .pause-title {
   font-family: 'Cinzel', serif;
   font-size: 32px;
@@ -1258,7 +1288,8 @@ body.menu-page .menu-btn {
 .pause-btn {
   position: fixed;
   top: 20px;
-  right: 74px; /* Perfectly aligned next to hamburger (20 + 44 + 10) */
+  right: 74px;
+  /* Perfectly aligned next to hamburger (20 + 44 + 10) */
   width: 44px;
   height: 44px;
   background: rgba(0, 0, 0, 0.5);
@@ -1273,240 +1304,11 @@ body.menu-page .menu-btn {
   z-index: 2000;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 .pause-btn:hover {
   transform: scale(1.1);
   border-color: var(--gold);
   box-shadow: 0 0 15px rgba(201, 168, 76, 0.3);
-}
-
-/* ═══════════════════════════════════════════════
-   RESPONSIVE — Tablet  ≤ 768px
-   ═══════════════════════════════════════════════ */
-@media (max-width: 768px) {
-  :root {
-    --card-w: 72px;
-    --card-h: 108px;
-  }
-
-  /* Hide decorative border frame on small screens */
-  body::after { display: none; }
-
-  /* ── Menu ── */
-  body.menu-page {
-    justify-content: flex-start;
-    padding: 12px 0 80px; /* space for radio widget at bottom */
-    overflow-y: auto;
-    min-height: 100svh;
-  }
-
-  .menu-wrap {
-    max-width: 100%;
-    padding: 12px 16px;
-  }
-
-  .menu-title { font-size: clamp(36px, 10vw, 56px); }
-
-  .avatar-wrapper { width: 80px; height: 80px; }
-
-  .menu-settings { gap: 6px; padding: 10px 14px; }
-
-  /* ── Game layout ── */
-  #screen-game {
-    padding: 8px 6px;
-    gap: 6px;
-    justify-content: space-between;
-  }
-
-  #zone-bot, #zone-player { padding-left: 0; justify-content: center; }
-  .hand { justify-content: center; width: 100%; }
-
-  .player-info {
-    width: 65px;
-    padding: 2px;
-    flex-direction: column;
-    gap: 2px;
-    border-radius: 8px;
-    top: auto;
-    transform: none;
-  }
-  .bot-info-panel { top: 70px; left: 10px; }
-  .player-info-panel { bottom: 70px; left: 10px; }
-
-  /* Small screen pause button tweak */
-  .pause-btn { top: 15px; right: 65px; width: 36px; height: 36px; }
-  .corner-pile { 
-    display: none; /* Hide on small screens to save space */
-  }
-
-  .player-avatar { width: 50px; height: 50px; }
-  .player-name { font-size: 11px; }
-  .player-score-display { font-size: 24px; }
-
-  .hand { gap: 4px; }
-
-  .table-cards {
-    grid-template-columns: repeat(3, var(--card-w));
-    gap: 6px;
-    padding: 8px 10px;
-  }
-
-  /* Log */
-  .log-area { display: none; }
-
-  /* Ingame buttons */
-  .ingame-buttons { top: 8px; right: 8px; gap: 6px; }
-  .ingame-menu-btn { font-size: 10px; padding: 5px 10px; }
-
-  /* Corner piles — make smaller & reposition */
-  .corner-pile { width: calc(var(--card-w) * 0.7); height: calc(var(--card-h) * 0.7); }
-  .corner-pile.top-left { top: 10px; left: 10px; }
-  .corner-pile.bottom-right { bottom: 10px; right: 10px; }
-
-  /* Deck */
-  .deck-pile { left: 10px; }
-
-  /* Radio widget — FAB positioning */
-  .radio-widget { bottom: 12px; left: 12px; }
-  .radio-fab { width: 44px; height: 44px; }
-  .radio-fab img { width: 22px; height: 22px; }
-  .radio-panel { width: 200px; bottom: calc(100% + 8px); }
-
-  /* End screen */
-  #screen-end { padding: 20px 10px; overflow-y: auto; }
-  .score-table { min-width: 0; width: 100%; }
-}
-
-/* ═══════════════════════════════════════════════
-   RESPONSIVE — Mobile  ≤ 480px
-   ═══════════════════════════════════════════════ */
-@media (max-width: 480px) {
-  :root {
-    --card-w: 58px;
-    --card-h: 87px;
-  }
-
-  /* ── Menu ── */
-  .menu-title { font-size: clamp(30px, 12vw, 48px); }
-  .menu-subtitle { font-size: 13px; }
-  .menu-divider { margin-bottom: 10px; }
-
-  .profile-section { margin: 6px 0 16px; gap: 8px; }
-  .avatar-wrapper { width: 70px; height: 70px; }
-
-  .settings-label { font-size: 10px; letter-spacing: 0; }
-  .settings-input { font-size: 12px; padding: 5px 7px; }
-
-  /* Carousel card — shrink a touch */
-  .back-option { width: 90px; height: 135px; }
-  .carousel-viewport { width: 100px; }
-
-  .menu-btn { padding: 12px 0; font-size: 13px; }
-
-  /* ── Game ── */
-  .player-info { 
-    width: fit-content;
-    max-width: 130px;
-    height: 34px;
-    padding: 2px 6px;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    border-radius: 17px; /* Pill shape */
-  }
-  .bot-info-panel { top: calc(40% - 70px); left: 5px; }
-  .player-info-panel { top: calc(40% + 110px); left: 5px; }
- /* 70 (deck) + 36 (panel) */
-  
-  .player-avatar { width: 28px; height: 28px; flex-shrink: 0; }
-  .player-name { font-size: 8px; max-width: 40px; margin: 0; padding: 0; }
-  .player-score-display { font-size: 16px; margin: 0; font-weight: 700; width: 20px; text-align: center; }
-  .player-pile-count { display: none; } /* Hide for maximum compactness */
-
-  .player-zone { gap: 4px; }
-
-  .table-cards {
-    grid-template-columns: repeat(4, var(--card-w));
-    gap: 3px;
-    padding: 4px 6px;
-  }
-
-  /* Reposition Deck & Piles for Mobile */
-  .deck-pile { 
-    left: 5px; 
-    top: 40%; 
-    width: calc(var(--card-w) * 0.8);
-    height: calc(var(--card-h) * 0.8);
-  }
-  .corner-pile {
-    display: flex; /* Show them back but tiny */
-    width: calc(var(--card-w) * 0.6);
-    height: calc(var(--card-h) * 0.6);
-    z-index: 1;
-  }
-  .corner-pile.top-left { top: 60px; left: 5px; }
-  .corner-pile.bottom-right { bottom: 60px; right: 5px; }
-
-  .table-label { font-size: 8px; }
-
-  /* Status bar */
-  .status-bar { font-size: 11px; letter-spacing: 1px; }
-
-  /* Action button */
-  .action-btn { font-size: 12px; padding: 8px 18px; }
-
-  /* Radio — FAB Mobile */
-  .radio-widget { bottom: 10px; left: 10px; }
-  .radio-fab { width: 40px; height: 40px; }
-  .radio-panel { width: 180px; }
-  .radio-now-playing { font-size: 10px; margin-bottom: 6px; }
-  .radio-controls .radio-btn { width: 26px; height: 26px; }
-  .radio-controls #radio-play-btn { width: 30px; height: 30px; }
-
-  /* Toasts — smaller text on phones */
-  .chkobba-toast { font-size: 22px; padding: 14px 30px; }
-  .ekher-jarya-toast { font-size: 28px; padding: 20px 36px; }
-
-  /* End screen table */
-  .score-table th, .score-table td { padding: 6px 10px; font-size: 13px; }
-  .end-title { font-size: clamp(24px, 8vw, 40px); }
-}
-
-/* ── Touch: larger tap targets for cards ── */
-@media (hover: none) and (pointer: coarse) {
-  .card { min-width: 44px; min-height: 66px; }
-  .menu-btn, .action-btn { min-height: 44px; }
-  .radio-btn { min-width: 36px; min-height: 36px; }
-  .carousel-arrow { min-width: 44px; min-height: 44px; }
-}
-
-/* Tooltip for card counts */
-.pile-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  background: rgba(241, 241, 238, 0.767);
-  border: 1px solid var(--gold-dim);
-  border-radius: 3px;
-  font-size: 12px;
-  color: var(--gold-dim);
-  margin-top: 3px;
-}
-
-.rule-menu-btn {
-  background: var(--glass);
-  border: 1px solid var(--gold-dim);
-  color: var(--gold);
-  padding: 8px 24px;
-  border-radius: 20px;
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.rule-menu-btn:hover {
-  background: rgba(201, 168, 76, 0.2);
-  border-color: var(--gold);
-  transform: translateY(-2px);
 }
 
 /* Chkobba Piles & Peeking Visuals */
@@ -1521,14 +1323,15 @@ body.menu-page .menu-btn {
   align-items: center;
   justify-content: center;
   z-index: 5;
-  overflow: visible; /* Allow peeking cards to stick out */
+  overflow: visible;
+  /* Allow peeking cards to stick out */
 }
 
 /* The card that peeks from behind the pile when a Chkobba occurs */
 .chkobba-peek {
   position: absolute !important;
   z-index: 5 !important;
-  box-shadow: -4px 4px 10px rgba(0,0,0,0.5) !important;
+  box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.5) !important;
   /* Removed brightness filter to keep face-up card clear */
 }
 
@@ -1566,6 +1369,465 @@ body.menu-page .menu-btn {
   z-index: -1;
 }
 
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — Tablet  ≤ 768px
+   ═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root {
+    --card-w: 72px;
+    --card-h: 108px;
+  }
+
+  body::after {
+    display: none;
+  }
+
+  /* ── Menu ── */
+  body.menu-page {
+    justify-content: flex-start;
+    padding: 12px 0 80px;
+    overflow-y: auto;
+    min-height: 100svh;
+  }
+
+  .menu-wrap {
+    max-width: 100%;
+    padding: 12px 16px;
+  }
+
+  .menu-title {
+    font-size: clamp(36px, 10vw, 56px);
+  }
+
+  .avatar-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .menu-settings {
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  /* ── Game — fill screen, no dead space ── */
+  #screen-game {
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+    padding: 6px 6px 6px 6px;
+    gap: 0;
+    justify-content: flex-start;
+    flex-direction: column;
+  }
+
+  /* Zones shrink to card height, no min-height forcing gaps */
+  .player-zone {
+    min-height: 0;
+    padding: 4px 0;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  #zone-bot {
+    padding-left: 0;
+    order: 0;
+  }
+
+  #zone-player {
+    padding-left: 0;
+    order: 2;
+  }
+
+  .hand {
+    justify-content: center;
+    width: 100%;
+    gap: 4px;
+    min-height: 0;
+  }
+
+  /* Table fills all remaining space */
+  .table-area {
+    flex: 1;
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 0;
+  }
+
+  .table-cards {
+    grid-template-columns: repeat(3, var(--card-w));
+    gap: 6px;
+    padding: 8px 10px;
+    min-height: 0;
+  }
+
+  /* Player info panels — pill, top-left & bottom-left */
+  .player-info {
+    width: auto;
+    min-width: 70px;
+    padding: 4px 8px;
+    flex-direction: row;
+    gap: 6px;
+    border-radius: 20px;
+    position: fixed;
+    z-index: 2000;
+  }
+
+  .bot-info-panel {
+    top: 6px;
+    left: 6px;
+    right: auto;
+    bottom: auto;
+  }
+
+  .player-info-panel {
+    bottom: 6px;
+    left: 6px;
+    right: auto;
+    top: auto;
+  }
+
+  .player-avatar {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+
+  .player-name {
+    font-size: 9px;
+    letter-spacing: 0;
+    margin: 0;
+  }
+
+  .player-score-display {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+  }
+
+  .player-pile-count {
+    display: none;
+  }
+
+  /* Deck — right side, vertically centred */
+  .deck-pile {
+    position: fixed;
+    right: 6px;
+    top: 50%;
+    left: auto;
+    transform: translateY(-50%);
+    width: calc(var(--card-w) * 0.75);
+    height: calc(var(--card-h) * 0.75);
+    z-index: 10;
+  }
+
+  /* Corner piles re-enabled for mobile */
+
+  /* Pause button */
+  .pause-btn {
+    top: 6px;
+    right: 58px;
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Log — hidden */
+  .log-area {
+    display: none;
+  }
+
+  /* Status bar */
+  .status-bar {
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+  }
+
+  /* Radio - Mirror remaining cards */
+  .radio-widget {
+    top: 50%;
+    bottom: auto;
+    left: 6px;
+    transform: translateY(-50%);
+  }
+
+  .radio-fab {
+    width: 36px;
+    height: 36px;
+  }
+
+  .radio-fab img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .radio-panel {
+    width: 200px;
+    bottom: calc(100% + 8px);
+  }
+
+  /* End screen */
+  #screen-end {
+    padding: 20px 10px;
+    overflow-y: auto;
+  }
+
+  .score-table {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .end-btn-row {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .end-action-btn {
+    width: 100% !important;
+    margin: 0 !important;
+    min-height: 52px;
+    font-size: 15px;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — Mobile  ≤ 480px
+   ═══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  :root {
+    --card-w: 62px;
+    --card-h: 93px;
+  }
+
+  /* ── Menu ── */
+  .menu-title {
+    font-size: clamp(30px, 12vw, 48px);
+  }
+
+  .menu-subtitle {
+    font-size: 13px;
+  }
+
+  .menu-divider {
+    margin-bottom: 10px;
+  }
+
+  .profile-section {
+    margin: 6px 0 16px;
+    gap: 8px;
+  }
+
+  .avatar-wrapper {
+    width: 70px;
+    height: 70px;
+  }
+
+  .settings-label {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+
+  .settings-input {
+    font-size: 12px;
+    padding: 5px 7px;
+  }
+
+  .back-option {
+    width: 90px;
+    height: 135px;
+  }
+
+  .carousel-viewport {
+    width: 100px;
+  }
+
+  .menu-btn {
+    padding: 12px 0;
+    font-size: 13px;
+  }
+
+  /* ── Game — ultra-compact portrait ── */
+  #screen-game {
+    padding: 4px;
+    gap: 0;
+  }
+
+  /* Bot hand — smaller gap at top */
+  #zone-bot {
+    padding: 2px 0;
+  }
+
+  #zone-player {
+    padding: 2px 0 6px;
+  }
+
+  /* Table cards — 2 columns of 2 rows = 4 cards fit perfectly */
+  .table-cards {
+    grid-template-columns: repeat(2, var(--card-w));
+    grid-template-rows: repeat(2, var(--card-h));
+    grid-auto-flow: row;
+    gap: 4px;
+    padding: 6px 8px;
+    min-height: 0;
+  }
+
+  .hand {
+    min-height: 0;
+  }
+
+  /* Toasts */
+  .chkobba-toast {
+    font-size: 20px;
+    padding: 12px 24px;
+  }
+
+  .ekher-jarya-toast {
+    font-size: 24px;
+    padding: 16px 28px;
+  }
+
+  /* Status bar */
+  .status-bar {
+    font-size: 10px;
+  }
+
+  /* Radio */
+  .radio-widget {
+    top: 50%;
+    bottom: auto;
+    left: 6px;
+    transform: translateY(-50%);
+  }
+
+  .radio-fab {
+    width: 32px;
+    height: 32px;
+  }
+
+  .radio-fab img {
+    width: 15px;
+    height: 15px;
+  }
+
+  .radio-panel {
+    width: 176px;
+  }
+
+  .radio-now-playing {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  .radio-controls .radio-btn {
+    width: 26px;
+    height: 26px;
+  }
+
+  .radio-controls #radio-play-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* End screen */
+  #screen-end {
+    padding: 16px 10px;
+    overflow-y: auto;
+    min-height: 100svh;
+  }
+
+  .score-table th,
+  .score-table td {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .end-title {
+    font-size: clamp(24px, 8vw, 40px);
+  }
+
+  .end-btn-row {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 12px;
+    gap: 12px;
+  }
+
+  .end-action-btn {
+    width: 100% !important;
+    margin: 0 !important;
+    min-height: 56px;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+}
+
+/* ── Touch: generous tap targets ── */
+@media (hover: none) and (pointer: coarse) {
+  .card {
+    min-width: 44px;
+    min-height: 66px;
+    margin: 2px;
+    touch-action: manipulation;
+  }
+
+  .menu-btn,
+  .action-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  .radio-btn {
+    min-width: 36px;
+    min-height: 36px;
+    touch-action: manipulation;
+  }
+
+  .carousel-arrow {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Tooltip for card counts */
+.pile-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(241, 241, 238, 0.767);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--gold-dim);
+  margin-top: 3px;
+}
+
+.rule-menu-btn {
+  background: var(--glass);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.rule-menu-btn:hover {
+  background: rgba(201, 168, 76, 0.2);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+
+
 /* ── HAMBURGER MENU ── */
 .hamburger-menu {
   position: fixed;
@@ -1596,9 +1858,17 @@ body.menu-page .menu-btn {
   transition: all 0.3s;
 }
 
-.hamburger-menu.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-.hamburger-menu.active span:nth-child(2) { opacity: 0; }
-.hamburger-menu.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.hamburger-menu.active span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
 
 .hamburger-menu:hover {
   transform: scale(1.1);
@@ -1827,26 +2097,41 @@ body.menu-page .menu-btn {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalPop {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Custom Scrollbar for Modal */
 .modal-body::-webkit-scrollbar {
   width: 6px;
 }
+
 .modal-body::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
 }
+
 .modal-body::-webkit-scrollbar-thumb {
   background: var(--gold-dim);
   border-radius: 3px;
 }
+
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: var(--gold);
 }
@@ -1865,9 +2150,9 @@ body.menu-page .menu-btn {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(30,20,5,0.98));
-  border: 2px solid rgba(201,168,76,0.45);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 12px rgba(201,168,76,0.15);
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95), rgba(30, 20, 5, 0.98));
+  border: 2px solid rgba(201, 168, 76, 0.45);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 12px rgba(201, 168, 76, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1884,13 +2169,19 @@ body.menu-page .menu-btn {
   transition: opacity 0.2s;
 }
 
-.radio-fab:hover { transform: scale(1.08); border-color: var(--gold); }
-.radio-fab:hover img { opacity: 1; }
+.radio-fab:hover {
+  transform: scale(1.08);
+  border-color: var(--gold);
+}
+
+.radio-fab:hover img {
+  opacity: 1;
+}
 
 /* Active FAB — gold glow when music is playing */
 .radio-widget.radio-active .radio-fab {
   border-color: var(--gold);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 20px rgba(201,168,76,0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 168, 76, 0.35);
 }
 
 /* The expandable panel — hidden by default, slides up on .radio-open */
@@ -1899,11 +2190,11 @@ body.menu-page .menu-btn {
   bottom: calc(100% + 10px);
   left: 0;
   width: 220px;
-  background: linear-gradient(135deg, rgba(15,15,15,0.95), rgba(30,20,5,0.98));
-  border: 1px solid rgba(201,168,76,0.35);
+  background: linear-gradient(135deg, rgba(15, 15, 15, 0.95), rgba(30, 20, 5, 0.98));
+  border: 1px solid rgba(201, 168, 76, 0.35);
   border-radius: 14px;
   padding: 12px 14px 10px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 20px rgba(201,168,76,0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(201, 168, 76, 0.08);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 
@@ -1911,7 +2202,7 @@ body.menu-page .menu-btn {
   opacity: 0;
   transform: translateY(12px) scale(0.96);
   pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* Open state */
@@ -1922,7 +2213,7 @@ body.menu-page .menu-btn {
 }
 
 .radio-widget.radio-active .radio-panel {
-  border-color: rgba(201,168,76,0.55);
+  border-color: rgba(201, 168, 76, 0.55);
 }
 
 .radio-header {
@@ -1958,7 +2249,9 @@ body.menu-page .menu-btn {
   transition: opacity 0.3s;
 }
 
-.radio-widget.radio-active .radio-waves { opacity: 1; }
+.radio-widget.radio-active .radio-waves {
+  opacity: 1;
+}
 
 .radio-waves span {
   display: inline-block;
@@ -1968,15 +2261,39 @@ body.menu-page .menu-btn {
   animation: radioWave 0.9s ease-in-out infinite alternate;
 }
 
-.radio-waves span:nth-child(1) { animation-delay: 0s;    height: 4px; }
-.radio-waves span:nth-child(2) { animation-delay: 0.15s; height: 10px;}
-.radio-waves span:nth-child(3) { animation-delay: 0.3s;  height: 6px; }
-.radio-waves span:nth-child(4) { animation-delay: 0.1s;  height: 12px;}
-.radio-waves span:nth-child(5) { animation-delay: 0.25s; height: 5px; }
+.radio-waves span:nth-child(1) {
+  animation-delay: 0s;
+  height: 4px;
+}
+
+.radio-waves span:nth-child(2) {
+  animation-delay: 0.15s;
+  height: 10px;
+}
+
+.radio-waves span:nth-child(3) {
+  animation-delay: 0.3s;
+  height: 6px;
+}
+
+.radio-waves span:nth-child(4) {
+  animation-delay: 0.1s;
+  height: 12px;
+}
+
+.radio-waves span:nth-child(5) {
+  animation-delay: 0.25s;
+  height: 5px;
+}
 
 @keyframes radioWave {
-  from { transform: scaleY(0.4); }
-  to   { transform: scaleY(1.4); }
+  from {
+    transform: scaleY(0.4);
+  }
+
+  to {
+    transform: scaleY(1.4);
+  }
 }
 
 .radio-now-playing {
@@ -2000,8 +2317,8 @@ body.menu-page .menu-btn {
 }
 
 .radio-btn {
-  background: rgba(201,168,76,0.12);
-  border: 1px solid rgba(201,168,76,0.3);
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.3);
   color: var(--gold);
   border-radius: 50%;
   width: 30px;
@@ -2019,14 +2336,14 @@ body.menu-page .menu-btn {
   background: var(--gold);
   color: var(--ink);
   border-color: var(--gold);
-  box-shadow: 0 0 10px rgba(201,168,76,0.4);
+  box-shadow: 0 0 10px rgba(201, 168, 76, 0.4);
 }
 
 #radio-play-btn {
   width: 36px;
   height: 36px;
   font-size: 14px;
-  background: rgba(201,168,76,0.18);
+  background: rgba(201, 168, 76, 0.18);
 }
 
 .radio-vol-row {
@@ -2050,7 +2367,7 @@ body.menu-page .menu-btn {
   flex: 1;
   height: 3px;
   border-radius: 2px;
-  background: rgba(201,168,76,0.25);
+  background: rgba(201, 168, 76, 0.25);
   outline: none;
   cursor: pointer;
 }
@@ -2062,11 +2379,13 @@ body.menu-page .menu-btn {
   border-radius: 50%;
   background: var(--gold);
   cursor: pointer;
-  box-shadow: 0 0 6px rgba(201,168,76,0.6);
+  box-shadow: 0 0 6px rgba(201, 168, 76, 0.6);
   transition: transform 0.15s;
 }
 
-#radio-vol-slider::-webkit-slider-thumb:hover { transform: scale(1.3); }
+#radio-vol-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
 
 #radio-vol-slider::-moz-range-thumb {
   width: 13px;
@@ -2075,20 +2394,181 @@ body.menu-page .menu-btn {
   background: var(--gold);
   cursor: pointer;
   border: none;
-  box-shadow: 0 0 6px rgba(201,168,76,0.6);
+  box-shadow: 0 0 6px rgba(201, 168, 76, 0.6);
 }
 
 
 /* ── SCREEN SHAKE (Horizontal & Fast) ── */
 @keyframes shakeHorizontal {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
-  20%, 40%, 60%, 80% { transform: translateX(8px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-8px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(8px);
+  }
 }
 
 .shake-screen {
-  animation: shakeHorizontal 0.3s cubic-bezier(.36,.07,.19,.97) both;
+  animation: shakeHorizontal 0.3s cubic-bezier(.36, .07, .19, .97) both;
   transform: translate3d(0, 0, 0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* ═══════════════════════════════════════════════
+   END SCREEN — Base button row
+   ═══════════════════════════════════════════════ */
+.end-btn-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.end-action-btn {
+  width: 180px;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════
+   PORTRAIT OVERLAY
+   Shows a "rotate your phone" message when a
+   mobile user is playing in portrait mode.
+   ═══════════════════════════════════════════════ */
+.portrait-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 10, 0.97);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 40px 24px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.portrait-overlay.show {
+  display: flex;
+  animation: fadeIn 0.4s ease;
+}
+
+.portrait-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.portrait-icon {
+  font-size: 72px;
+  animation: rotateHint 2s ease-in-out infinite alternate;
+}
+
+@keyframes rotateHint {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+.portrait-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(22px, 6vw, 32px);
+  color: var(--gold);
+  letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+}
+
+.portrait-sub {
+  font-family: 'Crimson Pro', serif;
+  font-size: 17px;
+  color: var(--parchment);
+  opacity: 0.8;
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.portrait-sub strong {
+  color: var(--gold);
+}
+
+/* ═══════════════════════════════════════════════
+   LANDSCAPE MEDIA — Game-screen specific
+   Optimised portrait stacking on narrow phones
+   ═══════════════════════════════════════════════ */
+@media (orientation: portrait) and (max-width: 600px) {
+
+  /* Stack opponent at the very top, player at the bottom */
+  #screen-game {
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  #zone-bot {
+    order: 0;
+  }
+
+  /* Opponent hand — TOP    */
+  .table-area {
+    order: 1;
+  }
+
+  /* Table — MIDDLE         */
+  #zone-player {
+    order: 2;
+  }
+
+  /* Player hand — BOTTOM  */
+
+  /* Keep player info panels out of the way */
+  .bot-info-panel {
+    position: fixed;
+    top: 4px;
+    left: 4px;
+    width: auto;
+  }
+
+  .player-info-panel {
+    position: fixed;
+    bottom: 4px;
+    left: 4px;
+    width: auto;
+  }
+}
+
+/* Landscape phones — give more breathing room */
+@media (orientation: landscape) and (max-height: 500px) {
+  #screen-game {
+    padding: 4px 6px;
+    gap: 4px;
+  }
+
+  .player-zone {
+    min-height: auto;
+  }
+
+  .log-area {
+    display: none;
+  }
 }
