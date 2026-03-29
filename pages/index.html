@@ -578,7 +578,7 @@
       <div class="radio-now-playing" id="radio-now-playing">Off Air</div>
       <div class="radio-controls">
         <button class="radio-btn" id="radio-prev-btn" title="Previous">⏮</button>
-        <button class="radio-btn" id="radio-play-btn" title="Play / Pause">▶</button>
+        <button class="radio-btn" id="radio-play-btn" title="Play / Pause"><img id="radio-play-icon" src="/img/resume.png" alt="Play" style="width:16px;height:16px;object-fit:contain;"></button>
         <button class="radio-btn" id="radio-next-btn" title="Skip">⏭</button>
       </div>
       <div class="radio-vol-row">
@@ -1436,6 +1436,13 @@
               <div class="chat-phrase" onclick="sendChat('La3ba sehla!')">La3ba sehla</div>
               <div class="chat-phrase" onclick="sendChat('Jib dineri!')">Jib dineri</div>
               <div class="chat-phrase" onclick="sendChat('L7ayya dour!')">L'7ayya dour</div>
+              <div class="chat-phrase" onclick="sendChat('Nrisky?')">Nrisky?</div>
+              <div class="chat-phrase" onclick="sendChat('Eyy')">Eyy</div>
+              <div class="chat-phrase" onclick="sendChat('Lee')">Lee</div>
+              <div class="chat-phrase" onclick="sendChat('Yrawah!')">Yrawah!</div>
+              <div class="chat-phrase" onclick="sendChat('Ija beha!')">Ija beha!</div>
+              <div class="chat-phrase" onclick="sendChat('7otni m3ah')">7otni m3ah</div>
+              <div class="chat-phrase" onclick="sendChat('narj3ou ayy')">narj3ou ayy</div>
             </div>
 
             <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
@@ -1812,7 +1819,8 @@
         let hasShownEkherJarya = false;
         let isPaused = false;
         let turnTimerInterval = null;
-        let timeLeft = 20;
+        let turnTimerCountdown = null;
+        let timeLeft = 25;
         let confirmCallback = null;
         let firstPlayerOfRound = 0;
         let myPlayerSlot = 0; // Default to host
@@ -2615,18 +2623,26 @@
         }
 
         function startTurnTimer(isResume = false) {
-          if (turnTimerInterval && turnTimerInterval !== 'paused') return;
           if (isPaused) return;
-          if (!isResume) timeLeft = 20; // Only reset if not resuming
+          stopTurnTimer(); // Clear any running timer first
+          if (!isResume) timeLeft = 25; // Only reset if not resuming
           const bar = document.getElementById('turn-timer-bar');
           const container = document.getElementById('turn-timer');
           if (container) container.style.display = 'block';
-          if (bar) bar.style.width = '100%';
+          if (bar) {
+            bar.style.transition = 'none';
+            bar.style.width = '100%';
+            bar.style.background = 'linear-gradient(90deg, var(--gold-dim), var(--gold))';
+            requestAnimationFrame(() => { bar.style.transition = 'width 1s linear'; });
+          }
 
           turnTimerInterval = setInterval(() => {
             timeLeft--;
-            const pct = (timeLeft / 20) * 100;
-            bar.style.width = pct + '%';
+            const pct = (timeLeft / 25) * 100;
+            if (bar) {
+              bar.style.width = pct + '%';
+              if (timeLeft <= 5) bar.style.background = 'linear-gradient(90deg, #c0392b, #e74c3c)';
+            }
 
             if (timeLeft <= 0) {
               stopTurnTimer();
@@ -2636,13 +2652,18 @@
         }
 
         function stopTurnTimer() {
-          clearInterval(turnTimerInterval);
-          turnTimerInterval = null;
+          if (turnTimerInterval) { clearInterval(turnTimerInterval); turnTimerInterval = null; }
+          if (turnTimerCountdown) { clearTimeout(turnTimerCountdown); turnTimerCountdown = null; }
           const container = document.getElementById('turn-timer');
+          const bar = document.getElementById('turn-timer-bar');
           if (container) container.style.display = 'none';
+          if (bar) { bar.style.width = '100%'; bar.style.background = 'linear-gradient(90deg, var(--gold-dim), var(--gold))'; }
         }
 
+        const clearTurnTimer = stopTurnTimer;
+
         function doLocalOrRemoteMove(pIdx, card, captured) {
+          clearTurnTimer(); // Always reset timer on any move
           if (mode === 'online') {
             if (pIdx === myPlayerSlot) {
               if (window.activeSocket) {
@@ -2661,16 +2682,17 @@
         }
 
         function autoPlayRandomCard() {
-          if (engine.currentPlayer !== myPlayerSlot) return; // not my server-side turn
-          if (isAnimating || isPaused || mode === 'online') return; // don't autoplay in online mode
-          const hand = engine.players[0].hand; // engine[0] = always me (bottom)
+          if (!engine || isAnimating || isPaused || engine.roundOver) return;
+          const myHandIdx = 0; // engine slot 0 is always the local player
+          const hand = engine.players[myHandIdx].hand;
           if (hand.length === 0) return;
           const randomCard = hand[Math.floor(Math.random() * hand.length)];
-          // Check if any capture is possible and just pick one or none
           const res = engine.checkCapture(randomCard, engine.table);
           const cap = res.type !== 'none' ? res.captures[0] : [];
-          doLocalOrRemoteMove(0, randomCard, cap);
+          doLocalOrRemoteMove(myHandIdx, randomCard, cap);
         }
+
+
 
         function showEstannaToast() {
           const toast = document.createElement('div');

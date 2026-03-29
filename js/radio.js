@@ -153,8 +153,8 @@
 
   // ── UI Sync ──────────────────────────────────────────────────────────────────
   function syncUI() {
-    const playBtn = document.getElementById('radio-play-btn');
-    if (playBtn) playBtn.textContent = isPlaying ? '⏸' : '▶';
+    const playIcon = document.getElementById('radio-play-icon');
+    if (playIcon) playIcon.src = isPlaying ? '/img/pause.png' : '/img/resume.png';
     const widget = document.getElementById('radio-widget');
     if (widget) widget.classList.toggle('radio-active', isPlaying);
   }
