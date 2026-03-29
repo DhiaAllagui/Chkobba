@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chkobba — The Tunisian Card Game</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/rules.js"></script>
+
+<style>
+
+
+    /* ── Lobby-specific styles ── */
+    .lobby-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100svh;
+      padding: 24px 16px 80px;
+      gap: 0;
+    }
+
+    .lobby-back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 50%;
+      width: 44px; height: 44px;
+      color: var(--gold);
+      font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .lobby-back-btn:hover {
+      border-color: var(--gold);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(201,168,76,0.3);
+    }
+
+    .lobby-screen { display: none; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 480px; }
+    .lobby-screen.active { display: flex; }
+
+    .lobby-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(22px, 6vw, 32px);
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .lobby-subtitle {
+      font-family: 'Crimson Pro', serif;
+      font-size: 15px;
+      color: var(--gold-dim);
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    /* Choice buttons */
+    .lobby-choice-btn {
+      width: 100%;
+      padding: 20px 24px;
+      background: var(--glass);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 14px;
+      color: var(--parchment);
+      font-family: 'Cinzel', serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .lobby-choice-btn:hover {
+      background: rgba(201,168,76,0.12);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .lobby-choice-icon { font-size: 28px; }
+    .lobby-choice-text { text-align: left; }
+    .lobby-choice-text strong { display: block; color: var(--gold); }
+    .lobby-choice-text small { font-size: 11px; color: var(--gold-dim); letter-spacing: 1px; font-family: 'Crimson Pro', serif; }
+
+    /* Party code display */
+    .party-code-wrap {
+      background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(201,168,76,0.02));
+      border: 2px solid rgba(201,168,76,0.4);
+      border-radius: 16px;
+      padding: 24px 32px;
+      text-align: center;
+      width: 100%;
+    }
+    .party-code-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--gold-dim);
+      margin-bottom: 10px;
+    }
+    .party-code {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(32px, 10vw, 48px);
+      color: var(--gold);
+      letter-spacing: 8px;
+      text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+    .party-code-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .code-share-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(201,168,76,0.3);
+      background: rgba(201,168,76,0.08);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .code-share-btn:hover {
+      background: rgba(201,168,76,0.2);
+      border-color: var(--gold);
+    }
+
+    /* Settings toggles */
+    .lobby-settings {
+      background: var(--glass);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 12px;
+      padding: 16px 20px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .lobby-settings-label {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--gold-dim);
+      margin-bottom: 4px;
+    }
+    .toggle-row { display: flex; gap: 8px; }
+    .toggle-btn {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(201,168,76,0.2);
+      background: rgba(255,255,255,0.03);
+      color: var(--parchment);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: rgba(201,168,76,0.18);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .toggle-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Waiting room / player list */
+    .player-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .player-list-header {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--gold-dim);
+      margin-bottom: 4px;
+    }
+    .player-slot {
+      background: var(--glass);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.3s;
+    }
+    .player-slot.filled { border-color: rgba(201,168,76,0.35); }
+    .player-slot-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.3);
+      object-fit: cover;
+      background: rgba(201,168,76,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .player-slot-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .player-slot-name {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      color: var(--parchment);
+      flex: 1;
+    }
+    .player-slot.empty .player-slot-name { color: var(--gold-dim); font-style: italic; font-size: 11px; }
+    .player-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: 2px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold);
+    }
+
+    /* Spinner / waiting */
+    .waiting-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--gold-dim);
+      font-family: 'Crimson Pro', serif;
+      font-size: 14px;
+      font-style: italic;
+    }
+    .spinner-card {
+      width: 28px;
+      height: 40px;
+      border-radius: 4px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      animation: spinCard 1.5s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spinCard {
+      0%   { transform: rotateY(0deg); }
+      50%  { transform: rotateY(90deg); }
+      100% { transform: rotateY(0deg); }
+    }
+
+    /* Join screen */
+    .join-input {
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--glass);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 10px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      letter-spacing: 6px;
+      text-align: center;
+      outline: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s;
+    }
+    .join-input::placeholder { color: rgba(201,168,76,0.3); letter-spacing: 4px; font-size: 14px; }
+    .join-input:focus { border-color: var(--gold); }
+
+    .join-error {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      color: #e74c3c;
+      letter-spacing: 1px;
+      text-align: center;
+      display: none;
+    }
+    .join-error.show { display: block; }
+
+    /* Start game button */
+    .start-game-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.1));
+      border: 1px solid rgba(201,168,76,0.5);
+      border-radius: 12px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .start-game-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: rgba(201,168,76,0.15);
+    }
+    .start-game-btn:not(:disabled):hover {
+      background: linear-gradient(135deg, rgba(201,168,76,0.4), rgba(201,168,76,0.15));
+      box-shadow: 0 0 20px rgba(201,168,76,0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Toast */
+    .lobby-toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 20px;
+      padding: 10px 24px;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 5000;
+      white-space: nowrap;
+    }
+    .lobby-toast.show { opacity: 1; }
+
+    /* Disconnect overlay */
+    .dc-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 6000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .dc-overlay.show { display: flex; }
+    .dc-window {
+      text-align: center;
+      padding: 40px;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(25,25,25,0.95), rgba(10,10,10,0.98));
+    }
+    .dc-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .dc-sub {
+      font-family: 'Crimson Pro', serif;
+      color: var(--gold-dim);
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+    .dc-timer {
+      font-family: 'Cinzel', serif;
+      font-size: 48px;
+      color: var(--gold);
+    }
+
+    /* Divider line in lobby */
+    .lobby-divider {
+      width: 100%;
+      max-width: 480px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+      margin: 4px 0;
+    }
+
+    /* Round Over Enhancements */
+    @keyframes pulse-row {
+      0% { background: rgba(201,168,76,0); }
+      50% { background: rgba(201,168,76,0.15); }
+      100% { background: rgba(201,168,76,0); }
+    }
+    .pulse-win { animation: pulse-row 2s infinite ease-in-out; border-radius: 8px; }
+    
+    .gold-glow-btn {
+      transform: scale(1.15) !important;
+      box-shadow: 0 0 30px rgba(201,168,76,0.5);
+      border-color: var(--gold) !important;
+      font-weight: 900 !important;
+    }
+    
+    .match-status-text {
+      font-family: 'Crimson Pro', serif;
+      font-size: clamp(16px, 4vw, 20px);
+      color: var(--gold-dim);
+      margin: 24px 0 10px;
+      font-style: italic;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .mini-card {
+      width: 28px;
+      height: 42px;
+      vertical-align: middle;
+      display: inline-block;
+      margin: 0 4px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 4px;
+      background: #fff;
+    }
+
+  
+
+.spa-view { 
+  display: none; 
+  width: 100%; 
+  min-height: 100vh; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  overflow-x: hidden;
+}
+.spa-view.active { display: flex; }
+</style>
+</head>
+
+<body class="spa-page">
+  <div id="view-menu" class="spa-view active">
+
+  <div class="menu-wrap">
+    <p class="menu-ornament">Chakkeb: Win ma t7eb, wa9t ma t7eb.</p>
+    <h1 class="menu-title">CHKOBBA</h1>
+    <p class="menu-subtitle">لعبة الشكوبة التونسية</p>
+    <div class="menu-divider"></div>
+
+    <!-- Profile Upload Section -->
+    <div class="profile-section">
+      <div class="avatar-wrapper" onclick="document.getElementById('pfpInput').click()">
+        <img id="pfpPreview" src="/img/pfp.jpg" alt="Profile">
+        <div class="avatar-overlay"><span>CHANGE</span></div>
+      </div>
+      <input type="file" id="pfpInput" accept="image/*" style="display:none">
+      <div class="profile-welcome">Welcome, <span id="welcome-name" style="color:var(--gold)">Player</span></div>
+    </div>
+
+    <div class="menu-settings">
+      <div class="settings-row">
+        <span class="settings-label">USERNAME</span>
+        <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="20">
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">BOT DIFFICULTY</span>
+        <select class="settings-input" id="menu-difficulty">
+          <option value="easy">Ka3ba lee</option>
+          <option value="medium" selected>Yaadi ro7ou</option>
+          <option value="hard">Mle3bi</option>
+          <option value="expert">Lpatron</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">TARGET SCORE</span>
+        <select class="settings-input" id="menu-target-score">
+          <option value="21" selected>21 Points (Classic)</option>
+          <option value="11">11 Points (Blitz)</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">CARD BACK</span>
+        <div class="back-carousel-container">
+          <button class="carousel-arrow" id="prev-back" onclick="moveCarousel(-1)">&#8249;</button>
+          <div class="carousel-viewport">
+            <div class="back-picker" id="back-picker">
+              <img class="back-option selected" src="/cards/back.png" data-back="back.png" title="Default">
+              <img class="back-option" src="/cards/back1.png" data-back="back1.png" title="Blue">
+              <img class="back-option" src="/cards/back2.png" data-back="back2.png" title="Majestic">
+              <img class="back-option" src="/cards/back3.png" data-back="back3.png" title="Vintage">
+              <img class="back-option" src="/cards/back4.png" data-back="back4.png" title="Modern">
+              <img class="back-option" src="/cards/back5.png" data-back="back5.png" title="Golden">
+              <img class="back-option" src="/cards/back6.png" data-back="back6.png" title="Tunisia">
+              <img class="back-option" src="/cards/back8.png" data-back="back8.png" title="Palestine">
+            </div>
+          </div>
+          <button class="carousel-arrow" id="next-back" onclick="moveCarousel(1)">&#8250;</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <label class="settings-check-label">
+          <input type="checkbox" id="menu-sfx" checked>
+          <span class="settings-check-custom"></span>
+          <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> Enable Sound Effects</span>
+        </label>
+      </div>
+      <div class="settings-row" style="justify-content: center; margin-top: 15px;">
+        <button class="rule-menu-btn" onclick="showRules()">How to Play / كيفاش نلعب</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="menu-btn" onclick="launch('single')">🤖 Single Player</button>
+      <button class="menu-btn" onclick="showView('view-lobby')">🌐 Multiplayer</button>
+    </div>
+  </div>
+
+  <!-- Tunisian Café Radio Widget (FAB) -->
+  
+
+  <!-- ── RULES MODAL ── -->
+  
+    </div>
+  </div>
+
+  
+<!-- SCRIPTS CONSOLIDATED TO THE BOTTOM -->
+  
+
+  </div>
+  <div id="view-lobby" class="spa-view">
+
+
+  <!-- Back arrow -->
+  <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
+
+  <div class="lobby-wrap">
+    <!-- ─────────────── SCREEN 1: CHOICE ─────────────── -->
+    <div class="lobby-screen active" id="screen-choice">
+      <h1 class="lobby-title">MULTIPLAYER</h1>
+      <p class="lobby-subtitle">العب مع صاحبك</p>
+
+      <button class="lobby-choice-btn" onclick="goCreate()">
+        <span class="lobby-choice-icon">🎴</span>
+        <span class="lobby-choice-text">
+          <strong>Create a Party</strong>
+          <small>GENERATE A CODE — INVITE YOUR FRIEND</small>
+        </span>
+      </button>
+
+      <button class="lobby-choice-btn" onclick="goJoin()">
+        <span class="lobby-choice-icon">🔑</span>
+        <span class="lobby-choice-text">
+          <strong>Join a Party</strong>
+          <small>ENTER YOUR FRIEND'S CODE</small>
+        </span>
+      </button>
+    </div>
+
+    <!-- ─────────────── SCREEN 2: HOST (CREATE) ─────────────── -->
+    <div class="lobby-screen" id="screen-host">
+      <h1 class="lobby-title">YOUR PARTY</h1>
+      <p class="lobby-subtitle">شارك الكود مع صاحبك</p>
+
+      <!-- Party Code -->
+      <div class="party-code-wrap">
+        <div class="party-code-label">PARTY CODE</div>
+        <div class="party-code" id="host-code">CK-••••</div>
+        <div class="party-code-actions">
+          <button class="code-share-btn" onclick="copyCode()">📋 Copy Code</button>
+          <a class="code-share-btn" id="wa-share-btn" href="#" target="_blank">📲 WhatsApp</a>
+        </div>
+      </div>
+
+      <!-- Settings (host can change) -->
+      <div class="lobby-settings" id="host-settings">
+        <div>
+          <div class="lobby-settings-label">GAME MODE</div>
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="mode-1v1" onclick="setMode('1v1')">1v1 (2 Players)</button>
+            <button class="toggle-btn" id="mode-2v2" onclick="setMode('2v2')">2v2 (4 Players)</button>
+          </div>
+        </div>
+        <div>
+          <div class="lobby-settings-label">SCORE LIMIT</div>
+          <div class="toggle-row">
+            <button class="toggle-btn" id="score-11" onclick="setScore(11)">11 pts — Quick</button>
+            <button class="toggle-btn active" id="score-21" onclick="setScore(21)">21 pts — Classic</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player list -->
+      <div class="player-list">
+        <div class="player-list-header">PLAYERS IN LOBBY</div>
+        <div id="host-player-list"></div>
+      </div>
+
+      <!-- Waiting indicator -->
+      <div class="waiting-indicator" id="host-waiting">
+        <div class="spinner-card">🃏</div>
+        <span>Waiting for opponent…</span>
+      </div>
+
+      <!-- Start Game -->
+      <button class="start-game-btn" id="start-game-btn" disabled onclick="hostRequestStartGame()">
+        ▶  START GAME
+      </button>
+    </div>
+
+    <!-- ─────────────── SCREEN 3: GUEST (JOIN) ─────────────── -->
+    <div class="lobby-screen" id="screen-join-input">
+      <h1 class="lobby-title">JOIN A PARTY</h1>
+      <p class="lobby-subtitle">دخّل الكود تع صاحبك</p>
+
+      <input class="join-input" id="join-code-input" type="text"
+             maxlength="7" placeholder="CK-0000"
+             oninput="formatCodeInput(this)"
+             onkeydown="if(event.key==='Enter') doJoin()">
+
+      <p class="join-error" id="join-error"></p>
+
+      <button class="menu-btn" style="width:100%;margin:0" onclick="doJoin()">JOIN PARTY →</button>
+    </div>
+
+    <!-- ─────────────── SCREEN 4: GUEST WAITING ROOM ─────────────── -->
+    <div class="lobby-screen" id="screen-guest-wait">
+      <h1 class="lobby-title">LOBBY</h1>
+      <p class="lobby-subtitle" id="guest-code-display">Code: —</p>
+
+      <!-- Settings (read-only for guest) -->
+      <div class="lobby-settings" id="guest-settings-display">
+        <div>
+          <div class="lobby-settings-label">GAME MODE</div>
+          <div class="toggle-row">
+            <button class="toggle-btn active" id="guest-mode-1v1" disabled>1v1 (2 Players)</button>
+            <button class="toggle-btn" id="guest-mode-2v2" disabled>2v2 (4 Players)</button>
+          </div>
+        </div>
+        <div>
+          <div class="lobby-settings-label">SCORE LIMIT</div>
+          <div class="toggle-row">
+            <button class="toggle-btn" id="guest-score-11" disabled>11 pts — Quick</button>
+            <button class="toggle-btn active" id="guest-score-21" disabled>21 pts — Classic</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="player-list">
+        <div class="player-list-header">PLAYERS IN LOBBY</div>
+        <div id="guest-player-list"></div>
+      </div>
+
+      <div class="waiting-indicator">
+        <div class="spinner-card">🃏</div>
+        <span id="guest-wait-msg">Waiting for host to start…</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dc-overlay" id="dc-overlay">
+    <div class="dc-window">
+      <div class="dc-title">⚠️ Opponent Disconnected</div>
+      <div class="dc-sub" id="dc-msg">Waiting for them to reconnect…</div>
+      <div class="dc-timer" id="dc-timer">30</div>
+    </div>
+  </div>
+
+  <div class="lobby-toast" id="lobby-toast"></div>
+  </div>
+
+  <!-- Duplicate game elements removed -->
+
+
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let myName = localStorage.getItem('chkobba_username') || 'Player';
+    let myAvatar = localStorage.getItem('chkobba_user_pfp') || '/img/pfp.jpg';
+    let mySessionToken = sessionStorage.getItem('chkobba_session_token') || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
+    sessionStorage.setItem('chkobba_session_token', mySessionToken);
+    let partyCode = '';
+    let isHost = false;
+    let currentSettings = { mode: '1v1', score: 21 };
+    let dcCountdown = null;
+    let knownPlayerCount = 1;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Username Init & Logic
+      const menuInput = document.getElementById('menu-username');
+      const welcomeDisp = document.getElementById('welcome-name');
+      menuInput.value = myName;
+      welcomeDisp.textContent = myName || 'Player';
+
+      menuInput.addEventListener('input', () => {
+        const val = menuInput.value.trim();
+        welcomeDisp.textContent = val || 'Player';
+        myName = val || 'Player';
+        localStorage.setItem('chkobba_username', myName);
+      });
+
+      // PFP Init & Logic
+      const pfpPreview = document.getElementById('pfpPreview');
+      const pfpInput = document.getElementById('pfpInput');
+      if (myAvatar) pfpPreview.src = myAvatar;
+
+      pfpInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const b64 = ev.target.result;
+            pfpPreview.src = b64;
+            myAvatar = b64;
+            localStorage.setItem('chkobba_user_pfp', b64);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // Card Back Picker
+      document.querySelectorAll('.back-option').forEach(opt => {
+        if (opt.dataset.back === selectedBack) {
+          document.querySelectorAll('.back-option').forEach(i => i.classList.remove('selected'));
+          opt.classList.add('selected');
+        }
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.back-option').forEach(i => i.classList.remove('selected'));
+          opt.classList.add('selected');
+          selectedBack = opt.dataset.back;
+          localStorage.setItem('chkobba_back', selectedBack);
+        });
+      });
+
+      // Lobby Auto-join from URL
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('code')) {
+        const code = params.get('code');
+        document.getElementById('join-code-input').value = code;
+        goJoin();
+        doJoin();
+      }
+
+      // Carousel Arrows Init
+      const carouselPicker = document.getElementById('back-picker');
+      if (carouselPicker) updateCarouselArrows(carouselPicker.children.length - cardLimit);
+    });
+
+    // ─── Menu / Carousel Functions ──────────────────────────────────
+    function moveCarousel(direction) {
+      const picker = document.getElementById('back-picker');
+      const maxOffset = picker.children.length - cardLimit;
+      carouselOffset += direction;
+      if (carouselOffset < 0) carouselOffset = 0;
+      if (carouselOffset > maxOffset) carouselOffset = maxOffset;
+      picker.style.transform = `translateX(${-carouselOffset * cardWidth}px)`;
+      updateCarouselArrows(maxOffset);
+    }
+
+    function updateCarouselArrows(maxOffset) {
+      const prev = document.getElementById('prev-back');
+      const next = document.getElementById('next-back');
+      if (prev) prev.disabled = (carouselOffset === 0);
+      if (next) next.disabled = (carouselOffset >= maxOffset);
+    }
+
+    let currentRulesLang = localStorage.getItem('chkobba_rules_lang') || 'en';
+    function showRules() { renderRules(currentRulesLang); document.getElementById('rulesModal').classList.add('show'); }
+    function closeRules() { document.getElementById('rulesModal').classList.remove('show'); }
+    function setRulesLang(l) { currentRulesLang = l; localStorage.setItem('chkobba_rules_lang', l); renderRules(l); }
+    function renderRules(lang) {
+      const data = RULES_CONTENT[lang];
+      document.getElementById('rulesTitle').textContent = data.title;
+      document.getElementById('rulesIntro').textContent = data.intro;
+      const b = document.getElementById('rulesSections'); b.innerHTML = '';
+      data.sections.forEach(s => {
+        const d = document.createElement('div'); d.className = 'rules-section';
+        d.innerHTML = `<h3 class="rules-header">${s.header}</h3><div class="rules-text">${s.content}</div>`;
+        b.appendChild(d);
+      });
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+      document.getElementById('btn-lang-tn').classList.toggle('active', lang === 'tn');
+    }
+
+    function launch(m) {
+      const name = document.getElementById('menu-username').value.trim();
+      const back = selectedBack || 'back.png';
+      const sfx = document.getElementById('menu-sfx').checked;
+      const score = document.getElementById('menu-target-score').value;
+      if (m === 'single') {
+        startGame('single', name, sfx, back, score);
+        showView('view-game');
+      } else {
+        showView('view-lobby');
+      }
+    }
+
+    function showView(id) {
+      document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.lobby-screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function goCreate() {
+      isHost = true;
+      socket.emit('create-party', { name: myName, avatar: myAvatar, sessionToken: mySessionToken });
+    }
+
+    function goJoin() { showScreen('screen-join-input'); }
+
+    function formatCodeInput(el) {
+      let v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (v.length > 2) v = v.slice(0,2) + '-' + v.slice(2,6);
+      el.value = v;
+    }
+
+    function copyCode() { navigator.clipboard.writeText(partyCode).then(() => showToast('Code copied!')); }
+
+    function setMode(mode) {
+      if (!isHost) return;
+      currentSettings.mode = mode;
+      document.getElementById('mode-1v1').classList.toggle('active', mode === '1v1');
+      document.getElementById('mode-2v2').classList.toggle('active', mode === '2v2');
+      socket.emit('update-settings', currentSettings);
+    }
+
+    function setScore(score) {
+      if (!isHost) return;
+      currentSettings.score = score;
+      document.getElementById('score-11').classList.toggle('active', score === 11);
+      document.getElementById('score-21').classList.toggle('active', score === 21);
+      socket.emit('update-settings', currentSettings);
+    }
+
+    function hostRequestStartGame() { if (isHost) socket.emit('start-game'); }
+
+    function doJoin() {
+      const raw = document.getElementById('join-code-input').value.trim().toUpperCase();
+      if (!raw.match(/^CK-\d{4}$/)) { showJoinError('Ekteb el code sah — CK-XXXX'); return; }
+      socket.emit('join-party', { code: raw, name: myName, avatar: myAvatar, sessionToken: mySessionToken });
+    }
+
+    function showJoinError(msg) {
+      const el = document.getElementById('join-error');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+
+    function renderPlayers(players, containerId, requiredCount) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      const slots = Math.max(players.length, requiredCount);
+      for (let i = 0; i < slots; i++) {
+        const p = players[i];
+        const slot = document.createElement('div');
+        slot.className = 'player-slot' + (p ? ' filled' : ' empty');
+        slot.innerHTML = `
+          <div class="player-slot-avatar">${p && p.avatar ? `<img src="${p.avatar}" alt="">` : (p ? '👤' : '⏳')}</div>
+          <div class="player-slot-name">${p ? p.name : 'Waiting for player…'}</div>
+          ${p && i === 0 ? '<span class="player-badge">HOST</span>' : ''}
+        `;
+        container.appendChild(slot);
+      }
+    }
+
+    function updateStartBtn(players) {
+      const required = currentSettings.mode === '2v2' ? 4 : 2;
+      const btn = document.getElementById('start-game-btn');
+      const waiting = document.getElementById('host-waiting');
+      btn.disabled = players.length < required;
+      waiting.style.display = players.length < required ? 'flex' : 'none';
+    }
+
+    function applyGuestSettings(settings) {
+      currentSettings = settings;
+      document.getElementById('guest-mode-1v1').classList.toggle('active', settings.mode === '1v1');
+      document.getElementById('guest-mode-2v2').classList.toggle('active', settings.mode === '2v2');
+      document.getElementById('guest-score-11').classList.toggle('active', settings.score == 11);
+      document.getElementById('guest-score-21').classList.toggle('active', settings.score == 21);
+    }
+
+    function navigateToGame(data) {
+      sessionStorage.setItem('chkobba_room_code', data.code);
+      startGame('online', myName, true, localStorage.getItem('chkobba_back') || 'back.png', data.settings.score);
+      showView('view-game');
+    }
+
+    function showToast(msg, duration = 2000) {
+      const t = document.getElementById('lobby-toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    function startDcCountdown(name) {
+      let secs = 60;
+      document.getElementById('dc-msg').textContent = `${name} disconnected.`;
+      document.getElementById('dc-timer').textContent = secs;
+      document.getElementById('dc-overlay').classList.add('show');
+      dcCountdown = setInterval(() => {
+        secs--;
+        document.getElementById('dc-timer').textContent = secs;
+        if (secs <= 0) { clearInterval(dcCountdown); showView('view-menu'); }
+      }, 1000);
+    }
+
+    function clearDcCountdown() { if (dcCountdown) { clearInterval(dcCountdown); dcCountdown = null; } document.getElementById('dc-overlay').classList.remove('show'); }
+
+    socket.on('party-created', ({ code, settings }) => {
+      partyCode = code;
+      currentSettings = settings;
+      document.getElementById('host-code').textContent = code;
+      renderPlayers([{ name: myName, avatar: myAvatar }], 'host-player-list', 2);
+      showScreen('screen-host');
+    });
+
+    socket.on('players-updated', ({ players }) => {
+      const listId = isHost ? 'host-player-list' : 'guest-player-list';
+      knownPlayerCount = players.length;
+
+      if (isHost) updateStartBtn(players);
+    });
+
+    socket.on('settings-updated', (settings) => {
+      if (!isHost) applyGuestSettings(settings);
+      else currentSettings = settings;
+    });
+
+    socket.on('join-success', ({ code, settings, players }) => {
+      partyCode = code;
+      isHost = false;
+      document.getElementById('guest-code-display').textContent = `Code: ${code}`;
+      applyGuestSettings(settings);
+      renderPlayers(players, 'guest-player-list', settings.mode === '2v2' ? 4 : 2);
+      showScreen('screen-guest-wait');
+    });
+
+    socket.on('rejoin-success', ({ code, settings, players }) => {
+      partyCode = code;
+      document.getElementById('guest-code-display').textContent = `Code: ${code}`;
+      applyGuestSettings(settings);
+      renderPlayers(players, 'guest-player-list', settings.mode === '2v2' ? 4 : 2);
+      showScreen('screen-guest-wait');
+    });
+
+    socket.on('join-error', ({ msg }) => {
+      showJoinError(msg);
+    });
+
+    socket.on('game-init', (data) => {
+      navigateToGame(data);
+    });
+
+    socket.on('player-disconnected', ({ name }) => {
+      if (name !== myName) startDcCountdown(name);
+    });
+
+    socket.on('player-reconnected', ({ name }) => {
+      clearDcCountdown();
+      showToast(`${name} reconnected!`);
+    });
+
+    socket.on('player-left', ({ name }) => {
+      clearDcCountdown();
+      showToast(`${name} left the game.`, 3000);
+    });
+
+    socket.on('room-closed', () => {
+      clearDcCountdown();
+      showToast('Host closed the room. Returning to menu…', 3000);
+      setTimeout(() => showView('view-menu'), 3000);
+    });
+  </script>
+
+  <!-- Tunisian Café Radio Widget -->
+  
+
+  
+
+  <div id="view-game" class="spa-view">
+
+
+  <!-- CHKOBBA TOAST -->
+  <div class="chkobba-toast" id="chkobbaToast">⭐ CHKOBBA!</div>
+  <div class="chkobba-toast" id="hayyaToast" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">💎 L'7AYYA!</div>
+  <div id="ekherJarya" class="ekher-jarya-toast">EKHER JARYA</div>
+
+  <!-- Tunisian Café Radio Widget (FAB) -->
+  <div class="radio-widget" id="radio-widget">
+    <button class="radio-fab" id="radio-fab-btn" title="Café Radio" aria-label="Toggle radio">
+      <img src="/img/radio.png" alt="Radio">
+    </button>
+    <div class="radio-panel" id="radio-panel">
+      <div class="radio-header">
+        <img class="radio-logo" src="/img/radio.png" alt="Radio">
+        <span class="radio-label">Café Radio</span>
+        <div class="radio-waves">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <div class="radio-now-playing" id="radio-now-playing">Off Air</div>
+      <div class="radio-controls">
+        <button class="radio-btn" id="radio-prev-btn" title="Previous">⏮</button>
+        <button class="radio-btn" id="radio-play-btn" title="Play / Pause">▶</button>
+        <button class="radio-btn" id="radio-next-btn" title="Skip">⏭</button>
+      </div>
+      <div class="radio-vol-row">
+        <img class="radio-vol-icon" src="/img/volumedown.png" alt="Vol-">
+        <input type="range" id="radio-vol-slider" min="0" max="100" value="60" title="Volume">
+        <button class="radio-btn radio-mute-btn" id="radio-mute-btn" title="Mute">
+          <img src="/img/volumeup.png" alt="Mute" style="width:14px;height:14px;object-fit:contain;">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-area" id="logArea"></div>
+
+  <!-- (Integrated Menu Screen removed, now in menu.html) -->
+
+  <!-- ══ GAME SCREEN ══ -->
+  <div id="screen-game">
+    <!-- Hamburger Menu Icon -->
+    <div class="hamburger-menu" id="hamburgerMenu" onclick="toggleNav()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- Side Navigation Drawer -->
+    <div class="side-nav" id="sideNav">
+      <div class="side-nav-header">
+        <span class="side-nav-title">MENU</span>
+        <button class="side-nav-close" onclick="toggleNav()">&times;</button>
+      </div>
+      <div class="side-nav-links">
+        <button class="side-nav-link" onclick="handleNavAction('rules')">📜 How to Play</button>
+        <button class="side-nav-link" onclick="handleNavAction('menu')">🏠 Main Menu</button>
+      </div>
+    </div>
+    <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
+    
+    <!-- Pause Button -->
+    <button class="pause-btn" id="pauseBtn" onclick="togglePause()" title="Pause Game">⏸</button>
+
+    <!-- Pause Overlay -->
+    <div class="pause-overlay" id="pauseOverlay">
+      <div class="pause-window">
+        <h2 class="pause-title">PAUSED</h2>
+        <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
+          <button class="menu-btn" onclick="togglePause()" style="width:200px;margin:0">Resume Game</button>
+          <button class="menu-btn" onclick="showMenu()" style="width:200px;margin:0">Quit to Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOT / P2 Zone -->
+    <div class="player-zone" id="zone-bot">
+      <div class="hand" id="hand-bot"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-area">
+      <div class="table-label">◆ Table ◆</div>
+      <div id="captureConfirmArea"
+        style="height:40px; display:flex; justify-content:center; align-items:center; margin-bottom:5px;"></div>
+      <div class="table-cards" id="tableCards"></div>
+      <div id="turn-timer" class="turn-timer-container" style="display:none;">
+        <div id="turn-timer-bar" class="turn-timer-bar"></div>
+      </div>
+      <div class="status-bar" id="statusBar">Welcome to Chkobba</div>
+    </div>
+
+    <!-- P1 Zone -->
+    <div class="player-zone" id="zone-player">
+      <div class="hand" id="hand-player"></div>
+    </div>
+
+    <!-- Fixed Player Information Panels -->
+    <div class="player-info bot-info-panel">
+      <img class="player-avatar" id="pfp-bot" src="/img/botpfp.png" alt="Bot">
+      <div class="player-name" id="name-bot">Chkobba Master</div>
+      <div class="player-score-display" id="score-bot">0</div>
+    </div>
+
+    <div class="player-info player-info-panel">
+      <img class="player-avatar" id="pfp-player" src="/img/pfp.jpg" alt="You">
+      <div class="player-name" id="name-player">You</div>
+      <div class="player-score-display" id="score-player">0</div>
+    </div>
+
+    <!-- Piles & Deck -->
+    <div class="corner-pile top-left" id="chkobba-bot"></div>
+
+    <div class="deck-pile left-center" style="display:flex; flex-direction:column; align-items:center;">
+      <div class="pile-bg-wrap" style="position:relative; width:var(--card-w); height:var(--card-h);">
+        <div class="pile-bg"></div>
+      </div>
+      <div class="deck-info" id="deckInfo"
+        style="color:var(--gold-dim); font-size:14px; font-weight:700; margin-top:8px; text-shadow:none;">
+        40</div>cards remaining
+
+    </div>
+
+    <div class="corner-pile bottom-right" id="chkobba-player"></div>
+  </div>
+
+  <!-- ══ END SCREEN ══ -->
+  <div id="screen-end">
+    <p class="menu-ornament">Round Over</p>
+    <div class="end-title" id="endTitle">Game Over</div>
+    <div class="end-winner" id="endWinner"></div>
+    <table class="score-table" id="scoreTable">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th id="th-p1">You</th>
+          <th id="th-p2">Chkobba Master</th>
+        </tr>
+      </thead>
+      <tbody id="scoreTbody"></tbody>
+    </table>
+    <div id="matchStatus" class="match-status-text"></div>
+    <div style="margin-top:24px; display:flex; gap:16px;">
+      <button class="menu-btn" id="btn-next-action" style="width:180px;margin:0">Play Again</button>
+      <button class="menu-btn" onclick="showMenu()" style="width:180px;margin:0">Main Menu</button>
+    </div>
+  </div> <!-- End of view-game -->
+
+  <!-- ── CONFIRMATION MODAL ── -->
+  <div class="confirm-overlay" id="confirmModal">
+    <div class="confirm-window">
+      <div class="confirm-msg" id="confirmMsg">Are you sure?</div>
+      <div class="confirm-btns">
+        <button class="confirm-btn confirm-btn-no" onclick="closeConfirm()">No</button>
+        <button class="confirm-btn confirm-btn-yes" id="confirmYesBtn">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RULES MODAL ── -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-lang-toggle">
+          <button class="lang-btn active" id="btn-lang-en" onclick="setRulesLang('en')">English</button>
+          <button class="lang-btn" id="btn-lang-tn" onclick="setRulesLang('tn')">Derja</button>
+        </div>
+        <button class="modal-close" onclick="closeRules()">&times;</button>
+      </div>
+      <div class="modal-body" id="rulesBody">
+        <h2 class="modal-title" id="rulesTitle"></h2>
+        <p style="text-align:center; font-style:italic; margin-bottom: 24px; opacity:0.8;" id="rulesIntro"></p>
+        <div id="rulesSections"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/rules.js"></script>
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    //  AUDIO & GLOBALS
+    // ═══════════════════════════════════════════════════════════
+    const sfxShuffle = new Audio('/sound/shuffle.mp3');
+    const sfxPlay = new Audio('/sound/play.mp3');
+    const sfxChkobba = new Audio('/sound/chkobba.mp3');
+    const sfx7ayya = new Audio('/sound/7ayya.mp3');
+    const sfxHover = new Audio('/sound/hover.mp3');
+    const sfxWoosh = new Audio('/sound/woosh.mp3');
+
+    // ═══════════════════════════════════════════════════════════
+    //  GAME ENGINE
+    // ═══════════════════════════════════════════════════════════
+    function mulberry32(a) {
+      return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      }
+    }
+
+    class GameEngine {
+      constructor(seed = Math.random() * 1000000, gameMode = 'single') {
+        this.SUITS = ['carreau', 'coeur', 'trefel', 'pique'];
+        this.SUIT_SYMBOLS = { carreau: '♦', coeur: '♥', trefel: '♣', pique: '♠' };
+        this.SUIT_COLORS = { carreau: 'red', coeur: 'red', trefel: 'black', pique: 'black' };
+        this.VALUE_NAMES = { 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: 'M', 9: 'K', 10: 'R' };
+        this.seed = seed;
+        this.rng = mulberry32(this.seed);
+        this.mode = gameMode;
+        this.reset();
+      }
+
+      getCardName(c) {
+        let name = this.VALUE_NAMES[c.value];
+        if (c.value === 10) name = 'Ray';
+        else if (c.value === 9) name = 'Kawwel';
+        else if (c.value === 8) name = 'Moujira';
+        return `${name}${this.SUIT_SYMBOLS[c.suit]}`;
+      }
+
+      reset() {
+        this.deck = [];
+        this.table = [];
+        this.players = [
+          { hand: [], pile: [], chkobbas: [], name: 'Player 1' },
+          { hand: [], pile: [], chkobbas: [], name: 'Player 2' }
+        ];
+        this.currentPlayer = 0;
+        this.lastCaptor = -1;
+        this.roundOver = false;
+        
+        // If not online, strictly do local generation and dealing
+        if (this.mode !== 'online') {
+            this.deck = this._buildDeck();
+            this._shuffle(this.deck);
+            this.dealInitial();
+        }
+      }
+
+      _buildDeck() {
+        const deck = [];
+        for (const suit of this.SUITS)
+          for (let v = 1; v <= 10; v++)
+            deck.push({ suit, value: v, id: `${v}${suit}` });
+        return deck;
+      }
+
+      _shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(this.rng() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      }
+
+      dealInitial() {
+        // 4 cards to table
+        for (let i = 0; i < 4; i++) this.table.push(this.deck.pop());
+        // 3 cards each
+        this.dealHands();
+      }
+
+      dealHands() {
+        for (const p of this.players)
+          for (let i = 0; i < 3; i++)
+            if (this.deck.length) p.hand.push(this.deck.pop());
+      }
+
+      handsEmpty() {
+        return this.players.every(p => p.hand.length === 0);
+      }
+
+      deckEmpty() {
+        return this.deck.length === 0;
+      }
+
+      checkCapture(cardPlayed, cardsOnTable) {
+        const v = cardPlayed.value;
+        const results = { direct: [], sums: [] };
+
+        const directs = cardsOnTable.filter(c => c.value === v);
+        if (directs.length > 0) {
+          for (const d of directs) results.direct.push([d]);
+        }
+
+        if (results.direct.length === 0) {
+          const subsets = this._powerSubsets(cardsOnTable);
+          for (const sub of subsets) {
+            if (sub.length > 1) {
+              const total = sub.reduce((s, c) => s + c.value, 0);
+              if (total === v) results.sums.push(sub);
+            }
+          }
+        }
+
+        if (results.direct.length > 0) return { type: 'direct', captures: results.direct };
+        if (results.sums.length > 0) return { type: 'sum', captures: results.sums };
+        return { type: 'none', captures: [] };
+      }
+
+      _powerSubsets(arr) {
+        const result = [[]];
+        for (const item of arr) {
+          const len = result.length;
+          for (let i = 0; i < len; i++) result.push([...result[i], item]);
+        }
+        return result;
+      }
+
+      playCard(playerIdx, card, captured, isLastHand) {
+        const player = this.players[playerIdx];
+        player.hand = player.hand.filter(c => c.id !== card.id);
+        for (const cc of captured)
+          this.table = this.table.filter(t => t.id !== cc.id);
+
+        let chkobba = false;
+        if (captured.length > 0) {
+          player.pile.push(card, ...captured);
+          this.lastCaptor = playerIdx;
+          if (this.table.length === 0 && !isLastHand) {
+            player.chkobbas.push(card);
+            chkobba = true;
+          }
+        } else {
+          this.table.push(card);
+        }
+
+        this.currentPlayer = 1 - playerIdx;
+        return { chkobba, captured };
+      }
+
+      finalize() {
+        if (this.lastCaptor >= 0 && this.table.length > 0) {
+          this.players[this.lastCaptor].pile.push(...this.table);
+          this.table = [];
+        }
+        this.roundOver = true;
+      }
+
+      calculateScore(pile) {
+        const cards = pile.length;
+        const dineri = pile.filter(c => c.suit === 'carreau').length;
+        const sab3a = pile.some(c => c.suit === 'carreau' && c.value === 7);
+        const sevens = pile.filter(c => c.value === 7).length;
+        const sixes = pile.filter(c => c.value === 6).length;
+        return { cards, dineri, sab3a, sevens, sixes };
+      }
+
+      calculateRoundPoints() {
+        const s0 = this.calculateScore(this.players[0].pile);
+        const s1 = this.calculateScore(this.players[1].pile);
+        const pts = [0, 0];
+
+        if (s0.cards > s1.cards) pts[0]++;
+        else if (s1.cards > s0.cards) pts[1]++;
+
+        if (s0.dineri > s1.dineri) pts[0]++;
+        else if (s1.dineri > s0.dineri) pts[1]++;
+
+        if (s0.sab3a) pts[0]++;
+        else if (s1.sab3a) pts[1]++;
+
+        const barmila = this._calcBarmila(s0, s1);
+        if (barmila === 0) pts[0]++;
+        else if (barmila === 1) pts[1]++;
+
+        pts[0] += this.players[0].chkobbas.length;
+        pts[1] += this.players[1].chkobbas.length;
+
+        return {
+          pts, s0, s1,
+          carta: s0.cards > s1.cards ? 0 : (s1.cards > s0.cards ? 1 : -1),
+          dineri: s0.dineri > s1.dineri ? 0 : (s1.dineri > s0.dineri ? 1 : -1),
+          sab3a: s0.sab3a ? 0 : (s1.sab3a ? 1 : -1),
+          barmila,
+          chkobba0: this.players[0].chkobbas.length,
+          chkobba1: this.players[1].chkobbas.length,
+        };
+      }
+
+      _calcBarmila(s0, s1) {
+        if (s0.sevens > s1.sevens) return 0;
+        if (s1.sevens > s0.sevens) return 1;
+        if (s0.sixes > s1.sixes) return 0;
+        if (s1.sixes > s0.sixes) return 1;
+        return -1;
+      }
+    }
+
+    class ChkobbaBotAI {
+      constructor(engine) {
+        this.engine = engine;
+      }
+
+      chooseMove(playerIdx, table) {
+        const hand = this.engine.players[playerIdx].hand;
+        const pile = this.engine.players[playerIdx].pile;
+        const oppPile = this.engine.players[1 - playerIdx].pile;
+
+        let bestMove = null;
+        let bestScore = -Infinity;
+
+        for (const card of hand) {
+          const result = this.engine.checkCapture(card, table);
+          if (result.type === 'none') continue;
+
+          for (const captureSet of result.captures) {
+            const score = this._evalCapture(card, captureSet, table, pile, oppPile, playerIdx);
+            if (score > bestScore) {
+              bestScore = score;
+              bestMove = { card, captured: captureSet };
+            }
+          }
+        }
+
+        if (bestMove) return bestMove;
+        const discard = this._chooseBestDiscard(hand, table, playerIdx);
+        return { card: discard, captured: [] };
+      }
+
+      _evalCapture(card, captureSet, table, pile, oppPile, playerIdx) {
+        let score = 10;
+        const allCaptured = [card, ...captureSet];
+        if (allCaptured.some(c => c.suit === 'carreau' && c.value === 7)) score += 100;
+        const sevens = allCaptured.filter(c => c.value === 7).length;
+        score += sevens * 40;
+        const sixes = allCaptured.filter(c => c.value === 6).length;
+        score += sixes * 15;
+        const aces = allCaptured.filter(c => c.value === 1).length;
+        score += aces * 8;
+        const dineri = allCaptured.filter(c => c.suit === 'carreau').length;
+        score += dineri * 5;
+        score += captureSet.length * 2;
+        const tableAfter = table.filter(t => !captureSet.find(c => c.id === t.id));
+        if (tableAfter.length === 0) score += 25;
+        const botSevens = pile.filter(c => c.value === 7).length;
+        const oppSevens = oppPile.filter(c => c.value === 7).length;
+        if (botSevens >= 2 && oppSevens >= 2) score += sixes * 20;
+        return score;
+      }
+
+      _chooseBestDiscard(hand, table, playerIdx) {
+        const scored = hand.map(card => {
+          let s = 0;
+          if (card.value === 7 && card.suit === 'carreau') s -= 80;
+          if (card.value === 7) s -= 50;
+          if (card.value === 6) s -= 20;
+          if (card.value === 1) s -= 10;
+          const wouldMatchTable = table.some(t => t.value === card.value);
+          if (wouldMatchTable) s -= 15;
+          s += card.value * 0.5;
+          return { card, s };
+        });
+        scored.sort((a, b) => b.s - a.s);
+        return scored[0].card;
+      }
+    }
+
+    let engine, bot, mode, lastMode;
+    let selectedCard = null;
+    let selectedCapture = null;
+    let totalScores = [0, 0];
+    let isAnimating = false;
+    let sfxEnabled = true;
+    let selectedBack = localStorage.getItem('chkobba_back') || 'back.png';
+    let carouselOffset = 0;
+    const cardLimit = 1;
+    const cardWidth = 120 + 10;
+    let lastCustomName = '';
+    let hasShownEkherJarya = false;
+    let isPaused = false;
+    let turnTimerInterval = null;
+    let timeLeft = 20;
+    let confirmCallback = null;
+    let firstPlayerOfRound = 0;
+    let myPlayerSlot = 0; // Default to host
+    let endScreenTimer = null; // Auto-next round timer
+
+    function showMenu() {
+      if (engine && !engine.roundOver) {
+        showConfirm("Are you sure you want to quit the game?", () => {
+          showView('view-menu');
+        });
+        return;
+      }
+      showView('view-menu');
+    }
+
+    function showConfirm(msg, callback) {
+      document.getElementById('confirmMsg').textContent = msg;
+      confirmCallback = callback;
+      document.getElementById('confirmModal').classList.add('show');
+    }
+
+    function closeConfirm() {
+      document.getElementById('confirmModal').classList.remove('show');
+      confirmCallback = null;
+    }
+
+    // Hamburger Menu Logic
+    function toggleNav() {
+      const nav = document.getElementById('sideNav');
+      const overlay = document.getElementById('sideNavOverlay');
+      const hamburger = document.getElementById('hamburgerMenu');
+      nav.classList.toggle('open');
+      overlay.classList.toggle('show');
+      hamburger.classList.toggle('active');
+    }
+
+    function handleNavAction(action) {
+      toggleNav();
+      if (action === 'rules') showRules();
+      else if (action === 'menu') showMenu();
+    }
+
+    // Attach listener to Yes button (needs to be done once, but here is safe)
+    window.addEventListener('DOMContentLoaded', () => {
+      const yesBtn = document.getElementById('confirmYesBtn');
+      if (yesBtn) {
+        yesBtn.onclick = () => {
+          if (confirmCallback) confirmCallback();
+          closeConfirm();
+        };
+      }
+    });
+
+    let winScore = 21;
+ 
+    function startGame(m, customName = '', sfx = true, back = 'back.png', targetScore = 21) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const seed = urlParams.get('seed') ? parseInt(urlParams.get('seed')) : Math.random() * 1000000;
+
+      mode = m; lastMode = m;
+      lastCustomName = customName;
+      winScore = parseInt(targetScore) || 21;
+      engine = new GameEngine(seed, m);
+      bot = new ChkobbaBotAI(engine);
+      selectedCard = null;
+      selectedCapture = null;
+      totalScores = [0, 0];
+      hasShownEkherJarya = false;
+      firstPlayerOfRound = 0;
+      sfxEnabled = sfx;
+      selectedBack = back;
+
+      document.querySelectorAll('.pile-bg').forEach(el => {
+        el.style.background = `url('/cards/${selectedBack}') center/contain no-repeat`;
+      });
+
+      const n1 = customName || (m === 'pass' ? 'Player 1' : 'You');
+      const n2 = m === 'online' ? 'Opponent' : (m === 'pass' ? 'Player 2' : 'Bot');
+      engine.players[0].name = n1;
+      engine.players[1].name = n2;
+      engine.currentPlayer = firstPlayerOfRound;
+
+      // Load user PFP
+      const userPfp = localStorage.getItem('chkobba_user_pfp');
+      if (userPfp) document.getElementById('pfp-player').src = userPfp;
+
+      document.getElementById('name-player').textContent = n1;
+      document.getElementById('name-bot').textContent = n2;
+      document.getElementById('th-p1').textContent = n1;
+      document.getElementById('th-p2').textContent = n2;
+
+      document.getElementById('screen-end').style.display = 'none';
+      document.getElementById('screen-game').style.display = 'flex';
+      document.getElementById('logArea').innerHTML = '';
+  
+      updateUI(true);
+      setStatus(`${engine.players[engine.currentPlayer].name}'s turn`);
+  
+      // --- ONLINE MODE ATTACHMENTS ---
+      if (mode === 'online') {
+          const roomCode = sessionStorage.getItem('chkobba_room_code') || urlParams.get('room');
+          // Prefer tab-specific sessionStorage token to prevent collisions when testing in multiple tabs
+          const token = sessionStorage.getItem('chkobba_session_token') || urlParams.get('token');
+          // In SPA, socket is already global
+          window.activeSocket = socket;
+  
+          socket.emit('join-room', roomCode, token);
+  
+          socket.on('room-data', (data) => {
+              console.log("[DEBUG] room-data received:", data.gameState);
+              const players = data.players;
+              const idx = players.findIndex(p => p.sessionToken === token);
+              if (idx !== -1) {
+                  myPlayerSlot = idx;
+                  // If I'm Guest (slot 1), update UI names/pfp to reflect perspective
+                  if (myPlayerSlot === 1) {
+                      document.getElementById('name-player').textContent = players[1].name;
+                      document.getElementById('name-bot').textContent = players[0].name;
+                      document.getElementById('th-p1').textContent = players[1].name;
+                      document.getElementById('th-p2').textContent = players[0].name;
+                      // PFPs
+                      if (players[1].avatar) document.getElementById('pfp-player').src = players[1].avatar;
+                      if (players[0].avatar) document.getElementById('pfp-bot').src = players[0].avatar;
+                  } else {
+                      document.getElementById('name-player').textContent = players[0].name;
+                      document.getElementById('name-bot').textContent = players[1].name;
+                      document.getElementById('th-p1').textContent = players[0].name;
+                      document.getElementById('th-p2').textContent = players[1].name;
+                      // PFPs
+                      if (players[0].avatar) document.getElementById('pfp-player').src = players[0].avatar;
+                      if (players[1].avatar) document.getElementById('pfp-bot').src = players[1].avatar;
+                  }
+                  
+                  // Configure engine with authoritative server state
+                  engine.players[0].name = players[0].name;
+                  engine.players[1].name = players[1].name;
+                  
+                  if (data.gameState) {
+                      engine.table = data.gameState.table || [];
+                      engine.players[myPlayerSlot].hand = data.gameState.myHand || [];
+                      // Dummy hand for opponent
+                      engine.players[1 - myPlayerSlot].hand = [{id:'d1'}, {id:'d2'}, {id:'d3'}];
+                      engine.currentPlayer = data.gameState.currentTurn;
+                      // Only animate deal if table is empty (initial)
+                      if (engine.table.length > 0) {
+                          updateUI(false); 
+                      } else {
+                          updateUI(true);
+                      }
+                      setStatus(`${engine.players[engine.currentPlayer].name}'s turn (Waiting for Host to start...)`);
+                  }
+
+                  addLog(`Connected as ${players[myPlayerSlot].name} (Room: ${roomCode})`, 'online-info');
+              }
+          });
+   
+          socket.on('move-played', (data) => {
+              console.log("[DEBUG] Server move played:", data);
+              const { playerIdx, cardId, capturedIds, newTurn, newCardsDealt, deckRemaining } = data;
+              
+              const processMove = () => {
+                  if (isAnimating) {
+                      setTimeout(processMove, 100);
+                      return;
+                  }
+                  
+                  let card = null;
+                  // Add dummy card tracking for opponent rendering
+                  if (playerIdx !== myPlayerSlot) {
+                      const val = parseInt(cardId);
+                      const suit = cardId.replace(val.toString(), '') || 'carreau';
+                      card = { id: cardId, suit: suit, value: val, is7ayya: (val === 7 && suit === 'carreau') };
+                      // Remove one dummy card to maintain correct hand count
+                      if (engine.players[playerIdx].hand.length > 0) engine.players[playerIdx].hand.pop();
+                      engine.players[playerIdx].hand.push(card); 
+                  } else {
+                      card = engine.players[playerIdx].hand.find(c => c.id === cardId);
+                  }
+                  
+                  const captured = engine.table.filter(t => capturedIds.includes(t.id));
+                  
+                  if (card) {
+                      executeMove(playerIdx, card, captured);
+                      // Overwrite turn state with truth
+                      setTimeout(() => { engine.currentPlayer = newTurn; setStatus(`${engine.players[engine.currentPlayer].name}'s turn`); }, 800);
+                  }
+                  
+                  engine.deck.length = deckRemaining;
+                  const deckPileEl = document.querySelector('.deck-pile');
+                  if (deckPileEl) deckPileEl.style.display = deckRemaining === 0 ? 'none' : 'flex';
+              };
+              processMove();
+          });
+          
+          socket.on('deal-cards', (data) => {
+              const { myHand } = data;
+              // Provide hand only after animations
+              const waitForAnimations = () => {
+                   if (isAnimating) {
+                       setTimeout(waitForAnimations, 100); return;
+                   }
+                   engine.players[myPlayerSlot].hand = myHand;
+                   engine.players[1 - myPlayerSlot].hand = [{id:'d1'}, {id:'d2'}, {id:'d3'}];
+                   updateUI(true);
+              };
+              waitForAnimations();
+          });
+          
+          socket.on('jarya-ended', (data) => {
+              if (endScreenTimer) clearInterval(endScreenTimer);
+              const { results, totals, winScore } = data;
+              
+              totalScores[0] = totals[0];
+              totalScores[1] = totals[1];
+              document.getElementById('screen-game').style.display = 'none';
+              document.getElementById('screen-end').style.display = 'flex';
+              
+              const s0 = totals[myPlayerSlot], s1 = totals[1 - myPlayerSlot];
+              let title = 'Round Over', isGameOver = false;
+              if (totals[0] >= winScore || totals[1] >= winScore) {
+                  if (Math.abs(totals[0] - totals[1]) >= 2) {
+                      isGameOver = true;
+                      title = totals[0] > totals[1] ? `${engine.players[0].name} Wins!` : `${engine.players[1].name} Wins!`;
+                  } else {
+                      title = 'Overtime! Win by 2';
+                  }
+              }
+              
+              document.getElementById('endTitle').textContent = title;
+              document.getElementById('endWinner').textContent = `Total: ${engine.players[0].name} ${totals[0]}  ·  ${engine.players[1].name} ${totals[1]}`;
+              
+              // Match Status Line
+              const matchStatus = document.getElementById('matchStatus') || document.createElement('div');
+              matchStatus.id = 'matchStatus';
+              matchStatus.className = 'match-status-line';
+              const leaderIdx = totals[0] >= totals[1] ? 0 : 1;
+              const remaining = winScore - Math.max(totals[0], totals[1]);
+              if (isGameOver) {
+                matchStatus.textContent = `${engine.players[leaderIdx].name} has become the Sultan!`;
+              } else {
+                matchStatus.textContent = `Only ${remaining} points left to become the Sultan!`;
+              }
+              const endTable = document.querySelector('.end-table');
+              if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
+
+              const tbody = document.getElementById('scoreTbody');
+              tbody.innerHTML = '';
+               // Note: 'results' properties are mapped to p0 (Host) and p1 (Guest)
+              const renderForMyPerspective = (p0val, p1val, p0win, p1win) => {
+                  return {
+                      my: myPlayerSlot === 0 ? p0val : p1val,
+                      opp: myPlayerSlot === 0 ? p1val : p0val,
+                      myWin: myPlayerSlot === 0 ? p0win : p1win,
+                      oppWin: myPlayerSlot === 0 ? p1win : p0win
+                  };
+              };
+              
+              const rowsData = [
+                  { label:'Cards', ...renderForMyPerspective(results.s0.cards, results.s1.cards, results.carta === 0, results.carta === 1) },
+                  { label:'Dineri', ...renderForMyPerspective(results.s0.dineri, results.s1.dineri, results.dineri === 0, results.dineri === 1) },
+                  { label:'7ayya', ...renderForMyPerspective(results.s0.sab3a?'Yes':'No', results.s1.sab3a?'Yes':'No', results.sab3a === 0, results.sab3a === 1) },
+                  { label:'Barmila', ...renderForMyPerspective(`${results.s0.sevens}x7, ${results.s0.sixes}x6`, `${results.s1.sevens}x7, ${results.s1.sixes}x6`, results.barmila === 0, results.barmila === 1) },
+                  { label:'Chkobbas', ...renderForMyPerspective(results.chkobba0, results.chkobba1, results.chkobba0 > results.chkobba1, results.chkobba1 > results.chkobba0) }
+              ];
+              
+              rowsData.forEach(r => {
+                  const tr = document.createElement('tr');
+                  const myClass = r.myWin ? 'winner' : (r.oppWin ? 'loser' : '');
+                  const oppClass = r.oppWin ? 'winner' : (r.myWin ? 'loser' : '');
+                  tr.innerHTML = `<td>${r.label}</td><td class="${myClass}">${r.my}</td><td class="${oppClass}">${r.opp}</td>`;
+                  tbody.appendChild(tr);
+              });
+              
+              const nBtn = document.getElementById('btn-next-action');
+              nBtn.disabled = false;
+              if (isGameOver) {
+                  nBtn.textContent = 'Main Menu';
+                  nBtn.onclick = () => {
+                      if (endScreenTimer) clearInterval(endScreenTimer);
+                      window.location.href = 'menu.html';
+                  }
+              } else {
+                  let timeLeftEnd = 30;
+                  nBtn.textContent = `Next Round (30)`;
+                  nBtn.onclick = () => {
+                      if (endScreenTimer) clearInterval(endScreenTimer);
+                      nBtn.textContent = 'Waiting for other player...';
+                      nBtn.disabled = true;
+                      socket.emit('next-round');
+                  };
+
+                  endScreenTimer = setInterval(() => {
+                      timeLeftEnd--;
+                      if (timeLeftEnd <= 0) {
+                          clearInterval(endScreenTimer);
+                          if (!nBtn.disabled) nBtn.click();
+                      } else {
+                          nBtn.textContent = `Next Round (${timeLeftEnd})`;
+                      }
+                  }, 1000);
+              }
+          });
+          
+          socket.on('player-ready', (data) => {
+              if (data.playerIdx !== myPlayerSlot) {
+                  showToast(`${engine.players[data.playerIdx].name} is ready!`);
+              }
+          });
+          
+          socket.on('jarya-started', (data) => {
+              engine.table = data.table;
+              engine.currentPlayer = data.currentTurn;
+              engine.deck.length = 40; // fake reset for UI
+              engine.players[0].chkobbas = [];
+              engine.players[1].chkobbas = [];
+              engine.players[0].pile = [];
+              engine.players[1].pile = [];
+              hasShownEkherJarya = false;
+              
+              document.getElementById('screen-end').style.display = 'none';
+              document.getElementById('screen-game').style.display = 'flex';
+              
+              const nBtn = document.getElementById('btn-next-action');
+              nBtn.disabled = false;
+              
+              updateUI(true);
+              setStatus(`${engine.players[engine.currentPlayer].name}'s turn`);
+              isAnimating = false;
+          });
+  
+          socket.on('player-disconnected', (name) => {
+              showDisconnectOverlay(name);
+          });
+          socket.on('room-closed', () => {
+              window.location.href = 'menu.html';
+          });
+      }
+    }
+  
+    function updateUI(animateDeal = false) {
+      // Perspective swap: myPlayerSlot is always at the bottom ('hand-player')
+      const pBottom = myPlayerSlot;
+      const pTop = 1 - myPlayerSlot;
+  
+      renderHand('hand-bot', engine.players[pTop].hand, false, engine.currentPlayer === pTop);
+      renderHand('hand-player', engine.players[pBottom].hand, true, engine.currentPlayer === pBottom);
+      
+      renderTable();
+      
+      // Perspective scores
+      document.getElementById('score-player').textContent = totalScores[pBottom];
+      document.getElementById('score-bot').textContent = totalScores[pTop];
+  
+      const deckCount = engine.deck.length;
+      document.getElementById('deckInfo').textContent = deckCount;
+      const deckPileEl = document.querySelector('.deck-pile');
+      if (deckPileEl) deckPileEl.style.display = deckCount === 0 ? 'none' : 'flex';
+  
+      if (deckCount === 0 && !hasShownEkherJarya) {
+        showEkherJarya();
+        hasShownEkherJarya = true;
+      }
+
+      const cPlayer = document.getElementById('chkobba-player');
+      const cBot = document.getElementById('chkobba-bot');
+      cPlayer.innerHTML = ''; cBot.innerHTML = '';
+
+      engine.players[pBottom].chkobbas.forEach((c, idx) => {
+        const el = makeCardEl(c, false); // faceDown = false -> FACE UP
+        el.className = 'card chkobba-peek'; // Remove card-deal
+        // Peek from behind the pile (shifted to top-left)
+        el.style.transform = `translate(${-35 - idx * 4}px, ${-18 - idx * 3}px) rotate(${-3 - idx * 2}deg)`;
+        cPlayer.appendChild(el);
+      });
+      engine.players[pTop].chkobbas.forEach((c, idx) => {
+        const el = makeCardEl(c, false); // faceDown = false -> FACE UP
+        el.className = 'card chkobba-peek'; // Remove card-deal
+        // Peek from behind the pile (shifted to top-left)
+        el.style.transform = `translate(${-35 - idx * 4}px, ${-18 - idx * 3}px) rotate(${-3 - idx * 2}deg)`;
+        cBot.appendChild(el);
+      });
+
+      if (engine.players[pBottom].pile.length > 0) {
+        const bg = document.createElement('div');
+        bg.className = 'pile-bg'; bg.style.zIndex = '10';
+        bg.style.backgroundImage = `url('/cards/${selectedBack}')`;
+        bg.style.backgroundSize = 'contain'; bg.style.backgroundRepeat = 'no-repeat'; bg.style.backgroundPosition = 'center';
+        cPlayer.appendChild(bg);
+      }
+      if (engine.players[pTop].pile.length > 0) {
+        const bg = document.createElement('div');
+        bg.className = 'pile-bg'; bg.style.zIndex = '10';
+        bg.style.backgroundImage = `url('/cards/${selectedBack}')`;
+        bg.style.backgroundSize = 'contain'; bg.style.backgroundRepeat = 'no-repeat'; bg.style.backgroundPosition = 'center';
+        cBot.appendChild(bg);
+      }
+
+      if (animateDeal) {
+        if (sfxEnabled) { sfxShuffle.currentTime = 0; sfxShuffle.play().catch(e => e); }
+        // Detect if it's the initial deal (deck size 30 and table has 4)
+        const isInitialDeal = engine.deck.length === 30 && engine.table.length === 4;
+        const targetSelectors = ['#hand-player .card', '#hand-bot .card'];
+        if (isInitialDeal) targetSelectors.push('#tableCards .card');
+        const targets = Array.from(document.querySelectorAll(targetSelectors.join(',')));
+        
+        targets.forEach(el => el.style.opacity = '0');
+        const deckEl = document.getElementById('deckInfo');
+        const deckRect = deckEl ? deckEl.getBoundingClientRect() : { top: 0, left: 0 };
+        isAnimating = true;
+
+        targets.forEach((el, index) => {
+          const ghost = document.createElement('div');
+          ghost.className = 'card card-deal'; ghost.style.border = 'none'; ghost.style.background = 'transparent'; ghost.style.boxShadow = 'none';
+          ghost.style.position = 'fixed'; ghost.style.top = deckRect.top + 'px'; ghost.style.left = deckRect.left + 'px';
+          ghost.style.zIndex = '1000'; ghost.style.margin = '0';
+          ghost.innerHTML = `<img src="/cards/${selectedBack}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
+          document.body.appendChild(ghost);
+
+          const targetRect = el.getBoundingClientRect();
+          setTimeout(() => {
+            ghost.style.transition = 'all 0.3s ease-out';
+            ghost.style.top = targetRect.top + 'px'; ghost.style.left = targetRect.left + 'px';
+            setTimeout(() => { 
+                ghost.remove(); 
+                el.style.opacity = '1';
+                el.style.visibility = 'visible'; // Ensure visibility
+            }, 300);
+          }, index * 100 + 50);
+        });
+
+        // Safety reveal and state reset
+        setTimeout(() => {
+          isAnimating = false;
+          // Forced safety reveal for all cards just in case
+          document.querySelectorAll('.card').forEach(c => { c.style.opacity = '1'; c.style.visibility = 'visible'; });
+          if (mode === 'single' && engine.currentPlayer === 1) setTimeout(botTurn, 600); // Increased delay
+        }, targets.length * 100 + 500);
+      }
+    }
+
+    function togglePause() {
+      if (isAnimating || engine.roundOver || mode === 'online') return;
+      isPaused = !isPaused;
+      const overlay = document.getElementById('pauseOverlay');
+      const btn = document.getElementById('pauseBtn');
+      
+      if (isPaused) {
+        overlay.classList.add('show');
+        btn.innerHTML = '▶';
+        if (turnTimerInterval) {
+          clearInterval(turnTimerInterval);
+          turnTimerInterval = 'paused';
+        }
+      } else {
+        overlay.classList.remove('show');
+        btn.innerHTML = '⏸';
+        if (turnTimerInterval === 'paused') {
+          turnTimerInterval = null;
+          startTurnTimer(true); // Call with isResume = true
+        }
+      }
+    }
+
+    function renderHand(containerId, hand, interactive, isCurrentTurn) {
+      const el = document.getElementById(containerId);
+      const existing = Array.from(el.children);
+      const cardIds = hand.map(c => c.id);
+      existing.forEach(child => { if (!cardIds.includes(child.dataset.id)) child.remove(); });
+
+      hand.forEach((card, idx) => {
+        let div = el.querySelector(`.card[data-id="${card.id}"]`);
+        const faceDown = !interactive && mode !== 'pass';
+        if (!div) { div = makeCardEl(card, faceDown); el.appendChild(div); }
+        else {
+          const img = div.querySelector('img');
+          const targetSrc = faceDown ? `/cards/${selectedBack}` : `/cards/${card.id}.png`;
+          if (img && !img.src.includes(targetSrc)) img.src = targetSrc;
+        }
+        div.onclick = (interactive && isCurrentTurn) ? () => selectCard(card, div) : null;
+        div.draggable = (interactive && isCurrentTurn);
+        if (div.draggable) {
+          div.ondragstart = (e) => { e.dataTransfer.setData('text/plain', card.id); selectCard(card, div); };
+        }
+        div.classList.toggle('selected', !!(selectedCard && selectedCard.id === card.id));
+        
+        if (mode === 'online' && interactive && !isCurrentTurn) {
+            div.style.filter = 'grayscale(100%) brightness(0.6)';
+            div.style.pointerEvents = 'none';
+        } else {
+            div.style.filter = 'drop-shadow(2px 3px 5px rgba(0,0,0,0.4))';
+            div.style.pointerEvents = 'auto';
+        }
+        
+        if (el.children[idx] !== div) el.insertBefore(div, el.children[idx]);
+      });
+
+      // Manage Turn Timer VISUALLY
+      if (isCurrentTurn && interactive) {
+        startTurnTimer();
+      } else {
+        stopTurnTimer();
+      }
+    }
+
+    function startTurnTimer(isResume = false) {
+      if (turnTimerInterval && turnTimerInterval !== 'paused') return;
+      if (isPaused) return;
+      if (!isResume) timeLeft = 20; // Only reset if not resuming
+      const bar = document.getElementById('turn-timer-bar');
+      const container = document.getElementById('turn-timer');
+      if (container) container.style.display = 'block';
+      if (bar) bar.style.width = '100%';
+      
+      turnTimerInterval = setInterval(() => {
+        timeLeft--;
+        const pct = (timeLeft / 20) * 100;
+        bar.style.width = pct + '%';
+        
+        if (timeLeft <= 0) {
+          stopTurnTimer();
+          autoPlayRandomCard();
+        }
+      }, 1000);
+    }
+
+    function stopTurnTimer() {
+      clearInterval(turnTimerInterval);
+      turnTimerInterval = null;
+      const container = document.getElementById('turn-timer');
+      if (container) container.style.display = 'none';
+    }
+
+    function doLocalOrRemoteMove(pIdx, card, captured) {
+        if (mode === 'online') {
+            if (pIdx === myPlayerSlot) {
+                if (window.activeSocket) {
+                    window.activeSocket.emit('make-move', {
+                        cardId: card.id,
+                        capturedIds: captured.map(c => c.id)
+                    });
+                }
+                selectedCard = null; selectedCapture = null;
+                updateUI();
+            }
+        // Do NOT run local executeMove in online mode because 'move-played' socket response handles it
+        } else {
+            executeMove(pIdx, card, captured);
+        }
+    }
+
+    function autoPlayRandomCard() {
+      if (engine.currentPlayer !== 0) return;
+      if (isAnimating || isPaused || mode === 'online') return; // Don't autoplay in online mode
+      const hand = engine.players[0].hand;
+      if (hand.length === 0) return;
+      const randomCard = hand[Math.floor(Math.random() * hand.length)];
+      // Check if any capture is possible and just pick one or none
+      const res = engine.checkCapture(randomCard, engine.table);
+      const cap = res.type !== 'none' ? res.captures[0] : [];
+      doLocalOrRemoteMove(0, randomCard, cap);
+    }
+    
+    function showEstannaToast() {
+       const toast = document.createElement('div');
+       toast.className = 'chkobba-toast';
+       toast.style.background = '#e74c3c';
+       toast.style.color = '#fff';
+       toast.style.display = 'flex';
+       toast.textContent = 'Estanna dawrek...';
+       document.body.appendChild(toast);
+       requestAnimationFrame(() => toast.style.transform = 'translate(-50%, -50px)');
+       setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 1500);
+    }
+
+    function renderTable() {
+      const el = document.getElementById('tableCards');
+      if (engine.table.length === 0) {
+        el.innerHTML = '<span style="color:var(--gold-dim);font-style:italic;font-size:14px;">Table is empty</span>';
+        return;
+      }
+      if (el.querySelector('span')) el.innerHTML = '';
+
+      const colCount = Math.max(2, Math.ceil(engine.table.length / 2));
+      el.style.display = 'grid';
+      el.style.gridTemplateColumns = `repeat(${colCount}, var(--card-w))`;
+      el.style.gridTemplateRows = `repeat(2, var(--card-h))`;
+      el.style.gridAutoFlow = 'column';
+      el.style.gap = '10px';
+
+      el.ondragover = (e) => e.preventDefault();
+      const possibleRes = selectedCard ? engine.checkCapture(selectedCard, engine.table) : null;
+      const allPossibleCapturedIds = new Set();
+      if (possibleRes) { for (const capSet of possibleRes.captures) { for (const c of capSet) allPossibleCapturedIds.add(c.id); } }
+
+      const existing = Array.from(el.children);
+      const cardIds = engine.table.map(c => c.id);
+      existing.forEach(child => { if (!cardIds.includes(child.dataset.id)) child.remove(); });
+
+      engine.table.forEach((card, idx) => {
+        let div = el.querySelector(`.card[data-id="${card.id}"]`);
+        if (!div) { div = makeCardEl(card, false); el.appendChild(div); }
+        const isPartOfAny = allPossibleCapturedIds.has(card.id);
+        const isSelected = selectedCapture && selectedCapture.find(sc => sc.id === card.id);
+        div.classList.toggle('selected', !!isSelected);
+        div.classList.toggle('highlight-capture', !!isPartOfAny);
+        div.onclick = selectedCard ? () => toggleTableCapture(card, div) : null;
+        if (el.children[idx] !== div) el.insertBefore(div, el.children[idx]);
+      });
+
+      const confirmArea = document.getElementById('captureConfirmArea');
+      confirmArea.innerHTML = '';
+      if (selectedCard && selectedCapture && selectedCapture.length > 0) {
+        const sum = selectedCapture.reduce((s, c) => s + c.value, 0);
+        if (sum === selectedCard.value) {
+          const btn = document.createElement('button');
+          btn.className = 'btn-capture'; btn.style.padding = '10px 30px'; btn.style.fontSize = '14px';
+          btn.textContent = `Confirm Capture (${engine.getCardName(selectedCard)})`;
+          btn.onclick = () => doLocalOrRemoteMove(engine.currentPlayer, selectedCard, [...selectedCapture]);
+          confirmArea.appendChild(btn);
+        }
+      }
+    }
+
+    function makeCardEl(card, faceDown) {
+      const div = document.createElement('div');
+      div.className = 'card card-deal';
+      if (card && card.id) div.dataset.id = card.id;
+      div.style.border = 'none'; div.style.background = 'transparent'; div.style.boxShadow = 'none';
+      if (faceDown || !card) {
+        div.innerHTML = `<img src="/cards/${selectedBack}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
+      } else {
+        div.innerHTML = `<img src="/cards/${card.id}.png" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
+      }
+      
+      div.onmouseenter = () => {
+        if (sfxEnabled && !isAnimating && !div.classList.contains('selected')) {
+           sfxHover.currentTime = 0;
+           sfxHover.play().catch(e => e);
+        }
+      };
+      
+      return div;
+    }
+
+    function selectCard(card, el) {
+      if (isAnimating) return;
+      // online mode check: must be my turn
+      if (mode === 'online') {
+          if (engine.currentPlayer !== myPlayerSlot) {
+              showEstannaToast();
+              return;
+          }
+      } else if (mode !== 'pass') {
+          // single player: must be player 0
+          if (engine.currentPlayer !== 0) return;
+      }
+      if (selectedCard && selectedCard.id === card.id) {
+        const res = engine.checkCapture(card, engine.table);
+        if (res.type === 'none') { doLocalOrRemoteMove(engine.currentPlayer, card, []); return; }
+      }
+      selectedCard = card; selectedCapture = null;
+      const result = engine.checkCapture(card, engine.table);
+      if (result.type === 'none') { doLocalOrRemoteMove(engine.currentPlayer, card, []); return; }
+      if (result.type === 'direct' && result.captures.length === 1) { doLocalOrRemoteMove(engine.currentPlayer, card, result.captures[0]); return; }
+      selectedCapture = []; updateUI();
+      setStatus(result.type === 'direct' ? `Multiple direct matches: Click one on the table.` : `Select cards for sum: ${engine.getCardName(card)}`);
+    }
+
+    function toggleTableCapture(card, el) {
+      if (!selectedCard) return;
+      const result = engine.checkCapture(selectedCard, engine.table);
+      if (result.type === 'direct') {
+        const cap = result.captures.find(s => s[0].id === card.id);
+        if (cap) doLocalOrRemoteMove(engine.currentPlayer, selectedCard, cap);
+      } else if (result.type === 'sum') {
+        if (!selectedCapture) selectedCapture = [];
+        const exists = selectedCapture.findIndex(c => c.id === card.id);
+        if (exists >= 0) selectedCapture.splice(exists, 1);
+        else selectedCapture.push(card);
+        const sum = selectedCapture.reduce((s, c) => s + c.value, 0);
+        if (sum > selectedCard.value) selectedCapture = [card];
+        updateUI();
+      }
+    }
+
+    function playVisualMove(pidx, card, captured, onComplete) {
+      // Perspective aware: bottom is always myPlayerSlot
+      const isMeFromMyPerspective = (pidx === myPlayerSlot);
+      let startEl;
+      if (isMeFromMyPerspective) {
+          startEl = document.querySelector(`#hand-player .card[data-id="${card.id}"]`);
+      } else {
+          // For opponent, they are always 'hand-bot' from my perspective
+          startEl = document.querySelector(`#hand-bot .card[data-id="${card.id}"]`) || document.querySelector(`#hand-bot .card`);
+      }
+      if (!startEl) return onComplete();
+      const startRect = startEl.getBoundingClientRect();
+      startEl.style.opacity = '0';
+      startEl.style.pointerEvents = 'none'; // Instant non-interactive
+      startEl.style.visibility = 'hidden'; // Ensure it's gone
+      
+      if (sfxEnabled) { sfxWoosh.currentTime = 0; sfxWoosh.play().catch(e => e); }
+      
+      const ghost = makeCardEl(card, false);
+      ghost.style.position = 'fixed'; ghost.style.top = startRect.top + 'px'; ghost.style.left = startRect.left + 'px'; ghost.style.zIndex = '1000'; ghost.style.margin = '0'; ghost.style.transition = 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+      document.body.appendChild(ghost);
+      const tableEl = document.getElementById('tableCards'); const tableRect = tableEl.getBoundingClientRect();
+      const cardW = ghost.offsetWidth || 84; const cardH = ghost.offsetHeight || 126;
+      const rx = (Math.random() - 0.5) * 40; const ry = (Math.random() - 0.5) * 40;
+      const tableX = tableRect.left + tableRect.width / 2 - cardW / 2 + rx; const tableY = tableRect.top + tableRect.height / 2 - cardH / 2 + ry;
+      requestAnimationFrame(() => { ghost.style.top = tableY + 'px'; ghost.style.left = tableX + 'px'; ghost.style.transform = 'scale(1.05)'; });
+      setTimeout(() => {
+        ghost.style.transform = 'scale(1)'; if (sfxEnabled) { sfxPlay.currentTime = 0; sfxPlay.play().catch(e => e); }
+        if (captured.length === 0) { ghost.style.opacity = '0'; setTimeout(() => { ghost.remove(); onComplete(); }, 300); }
+        else {
+          const capEls = captured.map(c => document.querySelector(`#tableCards .card[data-id="${c.id}"]`));
+          capEls.forEach(el => el && el.classList.add('highlight-capture'));
+          setTimeout(() => {
+            const targetId = (pidx === myPlayerSlot) ? 'chkobba-player' : 'chkobba-bot';
+            const pileEl = document.getElementById(targetId); const pileRect = pileEl.getBoundingClientRect();
+            ghost.style.top = pileRect.top + 'px'; ghost.style.left = pileRect.left + 'px'; ghost.style.transform = 'scale(0.5)'; ghost.style.opacity = '0';
+            capEls.forEach((el, index) => {
+              if (!el) return;
+              const r = el.getBoundingClientRect(); const g = el.cloneNode(true);
+              g.style.position = 'fixed'; g.style.top = r.top + 'px'; g.style.left = r.left + 'px'; g.style.zIndex = '999'; g.style.margin = '0'; g.style.transition = `all 0.5s cubic-bezier(0.5, 0, 0.5, 1) ${index * 0.05}s`;
+              document.body.appendChild(g); el.style.opacity = '0';
+              requestAnimationFrame(() => { g.style.top = pileRect.top + 'px'; g.style.left = pileRect.left + 'px'; g.style.transform = 'scale(0.5)'; g.style.opacity = '0'; setTimeout(() => g.remove(), 600 + index * 50); });
+            });
+            setTimeout(() => { ghost.remove(); onComplete(); }, 600);
+          }, 800);
+        }
+      }, 500);
+    }
+
+    function executeMove(pidx, card, captured) {
+      if (isAnimating || isPaused) return;
+      isAnimating = true;
+      playVisualMove(pidx, card, captured, () => {
+        // Absolute last card check: only true if only 1 card remains across BOTH hands
+        const totalCardsInHands = engine.players[0].hand.length + engine.players[1].hand.length;
+        const isLastMoveOfEntireGame = engine.deck.length === 0 && totalCardsInHands === 1;
+        const { chkobba } = engine.playCard(pidx, card, captured, isLastMoveOfEntireGame);
+        const pname = engine.players[pidx].name;
+        if (captured.length > 0) {
+          const capturedNames = captured.map(c => engine.getCardName(c)).join('+');
+          addLog(`${pname} plays ${engine.getCardName(card)} → captures ${capturedNames}`, chkobba ? 'chkobba' : '');
+          if (chkobba) {
+            showChkobbaToast(pname);
+            if (sfxEnabled) { sfxChkobba.currentTime = 0; sfxChkobba.play().catch(e => e); }
+            if (window.radioPlayer) window.radioPlayer.duck();
+            addLog(`⭐ CHKOBBA! for ${pname}`, 'chkobba');
+          }
+          // 7ayya Check
+          const is7ayyaCaptured = (card.id === '7carreau' || captured.some(c => c.id === '7carreau'));
+          if (is7ayyaCaptured) {
+            show7ayyaToast(pname);
+            if (sfxEnabled) { sfx7ayya.currentTime = 0; sfx7ayya.play().catch(e => e); }
+            if (window.radioPlayer) window.radioPlayer.duck();
+            addLog(`💎 L'7AYYA! for ${pname}`, 'chkobba');
+          }
+        } else { addLog(`${pname} throws ${engine.getCardName(card)}`); }
+        selectedCard = null; selectedCapture = null; updateUI();
+        setTimeout(() => {
+          if (engine.handsEmpty()) {
+            if (engine.deckEmpty()) { 
+                engine.finalize(); isAnimating = false; showEndScreen(); 
+            } else if (mode !== 'online') { 
+                engine.dealHands(); addLog('***Jarya Jdida***'); updateUI(true); setStatus(`${engine.players[engine.currentPlayer].name}'s turn`); isAnimating = false; 
+            } else {
+                isAnimating = false; // Wait for server to emit 'deal-cards'
+            }
+          } else { 
+              updateUI(); setStatus(`${engine.players[engine.currentPlayer].name}'s turn`); isAnimating = false; if (mode === 'single' && engine.currentPlayer === 1) setTimeout(botTurn, 800); 
+          }
+        }, 200);
+      });
+    }
+
+    function botTurn() {
+      if (mode === 'online') return; // DISABLE BOT IN ONLINE MODE
+      if (engine.currentPlayer !== 1 || engine.roundOver || isPaused) return;
+      if (isAnimating) { setTimeout(botTurn, 500); return; } // Robust retry if animation still pending
+      
+      setStatus('Bot is thinking…');
+      setTimeout(() => { 
+        if (isPaused) return; // Safety check
+        const move = bot.chooseMove(1, engine.table); 
+        executeMove(1, move.card, move.captured); 
+      }, 1000); // 1s "thinking" time
+    }
+
+    function showEndScreen() {
+      if (endScreenTimer) clearInterval(endScreenTimer);
+      const result = engine.calculateRoundPoints();
+      totalScores[0] += result.pts[0]; totalScores[1] += result.pts[1];
+      document.getElementById('screen-game').style.display = 'none';
+      document.getElementById('screen-end').style.display = 'flex';
+      const s0 = totalScores[0]; const s1 = totalScores[1];
+      let title = 'Round Over', isGameOver = false;
+      if (s0 >= winScore || s1 >= winScore) {
+        if (Math.abs(s0 - s1) >= 2) { isGameOver = true; title = s0 > s1 ? `${engine.players[0].name} Wins!` : `${engine.players[1].name} Wins!`; }
+        else { title = 'Overtime! Win by 2'; }
+      }
+      document.getElementById('endTitle').textContent = title;
+      document.getElementById('endWinner').textContent = `Total: ${engine.players[0].name} ${s0}  ·  ${engine.players[1].name} ${s1}`;
+      
+      // Match Status Line
+      const matchStatus = document.getElementById('matchStatus') || document.createElement('div');
+      matchStatus.id = 'matchStatus';
+      matchStatus.className = 'match-status-line';
+      const leaderIdx = s0 >= s1 ? 0 : 1;
+      const gap = Math.abs(s0 - s1);
+      const remaining = winScore - Math.max(s0, s1);
+      if (isGameOver) {
+        matchStatus.textContent = `${engine.players[leaderIdx].name} has become the Sultan!`;
+      } else {
+        matchStatus.textContent = `Only ${remaining} points left to become the Sultan!`;
+      }
+      const endTable = document.querySelector('.end-table');
+      if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
+
+      const tbody = document.getElementById('scoreTbody'); tbody.innerHTML = '';
+      
+      const btnNextAction = document.getElementById('btn-next-action');
+      if (isGameOver) {
+          btnNextAction.textContent = 'Main Menu';
+          btnNextAction.onclick = () => {
+              if (endScreenTimer) clearInterval(endScreenTimer);
+              window.location.href = 'menu.html';
+          };
+      } else {
+          // Auto-Timer Logic for single player / pass n play
+          let timeLeftEnd = 30;
+          btnNextAction.textContent = `Next Round (30)`;
+          btnNextAction.onclick = () => {
+              if (endScreenTimer) clearInterval(endScreenTimer);
+              document.getElementById('screen-end').style.display = 'none';
+              document.getElementById('screen-game').style.display = 'flex';
+              engine.reset();
+              updateUI(true);
+              setStatus(`${engine.players[engine.currentPlayer].name}'s turn`);
+          };
+
+          endScreenTimer = setInterval(() => {
+              timeLeftEnd--;
+              if (timeLeftEnd <= 0) {
+                  clearInterval(endScreenTimer);
+                  btnNextAction.click();
+              } else {
+                  btnNextAction.textContent = `Next Round (${timeLeftEnd})`;
+              }
+          }, 1000);
+      }
+
+      const rows = [
+        { label: 'Carta', w: result.carta, note0: result.s0.cards, note1: result.s1.cards },
+        { label: 'Dineri (♦)', w: result.dineri, note0: result.s0.dineri + '♦', note1: result.s1.dineri + '♦' },
+        { label: "l7ayya (7♦)", img: "/cards/7carreau.png", w: result.sab3a, note0: result.s0.sab3a ? 'YES' : '–', note1: result.s1.sab3a ? 'YES' : '–' },
+        { label: 'Barmila', w: result.barmila, note0: `${result.s0.sevens}×7 ${result.s0.sixes}×6`, note1: `${result.s1.sevens}×7 ${result.s1.sixes}×6` },
+        { label: '⭐ Chkobba', isChkobba: true, w: result.chkobba0 > result.chkobba1 ? 0 : result.chkobba1 > result.chkobba0 ? 1 : -1, note0: `×${result.chkobba0}`, note1: `×${result.chkobba1}` },
+      ];
+      for (const row of rows) {
+        const tr = document.createElement('tr');
+        if (row.isChkobba && (result.chkobba0 > 0 || result.chkobba1 > 0)) tr.classList.add('pulse-win');
+
+        if (row.w === -1 && row.label !== '⭐ Chkobba') {
+          tr.innerHTML = `<td style="text-align:left">${row.label}</td><td colspan="2" style="color:var(--gold); font-style:italic; letter-spacing:4px; font-weight:900">- BAJI -</td>`;
+        } else {
+          let n0 = row.note0, n1 = row.note1;
+          if (row.img) {
+            n0 = row.note0 === 'YES' ? `<img src="${row.img}" class="mini-card">` : '–';
+            n1 = row.note1 === 'YES' ? `<img src="${row.img}" class="mini-card">` : '–';
+          }
+          tr.innerHTML = `<td style="text-align:left">${row.label}</td><td style="color:${row.w === 0 ? 'var(--gold)' : 'var(--parchment)'}">${n0}</td><td style="color:${row.w === 1 ? 'var(--gold)' : 'var(--parchment)'}">${n1}</td>`;
+        }
+        tbody.appendChild(tr);
+      }
+      const trTotal = document.createElement('tr'); trTotal.className = 'total-row'; trTotal.innerHTML = `<td style="text-align:left"><span class="rachma-label">Rachma</span></td><td>+${result.pts[0]}</td><td>+${result.pts[1]}</td>`;
+      tbody.appendChild(trTotal);
+
+      // Match Status Line
+      const mStatus = document.getElementById('matchStatus');
+      const leadingIdx = s0 >= s1 ? 0 : 1;
+      const pointsLeft = winScore - Math.max(s0, s1);
+      if (isGameOver) {
+          mStatus.innerHTML = `🏁 <span style="color:var(--gold)">${engine.players[leadingIdx].name}</span> is the Sultan of Tunisia!`;
+      } else {
+          mStatus.textContent = `Only ${pointsLeft} points left to become the Sultan!`;
+      }
+
+      const btnGame = document.getElementById('btn-next-action');
+      btnGame.classList.add('gold-glow-btn'); // Add glow
+      if (isGameOver) { btnGame.textContent = 'Main Menu'; btnGame.onclick = () => showMenu(); }
+      else { btnGame.textContent = 'Next Round'; btnGame.onclick = () => { btnGame.classList.remove('gold-glow-btn'); startNextRound(); }; }
+    }
+
+    function startNextRound() {
+      engine.deck = engine._buildDeck(); engine._shuffle(engine.deck); engine.table = [];
+      engine.players[0].hand = []; engine.players[0].pile = []; engine.players[0].chkobba = 0; engine.players[0].chkobbas = [];
+      engine.players[1].hand = []; engine.players[1].pile = []; engine.players[1].chkobba = 0; engine.players[1].chkobbas = [];
+      
+      firstPlayerOfRound = 1 - firstPlayerOfRound;
+      engine.currentPlayer = firstPlayerOfRound;
+      
+      engine.lastCaptor = -1; engine.roundOver = false; engine.dealInitial();
+      document.getElementById('screen-end').style.display = 'none'; document.getElementById('screen-game').style.display = 'flex';
+      document.getElementById('logArea').innerHTML = ''; addLog(`--- Round ${totalScores[0]} to ${totalScores[1]} ---`);
+      isAnimating = false; updateUI(true); setStatus(`${engine.players[engine.currentPlayer].name}'s turn`);
+    }
+
+    function setStatus(msg) { document.getElementById('statusBar').textContent = msg; }
+    function addLog(msg, cls = '') {
+      const log = document.getElementById('logArea'); const el = document.createElement('div'); el.className = 'log-entry' + (cls ? ' ' + cls : ''); el.textContent = msg;
+      log.appendChild(el); log.scrollTop = log.scrollHeight; if (log.children.length > 5) { while (log.children.length > 5) log.removeChild(log.firstChild); }
+    }
+    function showChkobbaToast(pname) {
+      const t = document.getElementById('chkobbaToast');
+      t.textContent = `⭐ CHKOBBA! (${pname})`;
+      t.classList.add('show');
+      document.body.classList.add('shake-screen');
+      setTimeout(() => {
+        t.classList.remove('show');
+        document.body.classList.remove('shake-screen');
+      }, 1500);
+    }
+
+    function show7ayyaToast(pname) {
+      const t = document.getElementById('hayyaToast');
+      t.textContent = `💎 L'7AYYA! (${pname})`;
+      t.classList.add('show');
+      document.body.classList.add('shake-screen');
+      setTimeout(() => {
+        t.classList.remove('show');
+        document.body.classList.remove('shake-screen');
+      }, 1500);
+    }
+    function showEkherJarya() { const el = document.getElementById('ekherJarya'); if (el.classList.contains('show')) return; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2500); }
+
+    // Removed redundant rules logic
+    window.addEventListener('beforeunload', (e) => {
+      // Logic: Only warn if a game is active and NOT finished
+      if (engine && !engine.roundOver) {
+        e.preventDefault();
+        e.returnValue = ''; // Setting returnValue triggers the browser's standard confirmation
+      }
+    });
+
+    window.onload = () => {
+      const p = new URLSearchParams(window.location.search); const m = p.get('mode');
+      if (m) {
+        const name = p.get('name') || '';
+        const sfx = p.get('sfx') !== '0';
+        const back = p.get('back') || 'back.png';
+        const target = p.get('targetScore') || p.get('score') || '21';
+        startGame(m, name, sfx, back, target);
+      }
+      else { showMenu(); }
+    };
+  </script>
+  <script src="/js/radio.js"></script>
+</div>
+</body>
+</html>
