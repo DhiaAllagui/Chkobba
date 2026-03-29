@@ -74,6 +74,41 @@ body::after {
   box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(201, 168, 76, 0.1);
 }
 
+.bg-logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70vw;
+  height: 70vh;
+  background: url('/img/Chkobbalogo.png') center/contain no-repeat;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.lobby-choice-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 5px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.flag-icon {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* ── SCREENS ── */
 #screen-menu,
 #screen-game,
@@ -1602,6 +1637,32 @@ body.menu-page .menu-btn {
     min-height: 100svh;
   }
 
+  .corner-pile {
+    border: none !important;
+  }
+
+  .corner-pile.bottom-right {
+    bottom: 80px !important;
+    right: 20px !important;
+    transform: scale(0.75);
+  }
+
+  .corner-pile.top-left {
+    top: 80px !important;
+    left: 20px !important;
+    transform: scale(0.75);
+  }
+
+  .table-cards {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .card {
+    border: none !important;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.4) !important;
+  }
+
   .menu-wrap {
     max-width: 100%;
     padding: 12px 16px;
@@ -1689,18 +1750,32 @@ body.menu-page .menu-btn {
     z-index: 2000;
   }
 
-  .bot-info-panel {
-    top: 6px;
-    left: 6px;
-    right: auto;
-    bottom: auto;
+  .bot-info-panel, .info-top {
+    top: 60px !important;
+    left: 6px !important;
+    right: auto !important;
+    bottom: auto !important;
   }
 
-  .player-info-panel {
-    bottom: 6px;
-    left: 6px;
-    right: auto;
-    top: auto;
+  .player-info-panel, .info-bottom {
+    bottom: 60px !important;
+    left: 6px !important;
+    right: auto !important;
+    top: auto !important;
+  }
+
+  .p2-left {
+    bottom: 60px !important;
+    right: 6px !important;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  .p3-right {
+    top: 60px !important;
+    right: 74px !important; /* Avoid hamburger and pause buttons */
+    left: auto !important;
+    bottom: auto !important;
   }
 
   .player-avatar {
@@ -1878,6 +1953,18 @@ body.menu-page .menu-btn {
 
   #zone-player {
     padding: 2px 0 6px;
+  }
+
+  .corner-pile.bottom-right {
+    bottom: 75px !important;
+    right: 10px !important;
+    transform: scale(0.7);
+  }
+
+  .corner-pile.top-left {
+    top: 75px !important;
+    left: 10px !important;
+    transform: scale(0.7);
   }
 
   /* Table cards — 2 columns of 2 rows = 4 cards fit perfectly */
@@ -2353,7 +2440,7 @@ body.menu-page .menu-btn {
   position: fixed;
   bottom: 20px;
   left: 20px;
-  z-index: 900;
+  z-index: 3000;
   user-select: none;
 }
 
@@ -2979,18 +3066,18 @@ body.menu-page .menu-btn {
   .chat-menu {
     position: absolute;
     bottom: 40px;
-    right: -5px;
-    width: 180px;
+    left: -10px;
+    width: 250px;
     background: rgba(18, 18, 18, 0.98);
     border: 1px solid var(--gold);
     border-radius: 12px;
     padding: 8px;
     display: none;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 4px;
     z-index: 1001;
     box-shadow: 0 10px 40px rgba(0,0,0,0.9);
-    transform-origin: bottom right;
+    transform-origin: bottom left;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
