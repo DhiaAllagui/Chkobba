@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
 
 
 :root {
@@ -165,7 +165,7 @@ body::after {
   gap: 8px;
 }
 
-/* ── SCREENS ── */
+/* â”€â”€ SCREENS â”€â”€ */
 #screen-menu,
 #screen-game,
 #screen-end {
@@ -179,7 +179,7 @@ body::after {
   justify-content: center;
 }
 
-/* ── LOBBY BASE ── */
+/* â”€â”€ LOBBY BASE â”€â”€ */
 .lobby-wrap {
   width: 100%;
   max-width: 480px;
@@ -264,7 +264,7 @@ body::after {
   }
 }
 
-/* ── SHARED MENU STYLES ── */
+/* â”€â”€ SHARED MENU STYLES â”€â”€ */
 .menu-ornament {
   font-family: 'Cinzel', serif;
   font-size: 13px;
@@ -567,7 +567,7 @@ body::after {
 }
 
 .settings-check-label input[type=checkbox]:checked::after {
-  content: '✓';
+  content: 'âœ“';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -750,7 +750,7 @@ body.menu-page .menu-btn {
   opacity: 0.6;
 }
 
-/* ── GAME LAYOUT ── */
+/* â”€â”€ GAME LAYOUT â”€â”€ */
 #screen-game {
   display: none;
   flex-direction: column;
@@ -795,6 +795,7 @@ body.menu-page .menu-btn {
   z-index: 2000;
   transition: border-color 0.3s, transform 0.2s;
   pointer-events: auto;
+  bottom: -80px;
 }
 
 /* Specific 1v1 refinements if needed */
@@ -808,7 +809,7 @@ body.menu-page .menu-btn {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(50, 255, 50, 0.2);
 }
 
-/* ── Side player color themes ── */
+/* â”€â”€ Side player color themes â”€â”€ */
 .p2-left {
   border-color: rgba(255, 200, 100, 0.5) !important; /* Gold/Amber */
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 150, 50, 0.2);
@@ -819,7 +820,7 @@ body.menu-page .menu-btn {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(50, 100, 255, 0.2);
 }
 
-/* ── 2v2 MODE: Side Player Panels ── */
+/* â”€â”€ 2v2 MODE: Side Player Panels â”€â”€ */
 /* Hidden by default (1v1 and single-player mode) */
 .side-zone {
   display: none !important;
@@ -871,7 +872,7 @@ body.menu-page .menu-btn {
   right: 220px;
 }
 
-/* ── VERTICAL HANDS FOR SIDE PLAYERS ── */
+/* â”€â”€ VERTICAL HANDS FOR SIDE PLAYERS â”€â”€ */
 .hand-vertical {
   display: flex !important;
   flex-direction: column !important;
@@ -899,7 +900,7 @@ body.menu-page .menu-btn {
   margin: 0 -15px;
 }
 
-/* ── TURN INDICATOR (compass arrows) ── */
+/* â”€â”€ TURN INDICATOR (compass arrows) â”€â”€ */
 .turn-indicator {
   position: fixed;
   top: 50%;
@@ -1051,7 +1052,7 @@ body.menu-page .menu-btn {
   border: 1px solid rgba(201, 168, 76, 0.15);
 }
 
-/* ── CARDS ── */
+/* â”€â”€ CARDS â”€â”€ */
 .card {
   width: var(--card-w);
   height: var(--card-h);
@@ -1284,7 +1285,7 @@ body.menu-page .menu-btn {
   margin-top: 1px;
 }
 
-/* ── LOG ── */
+/* â”€â”€ LOG â”€â”€ */
 .log-area {
   position: fixed;
   right: 28px;
@@ -1330,7 +1331,7 @@ body.menu-page .menu-btn {
   }
 }
 
-/* ── STATUS BAR ── */
+/* â”€â”€ STATUS BAR â”€â”€ */
 .status-bar {
   text-align: center;
   font-family: 'Cinzel', serif;
@@ -1341,7 +1342,7 @@ body.menu-page .menu-btn {
   transition: opacity 0.3s;
 }
 
-/* ── ACTION BTN ── */
+/* â”€â”€ ACTION BTN â”€â”€ */
 .action-btn {
   font-family: 'Cinzel', serif;
   font-size: 13px;
@@ -1362,7 +1363,7 @@ body.menu-page .menu-btn {
   display: inline-block;
 }
 
-/* ── END SCREEN ── */
+/* â”€â”€ END SCREEN â”€â”€ */
 #screen-end {
   flex-direction: column;
   gap: 20px;
@@ -1386,26 +1387,40 @@ body.menu-page .menu-btn {
 
 .score-table {
   border-collapse: collapse;
-  min-width: 360px;
-  margin: 0 auto;
+  min-width: 320px;
+  margin: 10px auto;
+  table-layout: fixed; /* Ensuring stable 3-column layout */
+  width: 100%;
+  max-width: 480px;
 }
 
 .score-table th {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 3px;
+  font-size: 10px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--gold-dim);
-  padding: 6px 20px;
+  padding: 12px 10px;
   border-bottom: 1px solid var(--gold-dim);
+  opacity: 0.8;
 }
 
 .score-table td {
-  padding: 8px 20px;
-  font-size: 16px;
+  padding: 14px 10px;
+  font-size: 18px;
   color: var(--parchment);
-  border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.22); /* Elegant Gold Separator */
   text-align: center;
+  vertical-align: middle; /* Vertical centering */
+}
+
+.scoreboard-icon {
+  max-height: 30px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 .score-table tr.total-row td {
@@ -1429,7 +1444,7 @@ body.menu-page .menu-btn {
   display: inline-block;
 }
 
-/* ── CAPTURE BUTTON ── */
+/* â”€â”€ CAPTURE BUTTON â”€â”€ */
 .btn-capture {
   font-family: 'Cinzel', serif;
   background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
@@ -1481,6 +1496,12 @@ body.menu-page .menu-btn {
 .confirm-overlay.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+#screen-game {
+  position: relative;
+  flex: 1;
+  width: 100%;
 }
 
 .confirm-window {
@@ -1564,7 +1585,7 @@ body.menu-page .menu-btn {
   }
 }
 
-/* ── EKHER JARYA ── */
+/* â”€â”€ EKHER JARYA â”€â”€ */
 .ekher-jarya-toast {
   position: fixed;
   top: 50%;
@@ -1592,7 +1613,7 @@ body.menu-page .menu-btn {
 }
 
 
-/* ── ANIMATIONS ── */
+/* â”€â”€ ANIMATIONS â”€â”€ */
 @keyframes dealCard {
   from {
     opacity: 0;
@@ -1623,7 +1644,7 @@ body.menu-page .menu-btn {
   animation: captureFlash 0.5s ease forwards;
 }
 
-/* ── CHKOBBA TOAST ── */
+/* â”€â”€ CHKOBBA TOAST â”€â”€ */
 .chkobba-toast {
   position: fixed;
   top: 50%;
@@ -1773,9 +1794,9 @@ body.menu-page .menu-btn {
   z-index: -1;
 }
 
-/* ═══════════════════════════════════════════════
-   RESPONSIVE — Tablet  ≤ 768px
-   ═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RESPONSIVE â€” Tablet  â‰¤ 768px
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 768px) {
   :root {
     --card-w: 72px;
@@ -1786,7 +1807,7 @@ body.menu-page .menu-btn {
     display: none;
   }
 
-  /* ── Menu ── */
+  /* â”€â”€ Menu â”€â”€ */
   body.menu-page {
     justify-content: flex-start;
     padding: 12px 0 80px;
@@ -1839,7 +1860,7 @@ body.menu-page .menu-btn {
     padding: 10px 14px;
   }
 
-  /* ── Game — fill screen, no dead space ── */
+  /* â”€â”€ Game â€” fill screen, no dead space â”€â”€ */
   #screen-game {
     height: 100svh;
     min-height: 0;
@@ -1895,7 +1916,7 @@ body.menu-page .menu-btn {
     min-height: 0;
   }
 
-  /* Player info panels — pill, top-left & bottom-left */
+  /* Player info panels â€” pill, top-left & bottom-left */
   .player-info {
     width: auto;
     min-width: 70px;
@@ -1958,7 +1979,7 @@ body.menu-page .menu-btn {
     display: none;
   }
 
-  /* Deck — right side, vertically centred */
+  /* Deck â€” right side, vertically centred */
   .deck-pile {
     position: fixed;
     right: 6px;
@@ -1980,7 +2001,7 @@ body.menu-page .menu-btn {
     height: 36px;
   }
 
-  /* Log — hidden */
+  /* Log â€” hidden */
   .log-area {
     display: none;
   }
@@ -2041,16 +2062,16 @@ body.menu-page .menu-btn {
   }
 }
 
-/* ═══════════════════════════════════════════════
-   RESPONSIVE — Mobile  ≤ 480px
-   ═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RESPONSIVE â€” Mobile  â‰¤ 480px
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 480px) {
   :root {
     --card-w: 62px;
     --card-h: 93px;
   }
 
-  /* ── Menu ── */
+  /* â”€â”€ Menu â”€â”€ */
   .menu-title {
     font-size: clamp(30px, 12vw, 48px);
   }
@@ -2097,13 +2118,13 @@ body.menu-page .menu-btn {
     font-size: 13px;
   }
 
-  /* ── Game — ultra-compact portrait ── */
+  /* â”€â”€ Game â€” ultra-compact portrait â”€â”€ */
   #screen-game {
     padding: 4px;
     gap: 0;
   }
 
-  /* Bot hand — smaller gap at top */
+  /* Bot hand â€” smaller gap at top */
   #zone-bot {
     padding: 2px 0;
   }
@@ -2124,7 +2145,7 @@ body.menu-page .menu-btn {
     transform: scale(0.7);
   }
 
-  /* Table cards — 2 columns of 2 rows = 4 cards fit perfectly */
+  /* Table cards â€” 2 columns of 2 rows = 4 cards fit perfectly */
   .table-cards {
     grid-template-columns: repeat(2, var(--card-w));
     grid-template-rows: repeat(2, var(--card-h));
@@ -2224,7 +2245,7 @@ body.menu-page .menu-btn {
   }
 }
 
-/* ── Touch: generous tap targets ── */
+/* â”€â”€ Touch: generous tap targets â”€â”€ */
 @media (hover: none) and (pointer: coarse) {
   .card {
     min-width: 44px;
@@ -2284,7 +2305,7 @@ body.menu-page .menu-btn {
 
 
 
-/* ── HAMBURGER MENU ── */
+/* â”€â”€ HAMBURGER MENU â”€â”€ */
 .hamburger-menu {
   position: fixed;
   top: 20px;
@@ -2422,7 +2443,7 @@ body.menu-page .menu-btn {
   opacity: 1;
 }
 
-/* ── MODAL (GLASSMORPHISM) ── */
+/* â”€â”€ MODAL (GLASSMORPHISM) â”€â”€ */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -2592,7 +2613,7 @@ body.menu-page .menu-btn {
   background: var(--gold);
 }
 
-/* ── TUNISIAN CAFÉ RADIO — FAB (Floating Action Button) ── */
+/* â”€â”€ TUNISIAN CAFÃ‰ RADIO â€” FAB (Floating Action Button) â”€â”€ */
 .radio-widget {
   position: fixed;
   bottom: 20px;
@@ -2634,13 +2655,13 @@ body.menu-page .menu-btn {
   opacity: 1;
 }
 
-/* Active FAB — gold glow when music is playing */
+/* Active FAB â€” gold glow when music is playing */
 .radio-widget.radio-active .radio-fab {
   border-color: var(--gold);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 168, 76, 0.35);
 }
 
-/* The expandable panel — hidden by default, slides up on .radio-open */
+/* The expandable panel â€” hidden by default, slides up on .radio-open */
 .radio-panel {
   position: absolute;
   bottom: calc(100% + 10px);
@@ -2854,7 +2875,7 @@ body.menu-page .menu-btn {
 }
 
 
-/* ── SCREEN SHAKE (Horizontal & Fast) ── */
+/* â”€â”€ SCREEN SHAKE (Horizontal & Fast) â”€â”€ */
 @keyframes shakeHorizontal {
 
   0%,
@@ -2885,9 +2906,9 @@ body.menu-page .menu-btn {
   perspective: 1000px;
 }
 
-/* ═══════════════════════════════════════════════
-   END SCREEN — Base button row
-   ═══════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   END SCREEN â€” Base button row
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .end-btn-row {
   display: flex;
   gap: 16px;
@@ -2901,11 +2922,11 @@ body.menu-page .menu-btn {
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PORTRAIT OVERLAY
    Shows a "rotate your phone" message when a
    mobile user is playing in portrait mode.
-   ═══════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .portrait-overlay {
   position: fixed;
   inset: 0;
@@ -2969,10 +2990,10 @@ body.menu-page .menu-btn {
   color: var(--gold);
 }
 
-/* ═══════════════════════════════════════════════
-   LANDSCAPE MEDIA — Game-screen specific
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   LANDSCAPE MEDIA â€” Game-screen specific
    Optimised portrait stacking on narrow phones
-   ═══════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (orientation: portrait) and (max-width: 600px) {
 
   /* Stack opponent at the very top, player at the bottom */
@@ -2985,17 +3006,17 @@ body.menu-page .menu-btn {
     order: 0;
   }
 
-  /* Opponent hand — TOP    */
+  /* Opponent hand â€” TOP    */
   .table-area {
     order: 1;
   }
 
-  /* Table — MIDDLE         */
+  /* Table â€” MIDDLE         */
   #zone-player {
     order: 2;
   }
 
-  /* Player hand — BOTTOM  */
+  /* Player hand â€” BOTTOM  */
 
   /* Keep player info panels out of the way */
   .bot-info-panel {
@@ -3013,7 +3034,7 @@ body.menu-page .menu-btn {
   }
 }
 
-/* Landscape phones — give more breathing room */
+/* Landscape phones â€” give more breathing room */
 @media (orientation: landscape) and (max-height: 500px) {
   #screen-game {
     padding: 4px 6px;
@@ -3130,7 +3151,7 @@ body.menu-page .menu-btn {
     transform: scale(1.05);
   }
 
-  /* ── 3D CARD LOADER ── */
+  /* â”€â”€ 3D CARD LOADER â”€â”€ */
   .waiting-indicator {
     display: flex;
     flex-direction: column;
@@ -3190,7 +3211,7 @@ body.menu-page .menu-btn {
     100% { transform: rotateY(360deg); }
   }
 
-  /* ── CHAT SYSTEM ── */
+  /* â”€â”€ CHAT SYSTEM â”€â”€ */
   .chat-btn {
     position: absolute;
     top: -10px;
@@ -3384,3 +3405,267 @@ body.menu-page .menu-btn {
   
   .lobby-chair.occupied .chair-join-icon { display: none; }
   .lobby-chair:not(.occupied) .chair-name { display: none; }
+/* -- TABLE FLIP (TAWLA MATLOUBA) -- */
+@keyframes flyOff {
+    0% { transform: scale(1) rotate(var(--initial-rot, 0deg)); opacity: 1; }
+    100% { 
+        transform: translateY(-1000px) translateX(var(--random-x, 0px)) rotate(720deg); 
+        opacity: 0; 
+    }
+}
+
+.card.flip-away {
+    animation: flyOff 0.8s ease-in forwards !important;
+    pointer-events: none !important;
+    z-index: 9999 !important;
+}
+
+/* â”€â”€ FOCUS MODE BUTTON â”€â”€ */
+.focus-btn {
+  position: fixed;
+  bottom: 22px;
+  left: 140px;
+  padding: 0 16px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 20px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.focus-btn:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4);
+}
+
+.focus-btn.active {
+  background: rgba(201, 168, 76, 0.25);
+  border-color: var(--gold);
+  color: #fff;
+  text-shadow: 0 0 8px var(--gold);
+}
+
+
+/* â”€â”€ VICTORY OVERLAY â”€â”€ */
+#victory-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Reduced opacity to see scoreboard */
+  backdrop-filter: blur(4px);    /* Reduced blur */
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+  overflow: hidden;
+  pointer-events: none; /* Allow interaction with scoreboard behind the rain */
+}
+
+.card-particle {
+  position: absolute;
+  top: -50px;
+  font-size: 24px;
+  color: var(--gold);
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 20001;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  animation: cardFall linear forwards;
+}
+
+@keyframes zoomBounce {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes cardFall {
+  0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+} 
+
+/* -- CHKOBBA STREAK BADGE -- */
+.player-info {
+  position: relative; /* Anchor for the badge */
+}
+
+/* ── CHKOBBA STREAK BADGE ── */
+.player-info {
+  position: relative;
+}
+
+.streak-badge {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    background: linear-gradient(45deg, #ff4500, #ff8c00);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.7);
+    z-index: 5;
+    display: none;
+}
+
+.streak-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 1px;
+    object-fit: contain;
+}
+
+/* ── STREAK BADGE ── */
+.streak-badge {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    background: linear-gradient(45deg, #ff4500, #ff8c00);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 12px rgba(255, 69, 0, 0.8), inset 0 0 5px rgba(0,0,0,0.5);
+    z-index: 100;
+    display: none;
+    animation: streak-pulse 1.2s infinite;
+}
+
+.streak-badge img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+.streak-count {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: #000;
+    color: #fff;
+    font-size: 9px;
+    padding: 0 4px;
+    border-radius: 10px;
+    border: 1px solid var(--gold);
+    font-weight: 900;
+}
+
+@keyframes streak-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 69, 0, 0.8); }
+  50% { transform: scale(1.15); box-shadow: 0 0 20px rgba(255, 69, 0, 1); }
+  100% { transform: scale(1); box-shadow: 0 0 12px rgba(255, 69, 0, 0.8); }
+}
+
+/* ── LOBBY VS LAYOUT ── */
+.lobby-vs-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin: 30px 0;
+    width: 100%;
+}
+
+.lobby-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 150px;
+}
+
+.lobby-vs-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 20px rgba(201, 168, 76, 0.6);
+    animation: vs-glow 2s infinite alternate;
+}
+
+.lobby-pfp-wrap {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--gold-dim);
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lobby-pfp-wrap.placeholder {
+    border-style: dashed;
+    border-color: rgba(201, 168, 76, 0.3);
+}
+
+.lobby-pfp-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lobby-pfp-wrap .placeholder-icon {
+    font-size: 40px;
+    color: rgba(201, 168, 76, 0.2);
+}
+
+.lobby-player-name {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: var(--gold-light);
+    text-align: center;
+}
+
+@keyframes vs-glow {
+    from { transform: scale(1); opacity: 0.8; }
+    to { transform: scale(1.1); opacity: 1; }
+}
+
+/* ── PLAYER INFO STABILITY ── */
+.player-info {
+    flex-shrink: 0;
+    min-width: 120px; /* Locked width to prevent layout shifts */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    transition: transform 0.3s;
+} 
+
+/* ── LAYOUT STABILITY ── */
+.hand {
+    width: 350px !important;
+    min-width: 350px !important;
+    justify-content: center !important;
+} 

@@ -704,8 +704,7 @@
               <label class="settings-check-label">
                 <input type="checkbox" id="menu-sfx" checked>
                 <span class="settings-check-custom"></span>
-                <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> <span
-                    data-i18n="sfxLabel">Enable Sound Effects</span></span>
+                <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> <span data-i18n="sfxLabel">Enable Sound Effects</span></span>
               </label>
             </div>
             <div class="settings-row" style="justify-content: center; margin-top: 15px;">
@@ -844,7 +843,9 @@
             <div class="party-code-label">PARTY CODE</div>
             <div class="party-code" id="host-code">CK-••••</div>
             <div class="party-code-actions">
-              <button class="code-share-btn" onclick="copyCode()">📋 Copy Code</button>
+              <button class="code-share-btn" onclick="copyCode()">
+                <img src="/img/copy.png" class="btn-icon" style="margin-right:8px; width:16px; height:16px;"> Copy Code
+              </button>
               <button class="code-share-btn" id="shareInviteBtn" onclick="shareInvite()">
                 <img src="/img/share.png" class="btn-icon" style="margin-right:0px; width:16px; height:16px;"> Share
                 Invite
@@ -1250,13 +1251,39 @@
           document.getElementById('flat-list-container').style.display = 'block';
           document.getElementById('guest-flat-list-container').style.display = 'block';
 
-          hList.innerHTML = '';
-          gList.innerHTML = '';
-          players.forEach(p => {
-            const el = createPlayerEntry(p);
-            hList.appendChild(el.cloneNode(true));
-            gList.appendChild(el);
-          });
+          const render1v1VS = (containerId) => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const host = players[0];
+            const guest = players[1]; // Might be undefined
+            
+            container.innerHTML = `
+              <div class="lobby-vs-container">
+                <!-- Host -->
+                <div class="lobby-side">
+                  <div class="lobby-pfp-wrap">
+                    <img src="${host ? host.avatar : '/img/pfp.jpg'}" onerror="this.src='/img/pfp.jpg'">
+                  </div>
+                  <div class="lobby-player-name">${host ? host.name : 'Host'}</div>
+                </div>
+                
+                <!-- VS Badge -->
+                <div class="lobby-vs-badge">VS</div>
+                
+                <!-- Guest / Placeholder -->
+                <div class="lobby-side">
+                  <div class="lobby-pfp-wrap ${!guest ? 'placeholder' : ''}">
+                    ${guest ? `<img src="${guest.avatar}" onerror="this.src='/img/pfp.jpg'">` : '<span class="placeholder-icon">?</span>'}
+                  </div>
+                  <div class="lobby-player-name">${guest ? guest.name : 'Waiting for player...'}</div>
+                </div>
+              </div>
+            `;
+          };
+
+          render1v1VS('host-player-list');
+          render1v1VS('guest-player-list');
         }
         // --- 2v2 View: Square Table Chairs ---
         else {
@@ -1521,6 +1548,7 @@
           <div class="hand" id="hand-bot"></div>
           <!-- Moved player-info-panel for top player right next to the hand -->
           <div class="player-info info-top mode-2v2-info">
+            <div class="streak-badge" id="streak-bot">🔥0</div>
             <img class="player-avatar" id="pfp-bot" src="/img/botpfp.png" alt="Bot">
             <div class="player-name" id="name-bot">Chkobba Master</div>
             <div class="player-score-display" id="score-bot">0</div>
@@ -1531,6 +1559,7 @@
         <div class="player-zone side-zone zone-left" id="zone-p2" style="display:none;">
           <div class="hand hand-vertical" id="hand-p2"></div>
           <div class="player-info p2-left mode-2v2-info" id="p2-info">
+            <div class="streak-badge" id="streak-p2">🔥0</div>
             <img class="player-avatar" id="pfp-p2" src="/img/pfp.jpg" alt="P2">
             <div class="player-name" id="name-p2">Player</div>
             <div class="player-score-display" id="score-p2">0</div>
@@ -1551,6 +1580,7 @@
         <div class="player-zone side-zone zone-right" id="zone-p3" style="display:none;">
           <div class="hand hand-vertical" id="hand-p3"></div>
           <div class="player-info p3-right mode-2v2-info" id="p3-info">
+            <div class="streak-badge" id="streak-p3">🔥0</div>
             <img class="player-avatar" id="pfp-p3" src="/img/pfp.jpg" alt="P3">
             <div class="player-name" id="name-p3">Player</div>
             <div class="player-score-display" id="score-p3">0</div>
@@ -1562,6 +1592,7 @@
           <div class="hand" id="hand-player"></div>
           <!-- Moved player-info-panel for bottom player right next to the hand -->
           <div class="player-info info-bottom mode-2v2-info">
+            <div class="streak-badge" id="streak-player">🔥0</div>
             <!-- Quick Chat Menu (Moved here to anchor correctly) -->
             <div class="chat-menu" id="chatMenu">
               <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
@@ -1584,14 +1615,22 @@
               <div class="chat-phrase" onclick="sendChat('c18')" data-i18n="c18">nchala sne</div>
             </div>
 
-            <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
-              <img src="/img/message.png" alt="Chat">
-            </button>
             <img class="player-avatar" id="pfp-player" src="/img/pfp.jpg" alt="You">
             <div class="player-name" id="name-player">You</div>
             <div class="player-score-display" id="score-player">0</div>
+            
+            <div style="display:flex; flex-direction:column; gap:8px; margin-left:12px;">
+              <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
+                <img src="/img/message.png" alt="Chat">
+              </button>
+              <button class="focus-btn" id="focusBtn" onclick="toggleFocusMode()" title="Focus Mode (Ambience Toggle)">
+                <img src="/img/focus.png" alt="Focus" id="focusIcon" style="width:18px; height:18px; opacity:0.8; margin-right:6px;">
+                <span data-i18n="focus" style="font-family:'Cinzel', serif; font-size:10px; letter-spacing:1px; font-weight:700;">FOCUS</span>
+              </button>
+            </div>
           </div>
         </div>
+         
         <!-- Old info panels were moved into zones above -->
         <!-- Turn indicator: compass arrows, always present, styled per mode -->
         <div class="turn-indicator" id="turnIndicator">
@@ -1625,9 +1664,9 @@
         <table class="score-table" id="scoreTable">
           <thead>
             <tr>
-              <th data-i18n="category">Category</th>
-              <th id="th-p1">You</th>
-              <th id="th-p2">Chkobba Master</th>
+              <th id="th-p1" style="text-align:left">You</th>
+              <th>Category</th>
+              <th id="th-p2" style="text-align:right">Opponent</th>
             </tr>
           </thead>
           <tbody id="scoreTbody"></tbody>
@@ -1678,6 +1717,17 @@
         const sfx7ayya = new Audio('/sound/7ayya.mp3');
         const sfxHover = new Audio('/sound/hover.mp3');
         const sfxWoosh = new Audio('/sound/woosh.mp3');
+        const sfxWood = new Audio('/sound/woodbreaking.mp3');
+    const sfxFire = new Audio('/sound/fire.mp3'); // NEW FIRE SFX
+        const sfxCheer = new Audio('/sound/cheer.mp3');
+        
+        // Immersive Ambience & Focus Mode
+        const sfxAmbience = new Audio('/sound/cafeambience.mp3');
+        sfxAmbience.loop = true;
+        sfxAmbience.volume = 0.5;
+        const sfxFocusStart = new Audio('/sound/focus.mp3');
+        let isFocusMode = false;
+        let fadeInterval = null;
 
         // ═══════════════════════════════════════════════════════════
         //  GAME ENGINE
@@ -1745,16 +1795,21 @@
           }
 
           dealInitial() {
-            // 4 cards to table
-            for (let i = 0; i < 4; i++) this.table.push(this.deck.pop());
-            // 3 cards each
+            // New Hand: 4 cards to table + 3 cards each (START OF JARYA ONLY)
+            this.table = [];
+            for (let i = 0; i < 4; i++) {
+                if (this.deck.length) this.table.push(this.deck.pop());
+            }
             this.dealHands();
           }
 
           dealHands() {
-            for (const p of this.players)
-              for (let i = 0; i < 3; i++)
+            // New Round: 3 cards each (MID-GAME DEAL)
+            for (const p of this.players) {
+              for (let i = 0; i < 3; i++) {
                 if (this.deck.length) p.hand.push(this.deck.pop());
+              }
+            }
           }
 
           handsEmpty() {
@@ -2007,13 +2062,146 @@
         function showMenu() {
           if (engine && !engine.roundOver) {
             showConfirm("Are you sure you want to quit the game?", () => {
-              cleanupGame();
-              showView('view-menu');
+              triggerTableFlip(() => {
+                stopAmbience(); // Ensure audio stops on quit
+                cleanupGame();
+                showView('view-menu');
+              });
             });
             return;
           }
+          stopAmbience();
           cleanupGame();
           showView('view-menu');
+        }
+
+        function fadeAudio(audio, targetVolume, duration, callback) {
+          if (fadeInterval) clearInterval(fadeInterval);
+          const startVol = audio.volume;
+          const steps = 30; // Smooth steps
+          const stepLength = duration / steps;
+          const volStep = (targetVolume - startVol) / steps;
+          let currentStep = 0;
+
+          fadeInterval = setInterval(() => {
+            currentStep++;
+            audio.volume = Math.max(0, Math.min(1, startVol + (volStep * currentStep)));
+            if (currentStep >= steps) {
+              clearInterval(fadeInterval);
+              audio.volume = targetVolume;
+              if (callback) callback();
+            }
+          }, stepLength);
+        }
+
+        function toggleFocusMode() {
+          isFocusMode = !isFocusMode;
+          const btn = document.getElementById('focusBtn');
+          const icon = document.getElementById('focusIcon');
+          
+          if (isFocusMode) {
+            btn.classList.add('active');
+            
+            // Play focus whoosh immediately for impact
+            if (sfxEnabled) {
+              sfxFocusStart.currentTime = 0;
+              sfxFocusStart.volume = 1; 
+              sfxFocusStart.play().catch(e => e);
+            }
+            
+            // Simultaneously fade out ambience
+            fadeAudio(sfxAmbience, 0, 1500, () => {
+              sfxAmbience.pause();
+            });
+          } else {
+            btn.classList.remove('active');
+            // Resume and fade in
+            sfxAmbience.play().catch(e => e);
+            fadeAudio(sfxAmbience, 0.5, 1500);
+          }
+        }
+
+        function stopAmbience() {
+          if (fadeInterval) clearInterval(fadeInterval);
+          sfxAmbience.pause();
+          sfxAmbience.currentTime = 0;
+          sfxAmbience.volume = 0.5; // Reset for next start
+        }
+
+        function triggerTableFlip(callback) {
+          const cards = document.querySelectorAll('.card');
+          if (cards.length === 0) {
+            if (callback) callback();
+            return;
+          }
+
+          if (sfxEnabled) {
+            sfxWood.currentTime = 0;
+            sfxWood.play().catch(e => e);
+          }
+
+          cards.forEach(card => {
+            // Assign a random direction for the fly-off
+            const randomX = (Math.random() - 0.5) * 600; // -300 to 300
+            card.style.setProperty('--random-x', `${randomX}px`);
+            
+            // Get current rotation to transition smoothly
+            const currentRot = card.style.getPropertyValue('--initial-rot') || '0deg';
+            card.style.setProperty('--initial-rot', currentRot);
+
+            card.classList.add('flip-away');
+          });
+
+          // Wait for animation (800ms) then execute callback
+          if (callback) setTimeout(callback, 850);
+        }
+
+        function startCardRain() {
+          const container = document.getElementById('victory-overlay');
+          const symbols = ['♠', '♥', '♦', '♣'];
+          for (let i = 0; i < 80; i++) {
+            const span = document.createElement('span');
+            span.className = 'card-particle';
+            span.textContent = symbols[Math.floor(Math.random() * 4)];
+            span.style.left = Math.random() * 100 + 'vw';
+            span.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            span.style.animationDelay = (Math.random() * 4) + 's';
+            span.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(span);
+          }
+        }
+
+        function showVictoryOverlay(winnerIdx) {
+          const overlay = document.getElementById('victory-overlay');
+          const p = engine.players[winnerIdx];
+          
+          overlay.style.display = 'flex';
+          overlay.style.backdropFilter = 'blur(4px)';
+          overlay.style.background = 'rgba(0, 0, 0, 0.4)';
+          
+          if (sfxEnabled) {
+            sfxCheer.currentTime = 0;
+            sfxCheer.play().catch(e => e);
+          }
+          
+          startCardRain();
+
+          // After 8 seconds, remove the blur and tint (allowing the cards to finish falling)
+          setTimeout(() => {
+             overlay.style.backdropFilter = 'none';
+             overlay.style.background = 'transparent';
+          }, 8000);
+        }
+
+        function resetFromVictory() {
+          const overlay = document.getElementById('victory-overlay');
+          overlay.style.display = 'none';
+          // Clean up particles
+          const particles = overlay.querySelectorAll('.card-particle');
+          particles.forEach(p => p.remove());
+          
+          sfxCheer.pause();
+          showMenu();
         }
 
         function showConfirm(msg, callback) {
@@ -2067,6 +2255,40 @@
           }
         });
 
+        function updateStreakBadges() {
+          if (!engine) return;
+          engine.players.forEach((p, idx) => {
+            let badgeId = '';
+            if (idx === 0) badgeId = 'streak-player';
+            else if (idx === 1) badgeId = 'streak-bot';
+            else if (idx === 2) badgeId = 'streak-p2';
+            else if (idx === 3) badgeId = 'streak-p3';
+            
+            const badge = document.getElementById(badgeId);
+            if (!badge) return;
+            
+            const count = p.currentRoundChkobbas || 0;
+            if (count > 1) {
+              const prevCount = parseInt(badge.getAttribute('data-count')) || 0;
+              if (count > prevCount && sfxEnabled) {
+                sfxFire.currentTime = 0;
+                sfxFire.play().catch(e => e);
+              }
+              badge.setAttribute('data-count', count);
+              badge.innerHTML = `
+                <img src="/img/fire.png" alt="Fire">
+                <div class="streak-count">${count}</div>
+              `;
+              badge.style.display = 'flex';
+            } else {
+              badge.style.display = 'none';
+              badge.setAttribute('data-count', 0);
+            }
+          });
+        }
+
+      
+
         let winScore = 21;
 
         function startGame(m, customName = '', sfx = true, back = 'back.png', targetScore = 21, difficulty = 'medium', gameMode = '1v1') {
@@ -2096,6 +2318,13 @@
           firstPlayerOfRound = 0;
           sfxEnabled = sfx;
           selectedBack = back;
+
+          // Start Ambience
+          if (sfxEnabled && !isFocusMode) {
+            sfxAmbience.currentTime = 0;
+            sfxAmbience.volume = 0.5;
+            sfxAmbience.play().catch(e => e);
+          }
 
           document.querySelectorAll('.pile-bg').forEach(el => {
             el.style.background = `url('/cards/${selectedBack}') center/contain no-repeat`;
@@ -2259,6 +2488,11 @@
                     updateUI(true); // Animate the initial deal if cards are present
                   } else {
                     updateUI(false);
+                  }
+                  
+                  // Start Ambience for online match
+                  if (sfxEnabled && !isFocusMode) {
+                    sfxAmbience.play().catch(e => e);
                   }
                   setStatus(`${window.getPlayerNameByServerSlot(engine.currentPlayer)}'s turn`);
                 }
@@ -2932,7 +3166,19 @@
 
           engine.table.forEach((card, idx) => {
             let div = el.querySelector(`.card[data-id="${card.id}"]`);
-            if (!div) { div = makeCardEl(card, false); el.appendChild(div); }
+            if (!div) { 
+              div = makeCardEl(card, false); 
+              
+              // Realistic unalignment (Only for new cards to avoid jumping)
+              const randomDeg = (Math.random() * 14) - 7;      // -7 to +7 deg
+              const randomX = (Math.random() * 10) - 5;       // -5 to +5 px
+              const randomY = (Math.random() * 10) - 5;       // -5 to +5 px
+              
+              div.style.setProperty('--initial-rot', `${randomDeg}deg`);
+              div.style.transform = `rotate(${randomDeg}deg) translate(${randomX}px, ${randomY}px)`;
+              
+              el.appendChild(div); 
+            }
             const isPartOfAny = allPossibleCapturedIds.has(card.id);
             const isSelected = selectedCapture && selectedCapture.find(sc => sc.id === card.id);
             div.classList.toggle('selected', !!isSelected);
@@ -3083,9 +3329,14 @@
               addLog(`${pname} plays ${engine.getCardName(card)} → captures ${capturedNames}`, chkobba ? 'chkobba' : '');
               if (chkobba) {
                 showChkobbaToast(pname);
-                if (sfxEnabled) { sfxChkobba.currentTime = 0; sfxChkobba.play().catch(e => e); }
+                engine.players[pidx].currentRoundChkobbas = (engine.players[pidx].currentRoundChkobbas || 0) + 1;
+                updateStreakBadges();
+                if (sfxEnabled) {
+                  sfxFire.currentTime = 0;
+                  sfxFire.play().catch(e => e);
+                }
                 if (window.radioPlayer) window.radioPlayer.duck();
-                addLog(`⭐ CHKOBBA! for ${pname}`, 'chkobba');
+                addLog(`+1 CHKOBBA! for ${pname}`, 'chkobba');
                 
                 // Bot reaction to getting a Chkobba
                 if (pidx === 1) {
@@ -3106,14 +3357,25 @@
             setTimeout(() => {
               if (engine.handsEmpty()) {
                 if (engine.deckEmpty()) {
-                  engine.finalize(); isAnimating = false; showEndScreen();
+                  // LAST ROUND FINISHED: Score Calculation
+                  engine.finalize(); 
+                  isAnimating = false; 
+                  showEndScreen();
                 } else if (mode !== 'online') {
-                  engine.dealHands(); addLog('***Jarya Jdida***'); updateUI(true); setStatus(window.getTurnStatusMsg(engine.currentPlayer)); isAnimating = false;
+                  // MID-GAME DEAL: 3 cards only
+                  engine.dealHands(); 
+                  addLog('***New Round Deal***'); 
+                  updateUI(true); 
+                  setStatus(window.getTurnStatusMsg(engine.currentPlayer)); 
+                  isAnimating = false;
                 } else {
                   isAnimating = false; // Wait for server to emit 'deal-cards'
                 }
               } else {
-                updateUI(); setStatus(window.getTurnStatusMsg(engine.currentPlayer)); isAnimating = false; if (mode === 'single' && engine.currentPlayer === 1) setTimeout(botTurn, 800);
+                updateUI(); 
+                setStatus(window.getTurnStatusMsg(engine.currentPlayer)); 
+                isAnimating = false; 
+                if (mode === 'single' && engine.currentPlayer === 1) setTimeout(botTurn, 800);
               }
             }, 200);
           });
@@ -3166,6 +3428,8 @@
           }
           document.getElementById('endTitle').textContent = title;
           document.getElementById('endWinner').textContent = `Total: ${engine.players[0].name} ${s0}  ·  ${engine.players[1].name} ${s1}`;
+          document.getElementById('th-p1').textContent = engine.players[0].name;
+          document.getElementById('th-p2').textContent = engine.players[1].name;
 
           // Match Status Line
           const matchStatus = document.getElementById('matchStatus') || document.createElement('div');
@@ -3176,6 +3440,8 @@
           const remaining = winScore - s0;
           if (isGameOver) {
             matchStatus.textContent = `${engine.players[leaderIdx].name} is the WINNER!`;
+            // Trigger Victory Overlay
+            setTimeout(() => showVictoryOverlay(leaderIdx), 500);
           } else {
             matchStatus.textContent = `Only ${remaining} points left to WIN!`;
           }
@@ -3216,29 +3482,46 @@
           }
 
           const rows = [
-            { label: 'Carta', w: result.carta, note0: result.s0.cards, note1: result.s1.cards },
-            { label: 'Dineri (♦)', w: result.dineri, note0: result.s0.dineri + '♦', note1: result.s1.dineri + '♦' },
-            { label: "l7ayya (7♦)", img: "/cards/7carreau.png", w: result.sab3a, note0: result.s0.sab3a ? 'YES' : '–', note1: result.s1.sab3a ? 'YES' : '–' },
-            { label: 'Barmila', w: result.barmila, note0: `${result.s0.sevens}×7 ${result.s0.sixes}×6`, note1: `${result.s1.sevens}×7 ${result.s1.sixes}×6` },
-            { label: '⭐ Chkobba', isChkobba: true, w: result.chkobba0 > result.chkobba1 ? 0 : result.chkobba1 > result.chkobba0 ? 1 : -1, note0: `×${result.chkobba0}`, note1: `×${result.chkobba1}` },
+            { img: 'img/icon_carta.png', v0: result.s0.cards, v1: result.s1.cards, label: 'Carta' },
+            { img: 'img/icon_dineri.png', v0: result.s0.dineri, v1: result.s1.dineri, label: 'Dineri' },
+            { img: 'img/icon_7ayya.png', v0: result.s0.sab3a ? 1 : 0, v1: result.s1.sab3a ? 1 : 0, label: 'Sab3a' },
+            { img: 'img/icon_barmila.png', v0: result.barmila === 0 ? 1 : 0, v1: result.barmila === 1 ? 1 : 0, label: 'Barmila' },
+            { img: 'img/icon_chkobba.png', v0: result.chkobba0, v1: result.chkobba1, label: 'Chkobba', isChkobba: true },
           ];
           for (const row of rows) {
             const tr = document.createElement('tr');
-            if (row.isChkobba && (result.chkobba0 > 0 || result.chkobba1 > 0)) tr.classList.add('pulse-win');
+            if (row.isChkobba && (row.v0 > 0 || row.v1 > 0)) tr.classList.add('pulse-win');
 
-            if (row.w === -1 && row.label !== '⭐ Chkobba') {
-              tr.innerHTML = `<td style="text-align:left">${row.label}</td><td colspan="2" style="color:var(--gold); font-style:italic; letter-spacing:4px; font-weight:900">- BAJI -</td>`;
-            } else {
-              let n0 = row.note0, n1 = row.note1;
-              if (row.img) {
-                n0 = row.note0 === 'YES' ? `<img src="${row.img}" class="mini-card">` : '–';
-                n1 = row.note1 === 'YES' ? `<img src="${row.img}" class="mini-card">` : '–';
-              }
-              tr.innerHTML = `<td style="text-align:left">${row.label}</td><td style="color:${row.w === 0 ? 'var(--gold)' : 'var(--parchment)'}">${n0}</td><td style="color:${row.w === 1 ? 'var(--gold)' : 'var(--parchment)'}">${n1}</td>`;
-            }
+            // Winner Indicators
+            const arrowLeft = row.v0 > row.v1 ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
+            const arrowRight = row.v1 > row.v0 ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
+
+            // 3-Column: P1 Score | Icon (with Indicators) | P2 Score
+            tr.innerHTML = `
+              <td style="text-align:left; font-weight:700; color:${row.v0 > row.v1 ? 'var(--gold)' : 'var(--parchment)'}">${row.v0}</td>
+              <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
+                ${arrowLeft}
+                <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
+                ${arrowRight}
+              </td>
+              <td style="text-align:right; font-weight:700; color:${row.v1 > row.v0 ? 'var(--gold)' : 'var(--parchment)'}">${row.v1}</td>
+            `;
             tbody.appendChild(tr);
           }
-          const trTotal = document.createElement('tr'); trTotal.className = 'total-row'; trTotal.innerHTML = `<td style="text-align:left"><span class="rachma-label">Rachma</span></td><td>+${result.pts[0]}</td><td>+${result.pts[1]}</td>`;
+          const trTotal = document.createElement('tr'); 
+          trTotal.className = 'total-row'; 
+          const arrowLeftTotal = result.pts[0] > result.pts[1] ? '<span style="color:var(--gold); margin-right:6px; font-size:12px;">◀</span>' : '';
+          const arrowRightTotal = result.pts[1] > result.pts[0] ? '<span style="color:var(--gold); margin-left:6px; font-size:12px;">▶</span>' : '';
+
+          trTotal.innerHTML = `
+            <td style="text-align:left; font-weight:900; color:${result.pts[0] > result.pts[1] ? 'var(--gold)' : 'var(--parchment)'}">+${result.pts[0]}</td>
+            <td style="display:flex; justify-content:center; align-items:center;">
+              ${arrowLeftTotal}
+              <span class="rachma-label" style="font-size:32px">Rachma</span>
+              ${arrowRightTotal}
+            </td>
+            <td style="text-align:right; font-weight:900; color:${result.pts[1] > result.pts[0] ? 'var(--gold)' : 'var(--parchment)'}">+${result.pts[1]}</td>
+          `;
           tbody.appendChild(trTotal);
 
           // Match Status Line
@@ -3264,7 +3547,10 @@
         }
 
         function startNextRound() {
-          engine.deck = engine._buildDeck(); engine._shuffle(engine.deck); engine.table = [];
+          // Restart Jarya: NEW HAND from scratch
+          engine.deck = engine._buildDeck(); 
+          engine._shuffle(engine.deck); // Shuffle happens ONLY here
+          engine.table = [];
           engine.players.forEach(p => {
             p.hand = []; p.pile = []; p.chkobba = 0; p.chkobbas = [];
           });
@@ -3273,9 +3559,17 @@
           engine.currentPlayer = firstPlayerOfRound;
           hasShownEkherJarya = false;
 
-          engine.lastCaptor = -1; engine.roundOver = false; engine.dealInitial();
-          document.getElementById('screen-end').style.display = 'none'; document.getElementById('screen-game').style.display = 'flex';
-          isAnimating = false; updateUI(true); setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+          engine.lastCaptor = -1; 
+          engine.roundOver = false; 
+          engine.players.forEach(p => p.currentRoundChkobbas = 0);
+          updateStreakBadges();
+          engine.dealInitial(); // 4 to table + 3 to each
+          
+          document.getElementById('screen-end').style.display = 'none'; 
+          document.getElementById('screen-game').style.display = 'flex';
+          isAnimating = false; 
+          updateUI(true); 
+          setStatus(window.getTurnStatusMsg(engine.currentPlayer));
         }
 
         function setStatus(msg) { document.getElementById('statusBar').textContent = msg; }
@@ -3349,6 +3643,11 @@
        * (select card, then immediately deselect it). Removed to fix sum-capture on mobile.
        */
     </script>
+    <!-- ── VICTORY OVERLAY ── -->
+    <div id="victory-overlay">
+      <!-- Minimalist Card Rain Overlay (No Medallion) -->
+    </div>
+
     <!-- ── CONFIRMATION MODAL ── -->
     <div class="confirm-overlay" id="confirmModal">
       <div class="confirm-window">

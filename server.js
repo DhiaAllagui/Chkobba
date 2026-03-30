@@ -253,17 +253,17 @@ io.on('connection', (socket) => {
     
     room.gameStarted = true;
     
-    // Initialize Server-Authoritative State
-    const deck = generateDeck();
+    // ── INITIAL DEAL (Start of Jarya) ──────────────────────────
+    const deck = generateDeck(); // Shuffle happens only here
     const table = [];
     const numPlayers = room.settings.mode === '2v2' ? 4 : 2;
     const hands = Array.from({ length: numPlayers }, () => []);
     
-    // Deal 4 to table
+    // 1. Put 4 cards on the table (Only at start of 40-card cycle)
     for (let i = 0; i < 4; i++) {
         table.push(deck.pop());
     }
-    // Deal 3 to each player
+    // 2. Deal 3 to each player
     for (let p = 0; p < numPlayers; p++) {
         for (let i = 0; i < 3; i++) {
             hands[p].push(deck.pop());
@@ -401,23 +401,29 @@ io.on('connection', (socket) => {
     const np = state.numPlayers || 2;
     state.currentTurn = (state.currentTurn + 1) % np;
     
-    // Check if all hands are empty for dealing more cards
-    const bothHandsEmpty = state.hands.every(h => h.length === 0);
+    // ── CHECK FOR MID-GAME DEAL (New Round) ──────────────────────
+    const allHandsEmpty = state.hands.every(h => h.length === 0);
     let newCardsDealt = false;
     let jaryaEnded = false;
     let results = null;
     
-    if (bothHandsEmpty) {
+    if (allHandsEmpty) {
+        // If deck is NOT empty, deal 3 cards per player (MID-GAME DEAL)
         if (state.deck.length > 0) {
-            const np2 = state.numPlayers || 2;
-            for (let p = 0; p < np2; p++) {
+            const np = state.numPlayers || 2;
+            for (let p = 0; p < np; p++) {
                 for (let i = 0; i < 3; i++) {
-                    state.hands[p].push(state.deck.pop());
+                    const card = state.deck.pop();
+                    if (card) state.hands[p].push(card);
                 }
             }
             newCardsDealt = true;
+            console.log(`[GAME] Mid-game deal executed. Deck remaining: ${state.deck.length}`);
         } else {
+            // DECK IS EMPTY: This is the LAST ROUND transition to SCORE CALCULATION
             jaryaEnded = true;
+            console.log(`[GAME] Last round finished. Triggering score calculation...`);
+            
             // Finalize Jarya (give remaining table cards to last captor)
             if (state.lastCaptor >= 0 && state.table.length > 0) {
                 state.piles[state.lastCaptor].push(...state.table);
@@ -473,8 +479,8 @@ io.on('connection', (socket) => {
       // Check all players are ready
       const allReady = state.readyForNextRound.slice(0, np).every(r => r);
       if (allReady) {
-          // Restart Jarya
-          const deck = generateDeck();
+          // ── RESTART JARYA (New Hand) ──────────────────────────
+          const deck = generateDeck(); // Shuffle ONLY at round start
           const table = [];
           for (let i = 0; i < 4; i++) table.push(deck.pop());
           const hands = Array.from({ length: np }, () => []);
@@ -484,7 +490,7 @@ io.on('connection', (socket) => {
           state.deck = deck;
           state.table = table;
           state.hands = hands;
-          state.piles     = [[], []]; // 2 Teams
+          state.piles     = [[], []]; // Reset piles for new round
           state.chkobbas  = [[], []];
           state.lastCaptor = -1;
           state.readyForNextRound = Array.from({ length: np }, () => false);
@@ -499,6 +505,7 @@ io.on('connection', (socket) => {
               const p = room.players[i];
               if (p && p.id) io.to(p.id).emit('deal-cards', { myHand: hands[i] });
           }
+           console.log(`[GAME] New Jarya started in room: ${code}`);
       }
   });
 
