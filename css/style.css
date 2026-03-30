@@ -777,7 +777,7 @@ body.menu-page .menu-btn {
   padding-left: 128px;
 }
 
-.player-info {
+.player-info-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -788,15 +788,13 @@ body.menu-page .menu-btn {
   border: 1px solid var(--gold-dim);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(201, 168, 76, 0.1);
   width: 110px;
-  position: absolute;
-  top: 50%;
-  left: 8px;
-  transform: translateY(-50%);
   z-index: 2000;
   transition: border-color 0.3s, transform 0.2s;
   pointer-events: auto;
-  bottom: -80px;
 }
+
+
+
 
 /* Specific 1v1 refinements if needed */
 .info-top {
@@ -832,7 +830,7 @@ body.menu-page .menu-btn {
 }
 
 /* In 2v2, unfix the avatars so they group beautifully next to the hands */
-.mode-2v2 .player-info {
+.mode-2v2 .player-info-card {
   position: relative;
   /* Break out of fixed screen-corners */
   top: auto !important;
@@ -1087,7 +1085,7 @@ body.menu-page .menu-btn {
 
 /* Specific intense zoom for player's active hand */
 .player-zone#zone-player .hand .card:hover {
-  transform: translate3d(0, -25px, 0) scale(1.2) !important;
+  transform: translate3d(0, -20px, 0) scale(1.1) !important;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7) !important;
   border-color: var(--gold) !important;
   z-index: 200 !important;
@@ -1894,7 +1892,6 @@ body.menu-page .menu-btn {
     justify-content: center;
     width: 100%;
     gap: 4px;
-    min-height: 0;
   }
 
   /* Table fills all remaining space */
@@ -1917,7 +1914,7 @@ body.menu-page .menu-btn {
   }
 
   /* Player info panels â€” pill, top-left & bottom-left */
-  .player-info {
+  .player-info-card {
     width: auto;
     min-width: 70px;
     padding: 4px 8px;
@@ -1929,32 +1926,34 @@ body.menu-page .menu-btn {
   }
 
   .bot-info-panel, .info-top {
-    top: 60px !important;
-    left: 6px !important;
-    right: auto !important;
-    bottom: auto !important;
+    top: 60px;
+    left: 6px;
+    right: auto;
+    bottom: auto;
   }
 
-  .player-info-panel, .info-bottom {
-    bottom: 60px !important;
-    left: 6px !important;
-    right: auto !important;
-    top: auto !important;
+  .player-info-card-panel, .info-bottom {
+    bottom: 60px;
+    left: 6px;
+    right: auto;
+    top: auto;
   }
+
 
   .p2-left {
-    bottom: 60px !important;
-    right: 6px !important;
-    left: auto !important;
-    top: auto !important;
+    bottom: 60px;
+    right: 6px;
+    left: auto;
+    top: auto;
   }
 
   .p3-right {
-    top: 60px !important;
-    right: 74px !important; /* Avoid hamburger and pause buttons */
-    left: auto !important;
-    bottom: auto !important;
+    top: 60px;
+    right: 74px; /* Avoid hamburger and pause buttons */
+    left: auto;
+    bottom: auto;
   }
+
 
   .player-avatar {
     width: 26px;
@@ -2155,9 +2154,6 @@ body.menu-page .menu-btn {
     min-height: 0;
   }
 
-  .hand {
-    min-height: 0;
-  }
 
   /* Toasts */
   .chkobba-toast {
@@ -3026,7 +3022,7 @@ body.menu-page .menu-btn {
     width: auto;
   }
 
-  .player-info-panel {
+  .player-info-card-panel {
     position: fixed;
     bottom: 4px;
     left: 4px;
@@ -3421,10 +3417,7 @@ body.menu-page .menu-btn {
 }
 
 /* â”€â”€ FOCUS MODE BUTTON â”€â”€ */
-.focus-btn {
-  position: fixed;
-  bottom: 22px;
-  left: 140px;
+.focus-button {
   padding: 0 16px;
   height: 40px;
   background: rgba(0, 0, 0, 0.6);
@@ -3441,18 +3434,27 @@ body.menu-page .menu-btn {
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-.focus-btn:hover {
+@media (min-width: 1025px) {
+  .focus-button {
+    position: fixed;
+    bottom: 80px;
+    left: 140px;
+  }
+}
+
+.focus-button:hover {
   border-color: var(--gold);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(201, 168, 76, 0.4);
 }
 
-.focus-btn.active {
+.focus-button.active {
   background: rgba(201, 168, 76, 0.25);
   border-color: var(--gold);
   color: #fff;
   text-shadow: 0 0 8px var(--gold);
 }
+
 
 
 /* â”€â”€ VICTORY OVERLAY â”€â”€ */
@@ -3496,12 +3498,12 @@ body.menu-page .menu-btn {
 } 
 
 /* -- CHKOBBA STREAK BADGE -- */
-.player-info {
+.player-info-card {
   position: relative; /* Anchor for the badge */
 }
 
 /* ── CHKOBBA STREAK BADGE ── */
-.player-info {
+.player-info-card {
   position: relative;
 }
 
@@ -3641,31 +3643,72 @@ body.menu-page .menu-btn {
     text-align: center;
 }
 
-@keyframes vs-glow {
-    from { transform: scale(1); opacity: 0.8; }
-    to { transform: scale(1.1); opacity: 1; }
+/* ── FINAL MOBILE RECONSTRUCTION (Max-width: 1024px) ── */
+@media screen and (max-width: 1024px) {
+
+  /* 1. BOT INFO: Pulled DOWN toward the center */
+  .info-top {
+    position: fixed !important;
+    top: 150px !important; /* Increased from 10px to pull it away from the top edge */
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.7) !important;
+    z-index: 2500 !important;
+  }
+
+  /* 2. BOT CARDS: Pushed slightly more down to keep the gap */
+  .opponent-hand {
+    position: fixed !important;
+    top: 135px !important; 
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.8) !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  /* 3. PLAYER INFO: Pulled UP toward the center */
+  .info-bottom {
+    position: fixed !important;
+    bottom: 150px !important; /* Increased from 25px to pull it away from the bottom edge */
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.7) !important;
+    z-index: 2500 !important;
+  }
+
+  /* 4. PLAYER HAND: Raised higher to maintain the "Sandwich" */
+  #player-hand {
+    position: fixed !important;
+    bottom: 165px !important; 
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.9) !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  /* 5. TURN INDICATOR: Stay above the hand */
+  #turn-indicator {
+    bottom: 290px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* General UI cleanup */
+  .hand {
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  
+  .player-info-card {
+    flex-direction: row !important;
+    padding: 8px 15px !important;
+  }
 }
 
-/* ── PLAYER INFO STABILITY ── */
-.player-info {
-    flex-shrink: 0;
-    min-width: 120px; /* Locked width to prevent layout shifts */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(201, 168, 76, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    transition: transform 0.3s;
-} 
-
-/* ── LAYOUT STABILITY ── */
-.hand {
+/* ── DESKTOP RECOVERY ── */
+@media screen and (min-width: 1025px) {
+  .hand {
     width: 350px !important;
     min-width: 350px !important;
-    justify-content: center !important;
-} 
+  }
+}

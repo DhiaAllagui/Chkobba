@@ -1540,14 +1540,14 @@
           </div>
         </div>
 
-        <!-- Quick Chat Menu (Moved into player-info below) -->
+        <!-- Quick Chat Menu (Moved into player-info-card below) -->
 
 
         <!-- BOT / P2 Zone (Top) -->
         <div class="player-zone" id="zone-bot">
           <div class="hand" id="hand-bot"></div>
-          <!-- Moved player-info-panel for top player right next to the hand -->
-          <div class="player-info info-top mode-2v2-info">
+          <!-- Moved player-info-card-panel for top player right next to the hand -->
+          <div class="player-info-card info-top mode-2v2-info">
             <div class="streak-badge" id="streak-bot">🔥0</div>
             <img class="player-avatar" id="pfp-bot" src="/img/botpfp.png" alt="Bot">
             <div class="player-name" id="name-bot">Chkobba Master</div>
@@ -1558,7 +1558,7 @@
         <!-- P2 Left Zone (2v2 only) -->
         <div class="player-zone side-zone zone-left" id="zone-p2" style="display:none;">
           <div class="hand hand-vertical" id="hand-p2"></div>
-          <div class="player-info p2-left mode-2v2-info" id="p2-info">
+          <div class="player-info-card p2-left mode-2v2-info" id="p2-info">
             <div class="streak-badge" id="streak-p2">🔥0</div>
             <img class="player-avatar" id="pfp-p2" src="/img/pfp.jpg" alt="P2">
             <div class="player-name" id="name-p2">Player</div>
@@ -1579,7 +1579,7 @@
         <!-- P3 Right Zone (2v2 only) -->
         <div class="player-zone side-zone zone-right" id="zone-p3" style="display:none;">
           <div class="hand hand-vertical" id="hand-p3"></div>
-          <div class="player-info p3-right mode-2v2-info" id="p3-info">
+          <div class="player-info-card p3-right mode-2v2-info" id="p3-info">
             <div class="streak-badge" id="streak-p3">🔥0</div>
             <img class="player-avatar" id="pfp-p3" src="/img/pfp.jpg" alt="P3">
             <div class="player-name" id="name-p3">Player</div>
@@ -1590,8 +1590,8 @@
         <!-- P1 Zone (Bottom) -->
         <div class="player-zone" id="zone-player">
           <div class="hand" id="hand-player"></div>
-          <!-- Moved player-info-panel for bottom player right next to the hand -->
-          <div class="player-info info-bottom mode-2v2-info">
+          <!-- Moved player-info-card-panel for bottom player right next to the hand -->
+          <div class="player-info-card info-bottom mode-2v2-info">
             <div class="streak-badge" id="streak-player">🔥0</div>
             <!-- Quick Chat Menu (Moved here to anchor correctly) -->
             <div class="chat-menu" id="chatMenu">
@@ -1623,7 +1623,7 @@
               <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
                 <img src="/img/message.png" alt="Chat">
               </button>
-              <button class="focus-btn" id="focusBtn" onclick="toggleFocusMode()" title="Focus Mode (Ambience Toggle)">
+              <button class="focus-button" id="focusBtn" onclick="toggleFocusMode()" title="Focus Mode (Ambience Toggle)">
                 <img src="/img/focus.png" alt="Focus" id="focusIcon" style="width:18px; height:18px; opacity:0.8; margin-right:6px;">
                 <span data-i18n="focus" style="font-family:'Cinzel', serif; font-size:10px; letter-spacing:1px; font-weight:700;">FOCUS</span>
               </button>
@@ -3170,9 +3170,9 @@
               div = makeCardEl(card, false); 
               
               // Realistic unalignment (Only for new cards to avoid jumping)
-              const randomDeg = (Math.random() * 14) - 7;      // -7 to +7 deg
-              const randomX = (Math.random() * 10) - 5;       // -5 to +5 px
-              const randomY = (Math.random() * 10) - 5;       // -5 to +5 px
+              const randomDeg = (Math.random() * 18) - 9;      // -12 to +12 deg
+              const randomX = (Math.random() * 10) - 5;       // -10 to +10 px
+              const randomY = (Math.random() * 10) - 5;       // -10 to +10 px
               
               div.style.setProperty('--initial-rot', `${randomDeg}deg`);
               div.style.transform = `rotate(${randomDeg}deg) translate(${randomX}px, ${randomY}px)`;
