@@ -1,4 +1,4 @@
-const RULES_CONTENT = {
+window.RULES_CONTENT = {
   en: {
     title: "📜 How to Play Chkobba (Tunisian Style)",
     intro: "Chkobba is a classic Tunisian trick-taking card game played with a 40-card Italian (Piacentine) deck. The goal is to reach 21 points first.",
@@ -25,7 +25,33 @@ const RULES_CONTENT = {
       }
     ]
   },
-  tn: {
+  fr: {
+    title: "📜 Comment Jouer à la Chkobba",
+    intro: "La Chkobba est un jeu de cartes tunisien classique qui se joue avec un jeu de 40 cartes italiennes (Piacentine). Le but est d'atteindre 21 points en premier.",
+    sections: [
+      {
+        header: "1. La Mise en Place",
+        content: "• **Le Jeu:** 40 cartes. Les enseignes sont : Denari (Carreaux/Or), Coppe (Coupes), Spade (Epées) et Bastoni (Bâtons).\n• **Valeurs:** De 1 (As) à 7, puis 8 (Valet), 9 (Cavalier/Dame) et 10 (Roi).\n• **La Donne:** Chaque joueur reçoit 3 cartes, et 4 cartes sont placées face visible sur la table."
+      },
+      {
+        header: "2. Comment Capturer",
+        content: "À votre tour, vous jouez une carte de votre main pour prendre des cartes sur la table :\n• **Capture Directe:** Si vous jouez un 7, vous prenez un 7 sur la table.\n• **La Somme:** Si vous jouez un 7 et qu'il y a un 4 et un 3 sur la table (4 + 3 = 7), vous prenez les deux.\n• **Règle de Priorité:** Si une capture directe est possible, vous devez la prendre. Vous ne pouvez pas prendre une somme si une carte seule de même valeur est sur la table.\n• **Pas de Capture:** Si vous ne pouvez prendre aucune carte, vous devez laisser votre carte face visible sur la table."
+      },
+      {
+        header: "3. La 'Chkobba' (Le Grand Coup)",
+        content: "Si vous capturez toutes les cartes présentes sur la table, la laissant vide, vous marquez une Chkobba !\n• Chaque Chkobba vaut 1 point.\n• **Exception:** On ne peut pas marquer de Chkobba lors de la toute dernière main du jeu."
+      },
+      {
+        header: "4. Score de Fin de Manche (Les 4 Points Principaux)",
+        content: "Une fois toutes les cartes jouées, les joueurs comptent leur 'pile' pour voir qui remporte ces 4 points :\n• **Carta (Cartes):** Le joueur ayant plus de 20 cartes (21 ou plus) gagne 1 point.\n• **Dineri (Carreaux):** Le joueur ayant plus de 5 Carreaux (6 ou plus) gagne 1 point.\n• **Barmila (Les 7 et 6):**\n  - Le joueur ayant le plus de 7 gagne 1 point.\n  - En cas d'égalité (2-2), le joueur ayant le plus de 6 gagne.\n  - Si toujours à égalité, c'est un 'Baji' (aucun point attribué).\n• **Sab3a l-7ayya (7 de Carreaux):** Le joueur qui a capturé le 7 de Carreaux gagne 1 point."
+      },
+      {
+        header: "💡 Conseils de Pro",
+        content: "• **Protégez le 7 de Carreaux:** C'est la carte la plus importante du jeu. Ne la jetez que si vous y êtes obligé !\n• **Surveillez la Table:** Essayez de maintenir la somme des cartes sur la table au-dessus de 10 pour que votre adversaire ne puisse pas faire de Chkobba facilement.\n• **La Dernière Main:** La personne qui fait la dernière capture de la partie ramasse toutes les cartes restantes sur la table (mais cela ne compte pas comme une Chkobba)."
+      }
+    ]
+  },
+  ar: {
     title: "🇹🇳 Qawanin El-Chkobba (قوانين الشكبة)",
     intro: "El-Hadaf (Goal): El-rabe7 houwa elli yousel el 21 points el louel.",
     sections: [

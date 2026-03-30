@@ -13,6 +13,7 @@
     'Taht el Yasmina fellil.mp3',
     'dernier but.mp3',
     '7oumani.mp3',
+    'nadi canadi.mp3'
   ];
 
   const MUSIC_BASE = '../sound/';

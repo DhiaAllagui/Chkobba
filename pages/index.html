@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="/img/Chkobbalogo.png">
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/rules.js"></script>
+  <script src="/js/i18n.js"></script>
 
   <style>
     /* ── Lobby-specific styles ── */
@@ -543,6 +544,55 @@
 
 
 
+    /* ── SPA VIEW TRANSITIONS ── */
+    @keyframes viewSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes viewSlideOut {
+      from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.97);
+      }
+    }
+
+    @keyframes lobbySlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes lobbySlideOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+    }
+
     .spa-view {
       display: none;
       width: 100%;
@@ -555,6 +605,18 @@
 
     .spa-view.active {
       display: flex;
+      animation: viewSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .spa-view.exiting {
+      display: flex;
+      animation: viewSlideOut 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+      pointer-events: none;
+    }
+
+    /* Lobby screen (inner panels) transitions */
+    .lobby-screen.entering {
+      animation: lobbySlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
   </style>
 </head>
@@ -578,7 +640,8 @@
       <div class="radio-now-playing" id="radio-now-playing">Off Air</div>
       <div class="radio-controls">
         <button class="radio-btn" id="radio-prev-btn" title="Previous">⏮</button>
-        <button class="radio-btn" id="radio-play-btn" title="Play / Pause"><img id="radio-play-icon" src="/img/resume.png" alt="Play" style="width:16px;height:16px;object-fit:contain;"></button>
+        <button class="radio-btn" id="radio-play-btn" title="Play / Pause"><img id="radio-play-icon"
+            src="/img/resume.png" alt="Play" style="width:16px;height:16px;object-fit:contain;"></button>
         <button class="radio-btn" id="radio-next-btn" title="Skip">⏭</button>
       </div>
       <div class="radio-vol-row">
@@ -595,9 +658,9 @@
     <div id="view-menu" class="spa-view active">
 
       <div class="menu-wrap">
-        <p class="menu-ornament">Chakkeb: Win ma t7eb, wa9t ma t7eb.</p>
+        <p class="menu-ornament" data-i18n="slogan">Chakkeb: Win ma t7eb, wa9t ma t7eb.</p>
         <h1 class="menu-title">CHKOBBA</h1>
-        <p class="menu-subtitle">لعبة الشكوبة التونسية</p>
+        <p class="menu-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
         <div class="menu-divider"></div>
 
         <!-- Profile Upload Section -->
@@ -610,51 +673,73 @@
           <div class="profile-welcome">Welcome, <span id="welcome-name" style="color:var(--gold)">Player</span></div>
         </div>
 
-        <div class="menu-settings">
-          <div class="settings-row">
-            <span class="settings-label">USERNAME</span>
-            <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11">
-          </div>
+        <div class="settings-layout">
+          <div class="menu-settings settings-main">
+            <div class="settings-row">
+              <span class="settings-label" data-i18n="usernameLabel">USERNAME</span>
+              <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11"
+                data-i18n="usernameLabel">
+            </div>
 
-          <div class="settings-row">
-            <span class="settings-label">CARD BACK</span>
-            <div class="back-carousel-container">
-              <button class="carousel-arrow" id="prev-back" onclick="moveCarousel(-1)">&#8249;</button>
-              <div class="carousel-viewport">
-                <div class="back-picker" id="back-picker">
-                  <img class="back-option selected" src="/cards/back.png" data-back="back.png" title="Default">
-                  <img class="back-option" src="/cards/back1.png" data-back="back1.png" title="Blue">
-                  <img class="back-option" src="/cards/back2.png" data-back="back2.png" title="Majestic">
-                  <img class="back-option" src="/cards/back3.png" data-back="back3.png" title="Vintage">
-                  <img class="back-option" src="/cards/back4.png" data-back="back4.png" title="Modern">
-                  <img class="back-option" src="/cards/back5.png" data-back="back5.png" title="Golden">
-                  <img class="back-option" src="/cards/back6.png" data-back="back6.png" title="Tunisia">
-                  <img class="back-option" src="/cards/back8.png" data-back="back8.png" title="Palestine">
+            <div class="settings-row">
+              <span class="settings-label" data-i18n="cardBackLabel">CARD BACK</span>
+              <div class="back-carousel-container">
+                <button class="carousel-arrow" id="prev-back" onclick="moveCarousel(-1)">&#8249;</button>
+                <div class="carousel-viewport">
+                  <div class="back-picker" id="back-picker">
+                    <img class="back-option selected" src="/cards/back.png" data-back="back.png" title="Default">
+                    <img class="back-option" src="/cards/back1.png" data-back="back1.png" title="Blue">
+                    <img class="back-option" src="/cards/back2.png" data-back="back2.png" title="Majestic">
+                    <img class="back-option" src="/cards/back3.png" data-back="back3.png" title="Vintage">
+                    <img class="back-option" src="/cards/back4.png" data-back="back4.png" title="Modern">
+                    <img class="back-option" src="/cards/back5.png" data-back="back5.png" title="Golden">
+                    <img class="back-option" src="/cards/back6.png" data-back="back6.png" title="Tunisia">
+                    <img class="back-option" src="/cards/back8.png" data-back="back8.png" title="Palestine">
+                  </div>
                 </div>
+                <button class="carousel-arrow" id="next-back" onclick="moveCarousel(1)">&#8250;</button>
               </div>
-              <button class="carousel-arrow" id="next-back" onclick="moveCarousel(1)">&#8250;</button>
+            </div>
+            <div class="settings-row">
+              <label class="settings-check-label">
+                <input type="checkbox" id="menu-sfx" checked>
+                <span class="settings-check-custom"></span>
+                <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> <span
+                    data-i18n="sfxLabel">Enable Sound Effects</span></span>
+              </label>
+            </div>
+            <div class="settings-row" style="justify-content: center; margin-top: 15px;">
+              <button class="rule-menu-btn" onclick="showRules()"><img src="/img/rules.png" class="btn-icon"> <span
+                  data-i18n="howToPlay">How to Play</span></button>
             </div>
           </div>
-          <div class="settings-row">
-            <label class="settings-check-label">
-              <input type="checkbox" id="menu-sfx" checked>
-              <span class="settings-check-custom"></span>
-              <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> Enable Sound
-                Effects</span>
-            </label>
-          </div>
-          <div class="settings-row" style="justify-content: center; margin-top: 15px;">
-            <button class="rule-menu-btn" onclick="showRules()"><img src="/img/rules.png" class="btn-icon"> How to Play
-              /
-              كيفاش نلعب</button>
+
+          <div class="menu-settings settings-lang">
+            <div class="lang-selector vertical-list">
+              <label class="lang-option list-item">
+                <input type="radio" name="lang" value="en" onclick="changeLanguage('en')">
+                <img src="/img/usa.png" alt="EN">
+                <span class="lang-name">English</span>
+              </label>
+              <label class="lang-option list-item">
+                <input type="radio" name="lang" value="fr" onclick="changeLanguage('fr')">
+                <img src="/img/fr.png" alt="FR">
+                <span class="lang-name">Français</span>
+              </label>
+              <label class="lang-option list-item">
+                <input type="radio" name="lang" value="ar" onclick="changeLanguage('ar')">
+                <img src="/img/TU.png" alt="AR">
+                <span class="lang-name">العربية</span>
+              </label>
+            </div>
           </div>
         </div>
 
         <div class="btn-row">
           <button class="menu-btn" onclick="showView('view-single-settings')"><img src="/img/singleplayer.png"
-              class="btn-icon"> Single Player</button>
+              class="btn-icon"> <span data-i18n="playSingle">Single Player</span></button>
           <button class="menu-btn" onclick="showView('view-lobby')"><img src="/img/multiplayer.png" class="btn-icon">
-            Multiplayer</button>
+            <span data-i18n="playMulti">Multiplayer</span></button>
         </div>
 
       </div>
@@ -672,23 +757,38 @@
 
       <div class="lobby-wrap">
         <div class="lobby-screen active">
-          <h1 class="lobby-title">SINGLE PLAYER</h1>
-          <p class="lobby-subtitle">Game Settings — إعدادات اللعبة</p>
+          <h1 class="lobby-title" data-i18n="singleTitle">SINGLE PLAYER</h1>
+          <p class="lobby-subtitle" data-i18n="singleSub">Game Settings</p>
 
           <div class="lobby-settings" style="width:100%; max-width:400px; margin: 20px 0;">
             <div style="margin-bottom: 24px;">
-              <div class="lobby-settings-label">BOT DIFFICULTY</div>
-              <select class="settings-input" id="single-difficulty"
+              <div class="lobby-settings-label" data-i18n="botDiff">BOT DIFFICULTY</div>
+
+              <!-- Bot Identity Preview -->
+              <div id="bot-identity-preview"
+                style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(201,168, 76, 0.15);">
+                <img id="preview-bot-img" src="/img/medium.png"
+                  style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;">
+                <div style="display: flex; flex-direction: column;">
+                  <span id="preview-bot-name"
+                    style="color: var(--gold); font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;">Hamdi
+                    (Medium)</span>
+                  <span
+                    style="color: var(--gold-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Opponent</span>
+                </div>
+              </div>
+
+              <select class="settings-input" id="single-difficulty" onchange="updateBotPreview()"
                 style="width:100%; background: rgba(255,255,255,0.05); border: 1px solid var(--gold-dim); color: var(--gold); padding: 12px; border-radius: 8px;">
-                <option value="easy">Ka3ba lee (Easy)</option>
-                <option value="medium" selected>Yaadi ro7ou (Medium)</option>
-                <option value="hard">Mle3bi (Hard)</option>
-                <option value="expert">Lpatron (Expert)</option>
+                <option value="easy">Sami(Easy)</option>
+                <option value="medium" selected>Hamdi(Medium)</option>
+                <option value="hard">M3allem(Hard)</option>
+                <option value="expert">Lpatron(Expert)</option>
               </select>
             </div>
 
             <div style="margin-bottom: 32px;">
-              <div class="lobby-settings-label">TARGET SCORE</div>
+              <div class="lobby-settings-label" data-i18n="targetScore">TARGET SCORE</div>
               <select class="settings-input" id="single-target-score"
                 style="width:100%; background: rgba(255,255,255,0.05); border: 1px solid var(--gold-dim); color: var(--gold); padding: 12px; border-radius: 8px;">
                 <option value="21" selected>21 Points (Classic)</option>
@@ -698,7 +798,7 @@
 
             <button class="menu-btn" onclick="launch('single')"
               style="width:100%; margin:0; height: 56px; font-size: 18px;">
-              <img src="/img/singleplayer.png" class="btn-icon"> PLAY CHKOBBA
+              <img src="/img/singleplayer.png" class="btn-icon"> <span data-i18n="playBtn">PLAY CHKOBBA</span>
             </button>
           </div>
         </div>
@@ -713,28 +813,29 @@
       <div class="lobby-wrap">
         <!-- ─────────────── SCREEN 1: CHOICE ─────────────── -->
         <div class="lobby-screen active" id="screen-choice">
-          <h1 class="lobby-title">MULTIPLAYER</h1>
-          <p class="lobby-subtitle">العب مع صاحبك</p>
+          <h1 class="lobby-title" data-i18n="multiTitle">MULTIPLAYER</h1>
+          <p class="lobby-subtitle" data-i18n="multiSub">Play with your friend</p>
 
           <button class="lobby-choice-btn" onclick="goCreate()">
             <span class="lobby-choice-icon"><img src="/img/create.png" class="lobby-choice-img" alt=""></span>
             <span class="lobby-choice-text">
-              <strong>Create a Party</strong>
-              <small>GENERATE A CODE — INVITE YOUR FRIEND</small>
+              <strong data-i18n="createParty">Create a Party</strong>
+              <small data-i18n="createPartySub">GENERATE A CODE — INVITE YOUR FRIEND</small>
             </span>
           </button>
 
           <button class="lobby-choice-btn" onclick="goJoin()">
             <span class="lobby-choice-icon"><img src="/img/join.png" class="lobby-choice-img" alt=""></span>
             <span class="lobby-choice-text">
-              <strong>Join a Party</strong>
-              <small>ENTER YOUR FRIEND'S CODE</small>
+              <strong data-i18n="joinParty">Join a Party</strong>
+              <small data-i18n="joinPartySub">ENTER YOUR FRIEND'S CODE</small>
             </span>
           </button>
         </div>
 
         <!-- ─────────────── SCREEN 2: HOST (CREATE) ─────────────── -->
         <div class="lobby-screen" id="screen-host">
+          <button onclick="showScreen('screen-choice')" style="align-self:flex-start; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin-bottom:8px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">← BACK</button>
           <h1 class="lobby-title">YOUR PARTY</h1>
           <p class="lobby-subtitle">شارك الكود مع صاحبك</p>
 
@@ -809,6 +910,7 @@
 
         <!-- ─────────────── SCREEN 3: GUEST (JOIN) ─────────────── -->
         <div class="lobby-screen" id="screen-join-input">
+          <button onclick="showScreen('screen-choice')" style="align-self:flex-start; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin-bottom:8px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">← BACK</button>
           <h1 class="lobby-title">JOIN A PARTY</h1>
           <p class="lobby-subtitle">دخّل الكود تع صاحبك</p>
 
@@ -979,7 +1081,9 @@
         carouselOffset += direction;
         if (carouselOffset < 0) carouselOffset = 0;
         if (carouselOffset > maxOffset) carouselOffset = maxOffset;
-        picker.style.transform = `translateX(${-carouselOffset * cardWidth}px)`;
+        
+        let xOffset = -carouselOffset * cardWidth;
+        picker.style.transform = `translateX(${xOffset}px)`;
         updateCarouselArrows(maxOffset);
       }
 
@@ -990,13 +1094,15 @@
         if (next) next.disabled = (carouselOffset >= maxOffset);
       }
 
-      let currentRulesLang = localStorage.getItem('chkobba_rules_lang') || 'en';
-      function showRules() { renderRules(currentRulesLang); document.getElementById('rulesModal').classList.add('show'); }
+      function showRules() { renderRules(window.currentLang); document.getElementById('rulesModal').classList.add('show'); }
       function closeRules() { document.getElementById('rulesModal').classList.remove('show'); }
-      function setRulesLang(l) { currentRulesLang = l; localStorage.setItem('chkobba_rules_lang', l); renderRules(l); }
       function renderRules(lang) {
-        const data = RULES_CONTENT[lang];
-        document.getElementById('rulesTitle').textContent = data.title;
+        if (!window.RULES_CONTENT) return;
+        const titleEl = document.getElementById('rulesTitle');
+        if (!titleEl) return; // Exit if rules elements are not yet in DOM
+
+        const data = window.RULES_CONTENT[lang] || window.RULES_CONTENT['en'];
+        titleEl.textContent = data.title;
         document.getElementById('rulesIntro').textContent = data.intro;
         const b = document.getElementById('rulesSections'); b.innerHTML = '';
         data.sections.forEach(s => {
@@ -1004,8 +1110,6 @@
           d.innerHTML = `<h3 class="rules-header">${s.header}</h3><div class="rules-text">${s.content}</div>`;
           b.appendChild(d);
         });
-        document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
-        document.getElementById('btn-lang-tn').classList.toggle('active', lang === 'tn');
       }
 
       function launch(m) {
@@ -1024,13 +1128,46 @@
       }
 
       function showView(id) {
-        document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        const incoming = document.getElementById(id);
+        const outgoing = document.querySelector('.spa-view.active');
+
+        // Apply global theme immediately
+        if (id === 'view-menu') {
+          document.body.classList.remove('expert-mode', 'multiplayer-mode');
+        } else if (id === 'view-lobby') {
+          document.body.classList.add('multiplayer-mode');
+          document.body.classList.remove('expert-mode');
+        } else if (id === 'view-single-settings') {
+          document.body.classList.remove('multiplayer-mode');
+          if (typeof updateBotPreview === 'function') updateBotPreview();
+        } else if (id === 'view-game') {
+          if (window.currentGameMode === 'multi' || window.mode === 'online') {
+            document.body.classList.add('multiplayer-mode');
+            document.body.classList.remove('expert-mode');
+          }
+        }
+
+        if (outgoing && outgoing !== incoming) {
+          // Play exit animation on current view
+          outgoing.classList.add('exiting');
+          outgoing.classList.remove('active');
+
+          const exitDuration = 280; // matches viewSlideOut duration in ms
+          setTimeout(() => {
+            outgoing.classList.remove('exiting');
+            // Show new view
+            incoming.classList.add('active');
+          }, exitDuration);
+        } else {
+          incoming.classList.add('active');
+        }
       }
 
       function showScreen(id) {
         document.querySelectorAll('.lobby-screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+        const incoming = document.getElementById(id);
+        incoming.classList.add('active', 'entering');
+        setTimeout(() => incoming.classList.remove('entering'), 400);
       }
 
       function goCreate() {
@@ -1348,11 +1485,11 @@
           </div>
           <div class="side-nav-links">
             <button class="side-nav-link" onclick="handleNavAction('rules')"><img src="/img/rules.png" class="btn-icon">
-              How to Play</button>
+              <span data-i18n="howToPlay">How to Play</span></button>
             <button class="side-nav-link" onclick="handleNavAction('fullscreen')"><img src="/img/fullscreen.png"
-                class="btn-icon"> Fullscreen</button>
+                class="btn-icon"> <span data-i18n="fullscreen">Fullscreen</span></button>
             <button class="side-nav-link" onclick="handleNavAction('menu')"><img src="/img/menu.png" class="btn-icon">
-              Main Menu</button>
+              <span data-i18n="mainMenu">Main Menu</span></button>
           </div>
         </div>
         <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
@@ -1366,12 +1503,12 @@
         <!-- Pause Overlay -->
         <div class="pause-overlay" id="pauseOverlay">
           <div class="pause-window">
-            <h2 class="pause-title">PAUSED</h2>
+            <h2 class="pause-title" data-i18n="paused">PAUSED</h2>
             <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
               <button class="menu-btn" onclick="togglePause()" style="width:200px;margin:0"><img src="/img/resume.png"
-                  class="btn-icon">Resume Game</button>
+                  class="btn-icon"><span data-i18n="resumeGame">Resume Game</span></button>
               <button class="menu-btn" onclick="showMenu()" style="width:200px;margin:0"><img src="/img/menu.png"
-                  class="btn-icon"> Quit to Menu</button>
+                  class="btn-icon"> <span data-i18n="quitToMenu">Quit to Menu</span></button>
             </div>
           </div>
         </div>
@@ -1427,22 +1564,24 @@
           <div class="player-info info-bottom mode-2v2-info">
             <!-- Quick Chat Menu (Moved here to anchor correctly) -->
             <div class="chat-menu" id="chatMenu">
-              <div class="chat-phrase" onclick="sendChat('Sahha!')">Sahha!</div>
-              <div class="chat-phrase" onclick="sendChat('CHKOBTEK!')">CHKOBTEK!</div>
-              <div class="chat-phrase" onclick="sendChat('7ayya 3andek?')">7ayya 3andek?</div>
-              <div class="chat-phrase" onclick="sendChat('Chkeyb lee!')">Chkeyb lee!</div>
-              <div class="chat-phrase" onclick="sendChat('T3allem al3eb!')">T3allem al3eb!</div>
-              <div class="chat-phrase" onclick="sendChat('Kesah!')">Kesah!</div>
-              <div class="chat-phrase" onclick="sendChat('La3ba sehla!')">La3ba sehla</div>
-              <div class="chat-phrase" onclick="sendChat('Jib dineri!')">Jib dineri</div>
-              <div class="chat-phrase" onclick="sendChat('L7ayya dour!')">L'7ayya dour</div>
-              <div class="chat-phrase" onclick="sendChat('Nrisky?')">Nrisky?</div>
-              <div class="chat-phrase" onclick="sendChat('Eyy')">Eyy</div>
-              <div class="chat-phrase" onclick="sendChat('Lee')">Lee</div>
-              <div class="chat-phrase" onclick="sendChat('Yrawah!')">Yrawah!</div>
-              <div class="chat-phrase" onclick="sendChat('Ija beha!')">Ija beha!</div>
-              <div class="chat-phrase" onclick="sendChat('7otni m3ah')">7otni m3ah</div>
-              <div class="chat-phrase" onclick="sendChat('narj3ou ayy')">narj3ou ayy</div>
+              <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
+              <div class="chat-phrase" onclick="sendChat('c2')" data-i18n="c2">CHKOBTEK!</div>
+              <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya 3andek?</div>
+              <div class="chat-phrase" onclick="sendChat('c4')" data-i18n="c4">Chkeyb lee!</div>
+              <div class="chat-phrase" onclick="sendChat('c5')" data-i18n="c5">T3allem al3eb!</div>
+              <div class="chat-phrase" onclick="sendChat('c6')" data-i18n="c6">Kesah!</div>
+              <div class="chat-phrase" onclick="sendChat('c7')" data-i18n="c7">La3ba sehla</div>
+              <div class="chat-phrase" onclick="sendChat('c8')" data-i18n="c8">Jib dineri</div>
+              <div class="chat-phrase" onclick="sendChat('c9')" data-i18n="c9">L'7ayya dour</div>
+              <div class="chat-phrase" onclick="sendChat('c10')" data-i18n="c10">Nrisky?</div>
+              <div class="chat-phrase" onclick="sendChat('c11')" data-i18n="c11">Eyy</div>
+              <div class="chat-phrase" onclick="sendChat('c12')" data-i18n="c12">Lee</div>
+              <div class="chat-phrase" onclick="sendChat('c13')" data-i18n="c13">Yrawah!</div>
+              <div class="chat-phrase" onclick="sendChat('c14')" data-i18n="c14">Ija beha!</div>
+              <div class="chat-phrase" onclick="sendChat('c15')" data-i18n="c15">7otni m3ah</div>
+              <div class="chat-phrase" onclick="sendChat('c16')" data-i18n="c16">narj3ou ayy</div>
+              <div class="chat-phrase" onclick="sendChat('c17')" data-i18n="c17">ezrebelna</div>
+              <div class="chat-phrase" onclick="sendChat('c18')" data-i18n="c18">nchala sne</div>
             </div>
 
             <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
@@ -1480,13 +1619,13 @@
 
       <!-- ══ END SCREEN ══ -->
       <div id="screen-end">
-        <p class="menu-ornament">Round Over</p>
+        <p class="menu-ornament" data-i18n="roundOver">Round Over</p>
         <div class="end-title" id="endTitle">Game Over</div>
         <div class="end-winner" id="endWinner"></div>
         <table class="score-table" id="scoreTable">
           <thead>
             <tr>
-              <th>Category</th>
+              <th data-i18n="category">Category</th>
               <th id="th-p1">You</th>
               <th id="th-p2">Chkobba Master</th>
             </tr>
@@ -1495,14 +1634,40 @@
         </table>
         <div id="matchStatus" class="match-status-text"></div>
         <div class="end-btn-row">
-          <button class="menu-btn end-action-btn" id="btn-next-action">Play Again</button>
-          <button class="menu-btn end-action-btn" onclick="showMenu()"><img src="/img/menu.png" class="btn-icon"> Main
-            Menu</button>
+          <button class="menu-btn end-action-btn" id="btn-next-action" data-i18n="playAgain">Play Again</button>
+          <button class="menu-btn end-action-btn" id="btn-main-menu-static" onclick="showMenu()"><img src="/img/menu.png" class="btn-icon"> <span
+              data-i18n="mainMenu">Main Menu</span></button>
         </div>
       </div> <!-- End of view-game -->
 
 
       <script>
+        // ── BOT IDENTITIES ──
+        const botData = {
+          easy: { name: "Sami (Easy)", img: "/img/easy.png" },
+          medium: { name: "Hamdi (Medium)", img: "/img/medium.png" },
+          hard: { name: "M3allem (Hard)", img: "/img/hard.png" },
+          expert: { name: "El General (Expert)", img: "/img/expert.png" }
+        };
+
+        function updateBotPreview() {
+          const level = document.getElementById('single-difficulty').value;
+          const data = botData[level];
+
+          if (data) {
+            document.getElementById('preview-bot-img').src = data.img;
+            document.getElementById('preview-bot-name').textContent = data.name;
+          }
+
+          // Expert Mode Visual Alert toggle on BODY (to preserve stripes/logo)
+          if (level === 'expert') {
+            document.body.classList.add('expert-mode');
+            document.body.classList.remove('multiplayer-mode');
+          } else {
+            document.body.classList.remove('expert-mode');
+          }
+        }
+
         // ═══════════════════════════════════════════════════════════
         //  AUDIO & GLOBALS
         // ═══════════════════════════════════════════════════════════
@@ -1937,10 +2102,19 @@
           });
 
           const n1 = customName || (m === 'pass' ? 'Player 1' : 'You');
-          const n2 = m === 'online' ? 'Opponent' : (m === 'pass' ? 'Player 2' : 'Bot');
+          let n2 = m === 'online' ? 'Opponent' : (m === 'pass' ? 'Player 2' : 'Bot');
+          let botImg = '/img/botpfp.png';
+
+          if (m === 'single' && botData[difficulty]) {
+            n2 = botData[difficulty].name;
+            botImg = botData[difficulty].img;
+          }
+
           engine.players[0].name = n1;
           engine.players[1].name = n2;
           engine.currentPlayer = firstPlayerOfRound;
+
+          document.getElementById('pfp-bot').src = botImg;
 
           window.getPlayerNameByServerSlot = function (slot) {
             if (mode !== 'online') return engine.players[slot] ? engine.players[slot].name : 'Player';
@@ -1955,7 +2129,7 @@
 
           window.getTurnStatusMsg = function (slot) {
             const name = window.getPlayerNameByServerSlot(slot);
-            if (name === 'You') return "It's your turn!";
+            if (name === 'You') return window.translations?.[window.currentLang]?.yourTurn || "It's your turn!";
             return `${name}'s turn`;
           };
 
@@ -2188,6 +2362,7 @@
               const s1 = totals[oppTeamIdx] ?? 0;
 
               let title = 'Round Over', isGameOver = false;
+
               if (s0 >= winScore || s1 >= winScore) {
                 if (Math.abs(s0 - s1) >= 2) {
                   isGameOver = true;
@@ -2208,13 +2383,15 @@
               // Match Status Line
               const matchStatus = document.getElementById('matchStatus') || document.createElement('div');
               matchStatus.id = 'matchStatus';
-              matchStatus.className = 'match-status-line';
+              matchStatus.className = 'match-status-text';
               const remaining = winScore - Math.max(s0, s1);
               if (isGameOver) {
                 const winnerGroup = s0 > s1 ? myTeamName : oppTeamName;
-                matchStatus.textContent = `${winnerGroup} has become the Sultan!`;
+                let txt = window.translations?.[window.currentLang]?.sultan || '{name} has become the WINNER!';
+                matchStatus.textContent = txt.replace('{name}', winnerGroup);
               } else {
-                matchStatus.textContent = `Only ${remaining} points left to become the Sultan!`;
+                let txt = window.translations?.[window.currentLang]?.matchStatus || `Only {points} points left to WIN!`;
+                matchStatus.textContent = txt.replace('{points}', remaining);
               }
               const endTable = document.querySelector('.end-table');
               if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
@@ -2243,7 +2420,24 @@
                 const tr = document.createElement('tr');
                 const myClass = r.myWin ? 'winner' : (r.oppWin ? 'loser' : '');
                 const oppClass = r.oppWin ? 'winner' : (r.myWin ? 'loser' : '');
-                tr.innerHTML = `<td>${r.label}</td><td class="${myClass}">${r.my}</td><td class="${oppClass}">${r.opp}</td>`;
+
+                let i18tag = "";
+                let labelText = r.label;
+                if (r.label === 'Cards') {
+                  i18tag = 'data-i18n="cardsName"';
+                  if (window.translations?.[window.currentLang]) labelText = window.translations[window.currentLang]['cardsName'];
+                } else if (r.label === 'Chkobbas') {
+                  i18tag = 'data-i18n="chkobbasName"';
+                  if (window.translations?.[window.currentLang]) labelText = window.translations[window.currentLang]['chkobbasName'];
+                }
+
+                let myVal = r.my, oppVal = r.opp;
+                if (myVal === 'Yes') myVal = '<span data-i18n="c11">' + (window.translations?.[window.currentLang]?.c11 || 'Yes') + '</span>';
+                if (myVal === 'No') myVal = '<span data-i18n="c12">' + (window.translations?.[window.currentLang]?.c12 || 'No') + '</span>';
+                if (oppVal === 'Yes') oppVal = '<span data-i18n="c11">' + (window.translations?.[window.currentLang]?.c11 || 'Yes') + '</span>';
+                if (oppVal === 'No') oppVal = '<span data-i18n="c12">' + (window.translations?.[window.currentLang]?.c12 || 'No') + '</span>';
+
+                tr.innerHTML = `<td ${i18tag}>${labelText}</td><td class="${myClass}">${myVal}</td><td class="${oppClass}">${oppVal}</td>`;
                 tbody.appendChild(tr);
               });
 
@@ -2533,7 +2727,12 @@
 
           const bubble = document.createElement('div');
           bubble.className = 'bubble';
-          bubble.textContent = text;
+          // Try to translate the key, fallback to the text itself (for backward compatibility)
+          let localized = text;
+          if (window.translations && window.currentLang && window.translations[window.currentLang][text]) {
+            localized = window.translations[window.currentLang][text];
+          }
+          bubble.textContent = localized;
           target.prepend(bubble);
 
           // Auto-remove after animation
@@ -2700,7 +2899,7 @@
           toast.style.background = '#e74c3c';
           toast.style.color = '#fff';
           toast.style.display = 'flex';
-          toast.textContent = 'Estanna dawrek...';
+          toast.textContent = window.translations?.[window.currentLang]?.estanna || 'Wait your turn...';
           document.body.appendChild(toast);
           requestAnimationFrame(() => toast.style.transform = 'translate(-50%, -50px)');
           setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 1500);
@@ -2709,7 +2908,8 @@
         function renderTable() {
           const el = document.getElementById('tableCards');
           if (engine.table.length === 0) {
-            el.innerHTML = '<span style="color:var(--gold-dim);font-style:italic;font-size:14px;">Table is empty</span>';
+            let emptyText = window.translations?.[window.currentLang]?.tableEmpty || 'Table is empty';
+            el.innerHTML = `<span style="color:var(--gold-dim);font-style:italic;font-size:14px;">${emptyText}</span>`;
             return;
           }
           if (el.querySelector('span')) el.innerHTML = '';
@@ -2886,6 +3086,12 @@
                 if (sfxEnabled) { sfxChkobba.currentTime = 0; sfxChkobba.play().catch(e => e); }
                 if (window.radioPlayer) window.radioPlayer.duck();
                 addLog(`⭐ CHKOBBA! for ${pname}`, 'chkobba');
+                
+                // Bot reaction to getting a Chkobba
+                if (pidx === 1) {
+                  const chIdx = Math.floor(Math.random() * 3) + 1;
+                  showSpeechBubble(1, `bot_chkobba_${chIdx}`);
+                }
               }
               // 7ayya Check
               const is7ayyaCaptured = (card.id === '7carreau' || captured.some(c => c.id === '7carreau'));
@@ -2922,6 +3128,26 @@
           botThinkTimeout = setTimeout(() => {
             if (isPaused || !engine) return; // Safety check
             const move = bot.chooseMove(1, engine.table);
+            
+            // --- BOT PERSONALITY / REACTIONS ---
+            const chatChance = Math.random();
+            if (chatChance < 0.4) {
+               const has7ayya = (move.card.id === '7carreau') || (move.captured && move.captured.some(c => c.id === '7carreau'));
+               if (has7ayya) {
+                 showSpeechBubble(1, 'bot_7ayya');
+               } else if (totalScores[1] > totalScores[0] + 5) {
+                 // Bot winning
+                 showSpeechBubble(1, Math.random() > 0.5 ? 'bot_winning_1' : 'bot_winning_2');
+               } else if (totalScores[0] > totalScores[1] + 5) {
+                 // Bot losing
+                 showSpeechBubble(1, 'bot_losing');
+               }
+            } else if (chatChance < 0.55) {
+               // 15% chance for a general themed idle phrase
+               const idleIdx = Math.floor(Math.random() * 12) + 1;
+               showSpeechBubble(1, `bot_idle_${idleIdx}`);
+            }
+
             executeMove(1, move.card, move.captured);
           }, 1000); // 1s "thinking" time
         }
@@ -2947,11 +3173,11 @@
           matchStatus.className = 'match-status-line';
           const leaderIdx = s0 >= s1 ? 0 : 1;
           const gap = Math.abs(s0 - s1);
-          const remaining = winScore - Math.max(s0, s1);
+          const remaining = winScore - s0;
           if (isGameOver) {
-            matchStatus.textContent = `${engine.players[leaderIdx].name} has become the Sultan!`;
+            matchStatus.textContent = `${engine.players[leaderIdx].name} is the WINNER!`;
           } else {
-            matchStatus.textContent = `Only ${remaining} points left to become the Sultan!`;
+            matchStatus.textContent = `Only ${remaining} points left to WIN!`;
           }
           const endTable = document.querySelector('.end-table');
           if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
@@ -3018,17 +3244,23 @@
           // Match Status Line
           const mStatus = document.getElementById('matchStatus');
           const leadingIdx = s0 >= s1 ? 0 : 1;
-          const pointsLeft = winScore - Math.max(s0, s1);
+          const pointsLeft = winScore - s0;
           if (isGameOver) {
-            mStatus.innerHTML = `🏁 <span style="color:var(--gold)">${engine.players[leadingIdx].name}</span> is the Sultan of Tunisia!`;
+            mStatus.innerHTML = `🏁 <span style="color:var(--gold)">${engine.players[leadingIdx].name}</span> is the WINNER!`;
           } else {
-            mStatus.textContent = `Only ${pointsLeft} points left to become the Sultan!`;
+            mStatus.textContent = `Only ${pointsLeft} points left to WIN!`;
           }
 
           const btnGame = document.getElementById('btn-next-action');
+          const btnStatic = document.getElementById('btn-main-menu-static');
           btnGame.classList.add('gold-glow-btn'); // Add glow
-          if (isGameOver) { btnGame.textContent = 'Main Menu'; btnGame.onclick = () => showMenu(); }
-          else { btnGame.textContent = 'Next Round'; btnGame.onclick = () => { btnGame.classList.remove('gold-glow-btn'); startNextRound(); }; }
+          if (isGameOver) {
+            btnGame.textContent = 'Main Menu'; btnGame.onclick = () => showMenu();
+            if (btnStatic) btnStatic.style.display = 'none';
+          } else {
+            btnGame.textContent = 'Next Round'; btnGame.onclick = () => { btnGame.classList.remove('gold-glow-btn'); startNextRound(); };
+            if (btnStatic) btnStatic.style.display = '';
+          }
         }
 
         function startNextRound() {
@@ -3047,6 +3279,13 @@
         }
 
         function setStatus(msg) { document.getElementById('statusBar').textContent = msg; }
+        window.updateTranslationHooks = function () {
+          if (typeof engine !== 'undefined' && engine && typeof isAnimating !== 'undefined' && !isAnimating) {
+            if (engine.roundOver) return;
+            setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+            renderTable();
+          }
+        };
         function addLog(msg, cls = '') {
           const log = document.getElementById('logArea'); const el = document.createElement('div'); el.className = 'log-entry' + (cls ? ' ' + cls : ''); el.textContent = msg;
           log.appendChild(el); log.scrollTop = log.scrollHeight; if (log.children.length > 5) { while (log.children.length > 5) log.removeChild(log.firstChild); }
@@ -3125,14 +3364,7 @@
     <div class="modal-overlay" id="rulesModal">
       <div class="modal-window">
         <div class="modal-header">
-          <div class="modal-lang-toggle">
-            <button class="lang-btn active" id="btn-lang-en" onclick="setRulesLang('en')">
-              <img src="/img/usa.png" class="flag-icon" alt=""> English
-            </button>
-            <button class="lang-btn" id="btn-lang-tn" onclick="setRulesLang('tn')">
-              <img src="/img/TU.png" class="flag-icon" alt=""> Derja
-            </button>
-          </div>
+          <h2 class="rules-modal-main-title" data-i18n="howToPlay">How to Play</h2>
           <button class="modal-close" onclick="closeRules()">&times;</button>
         </div>
         <div class="modal-body" id="rulesBody">

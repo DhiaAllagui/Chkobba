@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
 
 
 :root {
@@ -31,8 +31,9 @@
 }
 
 body {
+  --felt-bg: var(--green-felt-dark);
   font-family: 'Crimson Pro', serif;
-  background: var(--green-felt-dark);
+  background: var(--felt-bg);
   color: var(--cream);
   min-height: 100vh;
   min-height: 100svh;
@@ -40,6 +41,61 @@ body {
   overflow-x: hidden;
   max-width: 100vw;
   position: relative;
+  transition: background-color 1s ease;
+}
+
+/* Expert Mode Visual Alert */
+body.expert-mode {
+  --felt-bg: #3e0a0a;
+}
+
+body.expert-mode::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 101; /* Above the frame */
+  animation: alert-pulse 4s infinite alternate;
+}
+
+/* Multiplayer Mode Visual */
+body.multiplayer-mode {
+  --felt-bg: #0a103e; /* Deep Blue */
+}
+
+body.multiplayer-mode::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  box-shadow: inset 0 0 100px rgba(0, 100, 255, 0.4);
+  pointer-events: none;
+  z-index: 101;
+  animation: blue-alert-pulse 4s infinite alternate;
+}
+
+@keyframes alert-pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+@keyframes blue-alert-pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* RTL Support */
+body.rtl {
+  direction: rtl;
+}
+body.rtl .settings-label {
+  text-align: right;
+  letter-spacing: 0;
+}
+body.rtl .menu-title {
+  letter-spacing: 0;
 }
 
 /* Centering for the standalone menu page */
@@ -211,10 +267,11 @@ body::after {
 /* ── SHARED MENU STYLES ── */
 .menu-ornament {
   font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 6px;
-  color: var(--gold-dim);
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: var(--gold);
   text-transform: uppercase;
+  font-weight: 700;
   margin-bottom: 12px;
 }
 
@@ -322,6 +379,25 @@ body::after {
   vertical-align: middle;
 }
 
+.settings-layout {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: stretch;
+  margin-bottom: 24px;
+  direction: ltr !important; /* Forces the layout to stay left-to-right even when Arabic is selected */
+}
+
+@media (max-width: 630px) {
+  .settings-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .settings-lang {
+    width: 100% !important;
+  }
+}
+
 /* Settings Panel */
 .menu-settings {
   display: flex;
@@ -332,14 +408,101 @@ body::after {
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(201, 168, 76, 0.25);
   border-radius: 8px;
-  margin-bottom: 12px;
+  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
 }
+
+.settings-main {
+  flex: 1;
+}
+
+.settings-lang {
+  width: auto;
+  min-width: 150px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.vertical-list {
+  flex-direction: column;
+  gap: 18px; /* Slightly more gap for mobile thumbs */
+  align-items: flex-start;
+  width: 100%;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+
 
 .settings-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+/* Language Selector (Checkbox / Radio styles) */
+.lang-selector {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.lang-option {
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.lang-option input {
+  display: none;
+}
+
+.lang-option img {
+  width: 36px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  opacity: 0.5;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  background: black;
+}
+
+.lang-option:hover img {
+  opacity: 0.8;
+  transform: translateY(-2px);
+}
+
+.lang-option input:checked + img {
+  border-color: var(--gold);
+  opacity: 1;
+  transform: scale(1.15) translateY(-2px);
+  box-shadow: 0 4px 10px rgba(201, 168, 76, 0.6);
+}
+
+.lang-name {
+  color: var(--gold-dim);
+  font-size: 14px;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.lang-option input:checked ~ .lang-name {
+  color: var(--gold);
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
 }
 
 .settings-label {
@@ -426,14 +589,14 @@ body::after {
   gap: 10px;
   width: 100%;
   justify-content: center;
+  direction: ltr; /* Force LTR for carousel logic */
 }
 
 .carousel-viewport {
   width: 130px;
-  /* 120px card + minimal buffer */
   overflow: hidden;
   border-radius: 6px;
-  padding: 0;
+  padding: 30px 0;
 }
 
 .back-picker {
@@ -464,8 +627,8 @@ body::after {
 .back-option.selected {
   border-color: var(--gold);
   opacity: 1;
-  transform: scale(1.1) translateY(-10px);
-  box-shadow: 0 0 30px rgba(201, 168, 76, 0.6);
+  transform: translateY(-15px);
+  box-shadow: 0 15px 35px rgba(201, 168, 76, 0.6);
   z-index: 10;
 }
 
@@ -593,9 +756,9 @@ body.menu-page .menu-btn {
   flex-direction: column;
   padding: 20px;
   gap: 12px;
-  justify-content: space-between;
   min-height: 100svh;
   overflow-y: auto;
+  position: relative;
 }
 
 .player-zone {
@@ -607,11 +770,11 @@ body.menu-page .menu-btn {
 }
 
 #zone-bot {
-  padding-left: 140px;
+  padding-left: 128px;
 }
 
 #zone-player {
-  padding-left: 140px;
+  padding-left: 128px;
 }
 
 .player-info {
@@ -627,7 +790,7 @@ body.menu-page .menu-btn {
   width: 110px;
   position: absolute;
   top: 50%;
-  left: 30px;
+  left: 8px;
   transform: translateY(-50%);
   z-index: 2000;
   transition: border-color 0.3s, transform 0.2s;
@@ -3061,20 +3224,21 @@ body.menu-page .menu-btn {
     position: absolute;
     bottom: 40px;
     left: -10px;
-    width: 250px;
+    width: 320px;
+    max-width: 90vw;
     background: rgba(18, 18, 18, 0.98);
     border: 1px solid var(--gold);
     border-radius: 12px;
     padding: 8px;
     display: none;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     z-index: 1001;
     box-shadow: 0 10px 40px rgba(0,0,0,0.9);
     transform-origin: bottom left;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    /* Scrollable: show 6 msgs (3 rows) at a time */
-    max-height: 132px;
+    /* Scrollable: show 9 msgs (3 rows) at a time */
+    max-height: 110px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
@@ -3092,13 +3256,16 @@ body.menu-page .menu-btn {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(201, 168, 76, 0.2);
     color: var(--parchment);
-    padding: 8px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .chat-phrase:hover {
