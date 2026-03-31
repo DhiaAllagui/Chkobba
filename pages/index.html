@@ -680,6 +680,88 @@
               <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11"
                 data-i18n="usernameLabel">
             </div>
+            <div class="settings-row" style="justify-content: center; margin-top: 15px;">
+              <button class="rule-menu-btn" onclick="showRules()"><img src="/img/rules.png" class="btn-icon"> <span
+                  data-i18n="howToPlay">How to Play</span></button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="menu-btn" onclick="showView('view-single-settings')"><img src="/img/singleplayer.png"
+              class="btn-icon"> <span data-i18n="playSingle">Single Player</span></button>
+          <button class="menu-btn" onclick="showView('view-lobby')"><img src="/img/multiplayer.png" class="btn-icon">
+            <span data-i18n="playMulti">Multiplayer</span></button>
+        </div>
+
+        <div class="btn-row" style="margin-top: 12px;">
+          <button class="menu-btn" onclick="showView('view-settings')">
+            <img src="/img/setting.png" class="btn-icon">
+            <span data-i18n="settings">Settings</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Tunisian Café Radio Widget (FAB) -->
+
+
+      <!-- ── RULES MODAL ── -->
+
+    </div> <!-- end view-menu -->
+    <!-- SCRIPTS CONSOLIDATED TO THE BOTTOM -->
+    <!-- ══ SETTINGS SCREEN ══ -->
+    <div id="view-settings" class="spa-view">
+      <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
+
+      <div class="lobby-wrap">
+        <div class="lobby-screen active">
+          <h1 class="lobby-title" data-i18n="settings">SETTINGS</h1>
+          <p class="lobby-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
+
+          <div class="lobby-settings" style="width:100%; max-width:520px; margin: 20px 0;">
+            <div class="menu-settings settings-lang" style="width:100%; margin-bottom: 16px;">
+              <div class="lang-selector vertical-list">
+                <label class="lang-option list-item">
+                  <input type="radio" name="lang" value="en" onclick="changeLanguage('en')">
+                  <img src="/img/usa.png" alt="EN">
+                  <span class="lang-name">English</span>
+                </label>
+                <label class="lang-option list-item">
+                  <input type="radio" name="lang" value="fr" onclick="changeLanguage('fr')">
+                  <img src="/img/fr.png" alt="FR">
+                  <span class="lang-name">Français</span>
+                </label>
+                <label class="lang-option list-item">
+                  <input type="radio" name="lang" value="ar" onclick="changeLanguage('ar')">
+                  <img src="/img/TU.png" alt="AR">
+                  <span class="lang-name">العربية</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-row" style="align-items:flex-start;">
+              <span class="settings-label">TABLE THEME</span>
+              <div class="table-theme-grid" id="table-theme-grid">
+                <button type="button" class="table-theme-option" data-theme="classic" onclick="applyTableTheme('classic')">
+                  <span class="table-theme-swatch theme-classic"></span>
+                  <span class="table-theme-name">Classic</span>
+                </button>
+                <button type="button" class="table-theme-option" data-theme="midnight" onclick="applyTableTheme('midnight')">
+                  <span class="table-theme-swatch theme-midnight"></span>
+                  <span class="table-theme-name">Midnight</span>
+                </button>
+                <button type="button" class="table-theme-option" data-theme="desert" onclick="applyTableTheme('desert')">
+                  <span class="table-theme-swatch theme-desert"></span>
+                  <span class="table-theme-name">Desert</span>
+                </button>
+                <button type="button" class="table-theme-option" data-theme="royal" onclick="applyTableTheme('royal')">
+                  <span class="table-theme-swatch theme-royal"></span>
+                  <span class="table-theme-name">Royal</span>
+                </button>
+              </div>
+            </div>
 
             <div class="settings-row">
               <span class="settings-label" data-i18n="cardBackLabel">CARD BACK</span>
@@ -700,64 +782,28 @@
                 <button class="carousel-arrow" id="next-back" onclick="moveCarousel(1)">&#8250;</button>
               </div>
             </div>
+
             <div class="settings-row">
               <label class="settings-check-label">
                 <input type="checkbox" id="menu-sfx" checked>
                 <span class="settings-check-custom"></span>
-                <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> <span
-                    data-i18n="sfxLabel">Enable Sound Effects</span></span>
+                <span class="sound-label">
+                  <img class="icon-vol" src="/img/volumeup.png" alt="Vol">
+                  <span data-i18n="sfxLabel">Enable Sound Effects</span>
+                </span>
               </label>
             </div>
-            <div class="side-nav-links">
+
+            <div class="side-nav-links" style="margin-top: 10px;">
               <button class="side-nav-link" onclick="handleNavAction('fullscreen')">
                 <img src="/img/fullscreen.png" class="btn-icon">
-                <span>Fullscreen</span>
+                <span data-i18n="fullscreen">Fullscreen</span>
               </button>
             </div>
-            <div class="settings-row" style="justify-content: center; margin-top: 15px;">
-              <button class="rule-menu-btn" onclick="showRules()"><img src="/img/rules.png" class="btn-icon"> <span
-                  data-i18n="howToPlay">How to Play</span></button>
-            </div>
-
-          </div>
-
-          <div class="menu-settings settings-lang">
-            <div class="lang-selector vertical-list">
-              <label class="lang-option list-item">
-                <input type="radio" name="lang" value="en" onclick="changeLanguage('en')">
-                <img src="/img/usa.png" alt="EN">
-                <span class="lang-name">English</span>
-              </label>
-              <label class="lang-option list-item">
-                <input type="radio" name="lang" value="fr" onclick="changeLanguage('fr')">
-                <img src="/img/fr.png" alt="FR">
-                <span class="lang-name">Français</span>
-              </label>
-              <label class="lang-option list-item">
-                <input type="radio" name="lang" value="ar" onclick="changeLanguage('ar')">
-                <img src="/img/TU.png" alt="AR">
-                <span class="lang-name">العربية</span>
-              </label>
-            </div>
           </div>
         </div>
-
-        <div class="btn-row">
-          <button class="menu-btn" onclick="showView('view-single-settings')"><img src="/img/singleplayer.png"
-              class="btn-icon"> <span data-i18n="playSingle">Single Player</span></button>
-          <button class="menu-btn" onclick="showView('view-lobby')"><img src="/img/multiplayer.png" class="btn-icon">
-            <span data-i18n="playMulti">Multiplayer</span></button>
-        </div>
-
       </div>
-
-      <!-- Tunisian Café Radio Widget (FAB) -->
-
-
-      <!-- ── RULES MODAL ── -->
-
-    </div> <!-- end view-menu -->
-    <!-- SCRIPTS CONSOLIDATED TO THE BOTTOM -->
+    </div>
     <!-- ══ SINGLE PLAYER SETTINGS SCREEN ══ -->
     <div id="view-single-settings" class="spa-view">
       <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
@@ -1095,6 +1141,9 @@
           });
         });
 
+        // Table theme init
+        applyTableTheme(localStorage.getItem('chkobba_table_theme') || 'classic', { persist: false });
+
         // Lobby Auto-join from URL
         const params = new URLSearchParams(window.location.search);
         if (params.has('code')) {
@@ -1108,6 +1157,18 @@
         const carouselPicker = document.getElementById('back-picker');
         if (carouselPicker) updateCarouselArrows(carouselPicker.children.length - cardLimit);
       });
+
+      window.applyTableTheme = function (theme, opts = { persist: true }) {
+        const t = theme || 'classic';
+        if (opts.persist !== false) localStorage.setItem('chkobba_table_theme', t);
+
+        if (t === 'classic') document.body.removeAttribute('data-table-theme');
+        else document.body.setAttribute('data-table-theme', t);
+
+        document.querySelectorAll('.table-theme-option').forEach(btn => {
+          btn.classList.toggle('selected', btn.dataset.theme === t);
+        });
+      };
 
       // ─── Menu / Carousel Functions ──────────────────────────────────
       function moveCarousel(direction) {
@@ -2758,9 +2819,39 @@
 
             const handleStateSync = (data) => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount } = data;
+              const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount, isNewRound } = data;
               const sync = () => {
                 if (isAnimating) { setTimeout(sync, 100); return; }
+
+                const screenEndEl = document.getElementById('screen-end');
+                const isEndVisible = screenEndEl && screenEndEl.style.display !== 'none';
+                const looksLikeFreshRound =
+                  Array.isArray(myHand) && myHand.length > 0 &&
+                  Array.isArray(table) && table.length === 4 &&
+                  typeof deckRemaining === 'number' && deckRemaining > 0;
+
+                // Coming back from end screen into a new round (explicit flag or inferred payload)
+                if (isNewRound || (isEndVisible && looksLikeFreshRound)) {
+                  if (endScreenTimer) { clearInterval(endScreenTimer); endScreenTimer = null; }
+                  document.getElementById('screen-end').style.display = 'none';
+                  document.getElementById('screen-game').style.display = 'flex';
+                  hasShownEkherJarya = false;
+                  lastTurnForTimer = null;
+
+                  // Reset local visual piles/chkobbas since server starts a fresh round
+                  if (engine && engine.players) {
+                    engine.players.forEach(p => {
+                      if (!p) return;
+                      p.chkobbas = [];
+                      p.pile = [];
+                      p.currentRoundChkobbas = 0;
+                    });
+                    updateStreakBadges();
+                  }
+
+                  const nBtn = document.getElementById('btn-next-action');
+                  if (nBtn) nBtn.disabled = false;
+                }
 
                 if (myHand !== undefined) engine.players[0].hand = myHand;
                 if (table !== undefined) engine.table = table;

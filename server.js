@@ -520,12 +520,18 @@ io.on('connection', (socket) => {
 
   socket.on('next-round', () => {
       const code = socket.data.code;
-      const mySlotIdx = socket.data.slotIdx;
+      let mySlotIdx = socket.data.slotIdx;
       const room = rooms[code];
       if (!room || !room.gameState) return;
       
       const state = room.gameState;
       const np = state.numPlayers || 2;
+      if (mySlotIdx === undefined || mySlotIdx === null || mySlotIdx < 0) {
+          // Fallback: recover slot from current socket id (in case slotIdx was lost)
+          mySlotIdx = room.players.findIndex(p => p && p.id === socket.id);
+          socket.data.slotIdx = mySlotIdx;
+      }
+      if (mySlotIdx < 0 || mySlotIdx >= np) return;
       state.readyForNextRound[mySlotIdx] = true;
       
       io.to(code).emit('player-ready', { playerIdx: mySlotIdx });
@@ -565,7 +571,9 @@ io.on('connection', (socket) => {
               currentTurn: room.gameState.currentTurn,
               jaryaCount: 1,
               maxJaryas: room.gameState.maxJaryas,
-              deckRemaining: room.gameState.deck.length
+              deckRemaining: room.gameState.deck.length,
+              roundCount: room.roundCount,
+              isNewRound: true
           };
           
           for (let i = 0; i < np; i++) {
@@ -661,31 +669,55 @@ io.on('connection', (socket) => {
     const room = rooms[code];
     if (!room) return;
 
-    if (room.host === socket.id) {
-        // Host leaves: Close Entire Room
-        console.log(`[ROOM] Host left. Closing room: ${code}`);
+    // Graceful leave: allow 30s to come back (refresh/back-to-menu)
+    const oldId = socket.id;
+    const pIdx = room.players.findIndex(p => p.id === oldId);
+    if (pIdx === -1) {
+      socket.leave(code);
+      delete socket.data.code;
+      return;
+    }
+
+    const name = room.players[pIdx].name || 'Player';
+    io.to(code).emit('player-disconnected', { name });
+
+    if (room.reconnectTimers[oldId]) {
+      clearTimeout(room.reconnectTimers[oldId]);
+      delete room.reconnectTimers[oldId];
+    }
+
+    room.reconnectTimers[oldId] = setTimeout(() => {
+      const r = rooms[code];
+      if (!r) return;
+
+      // If they've reconnected, their player record id will be different (or socket exists)
+      const stillSameSocket = r.players.some(p => p && p.id === oldId);
+      if (!stillSameSocket) {
+        delete r.reconnectTimers[oldId];
+        return;
+      }
+
+      const idx2 = r.players.findIndex(p => p && p.id === oldId);
+      const pname = idx2 !== -1 ? (r.players[idx2].name || name) : name;
+
+      if (r.host === oldId) {
+        console.log(`[ROOM] Host did not return in 30s. Closing room: ${code}`);
         io.to(code).emit('room-closed');
         delete rooms[code];
-    } else {
-        // Guest leaves: Remove them
-        const pIdx = room.players.findIndex(p => p.id === socket.id);
-        if (pIdx !== -1) {
-            const name = room.players[pIdx].name;
-            console.log(`[ROOM] Player ${name} left: ${code}`);
-            room.players.splice(pIdx, 1);
-            
-            // Remove from teams
-            for (let t in room.teams) {
-                room.teams[t] = room.teams[t].map(sid => sid === socket.id ? null : sid);
-            }
-            
-            io.to(code).emit('player-left', { name });
-            io.to(code).emit('room-data', {
-                players: room.players,
-                settings: room.settings
-            });
-        }
-    }
+        return;
+      }
+
+      if (idx2 !== -1) r.players.splice(idx2, 1);
+      for (let t in r.teams) {
+        r.teams[t] = r.teams[t].map(sid => (sid === oldId ? null : sid));
+      }
+
+      io.to(code).emit('players-updated', { players: r.players, teams: r.teams });
+      io.to(code).emit('player-left', { name: pname });
+      delete r.reconnectTimers[oldId];
+      console.log(`[ROOM] Player ${pname} removed after 30s: ${code}`);
+    }, 30000);
+
     socket.leave(code);
     delete socket.data.code;
   });

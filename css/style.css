@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Caveat:wght@400;700&family=Cairo:wght@400;600;700&display=swap');
 
 
 :root {
@@ -32,6 +32,9 @@
 
 body {
   --felt-bg: var(--green-felt-dark);
+  --table-surface-bg: rgba(0, 0, 0, 0.2);
+  --table-surface-border: 1px solid rgba(201, 168, 76, 0.15);
+  --table-surface-shadow: inset 0 0 0 0 rgba(0,0,0,0);
   font-family: 'Crimson Pro', serif;
   background: var(--felt-bg);
   color: var(--cream);
@@ -63,6 +66,34 @@ body.expert-mode::after {
 /* Multiplayer Mode Visual */
 body.multiplayer-mode {
   --felt-bg: #0a103e; /* Deep Blue */
+}
+
+/* Table theme (surface only) */
+body[data-table-theme="midnight"] {
+  --felt-bg: #050a16;
+  --table-surface-bg:
+    radial-gradient(120% 120% at 50% 20%, rgba(30, 80, 120, 0.25), rgba(0, 0, 0, 0.55)),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 10px);
+  --table-surface-border: 1px solid rgba(120, 190, 255, 0.18);
+  --table-surface-shadow: inset 0 0 40px rgba(0,0,0,0.55);
+}
+
+body[data-table-theme="desert"] {
+  --felt-bg: #2a160b;
+  --table-surface-bg:
+    radial-gradient(120% 120% at 40% 10%, rgba(255, 220, 160, 0.18), rgba(120, 60, 10, 0.35)),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0.06) 0 3px, transparent 3px 12px);
+  --table-surface-border: 1px solid rgba(201, 168, 76, 0.22);
+  --table-surface-shadow: inset 0 0 35px rgba(0,0,0,0.45);
+}
+
+body[data-table-theme="royal"] {
+  --felt-bg: #0b0618;
+  --table-surface-bg:
+    radial-gradient(120% 120% at 50% 20%, rgba(190, 120, 255, 0.16), rgba(10, 0, 30, 0.65)),
+    repeating-linear-gradient(90deg, rgba(201,168,76,0.06) 0 2px, transparent 2px 14px);
+  --table-surface-border: 1px solid rgba(201, 168, 76, 0.22);
+  --table-surface-shadow: inset 0 0 45px rgba(0,0,0,0.6);
 }
 
 body.multiplayer-mode::after {
@@ -632,6 +663,73 @@ body::after {
   z-index: 10;
 }
 
+/* Table Theme Picker */
+.table-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.table-theme-option {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--parchment);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.table-theme-option:hover {
+  transform: translateY(-2px);
+  border-color: rgba(201, 168, 76, 0.55);
+}
+
+.table-theme-option.selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.15), 0 12px 30px rgba(0,0,0,0.35);
+}
+
+.table-theme-swatch {
+  width: 44px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: inset 0 0 18px rgba(0,0,0,0.35);
+  flex-shrink: 0;
+}
+
+.table-theme-name {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.theme-classic {
+  background: rgba(0, 0, 0, 0.2);
+}
+.theme-midnight {
+  background:
+    radial-gradient(120% 120% at 50% 20%, rgba(30, 80, 120, 0.25), rgba(0, 0, 0, 0.55)),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 10px);
+}
+.theme-desert {
+  background:
+    radial-gradient(120% 120% at 40% 10%, rgba(255, 220, 160, 0.18), rgba(120, 60, 10, 0.35)),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0.06) 0 3px, transparent 3px 12px);
+}
+.theme-royal {
+  background:
+    radial-gradient(120% 120% at 50% 20%, rgba(190, 120, 255, 0.16), rgba(10, 0, 30, 0.65)),
+    repeating-linear-gradient(90deg, rgba(201,168,76,0.06) 0 2px, transparent 2px 14px);
+}
+
 .status-bar {
   width: 100%;
   padding: 8px 15px;
@@ -1044,10 +1142,11 @@ body.menu-page .menu-btn {
   justify-items: center;
   min-height: calc(var(--card-h) + 16px);
   align-items: start;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--table-surface-bg);
   padding: 12px 20px;
   border-radius: 8px;
-  border: 1px solid rgba(201, 168, 76, 0.15);
+  border: var(--table-surface-border);
+  box-shadow: var(--table-surface-shadow);
 }
 
 /* â”€â”€ CARDS â”€â”€ */
@@ -1831,7 +1930,7 @@ body.menu-page .menu-btn {
 
   .table-cards {
     border: none !important;
-    background: transparent !important;
+    background: var(--table-surface-bg) !important;
   }
 
   .card {
