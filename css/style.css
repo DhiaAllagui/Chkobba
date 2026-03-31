@@ -3652,7 +3652,7 @@ body.menu-page .menu-btn {
     top: 150px !important; /* Increased from 10px to pull it away from the top edge */
     left: 50% !important;
     transform: translateX(-50%) scale(0.7) !important;
-    z-index: 2500 !important;
+    z-index: 50 !important;
   }
 
   /* 2. BOT CARDS: Pushed slightly more down to keep the gap */
@@ -3672,7 +3672,7 @@ body.menu-page .menu-btn {
     bottom: 150px !important; /* Increased from 25px to pull it away from the bottom edge */
     left: 50% !important;
     transform: translateX(-50%) scale(0.7) !important;
-    z-index: 2500 !important;
+    z-index: 50 !important;
   }
 
   /* 4. PLAYER HAND: Raised higher to maintain the "Sandwich" */
@@ -3705,10 +3705,146 @@ body.menu-page .menu-btn {
   }
 }
 
+
 /* ── DESKTOP RECOVERY ── */
 @media screen and (min-width: 1025px) {
   .hand {
     width: 350px !important;
     min-width: 350px !important;
+  }
+}
+/* Ensure the toast container uses flex but keeps its font */
+#hayyaToast {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  /* This ensures the font stays exactly what is defined in your main CSS */
+  font-family: inherit !important; 
+}
+
+/* This targets the text specifically to keep it consistent */
+.toast-text-content {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: bold;
+}
+
+/* The card icon styling */
+.toast-card-icon {
+  height: 38px; /* Slightly smaller to not distort the bubble height */
+  width: auto;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  vertical-align: middle;
+}
+@media screen and (max-width: 1024px) {
+  /* 1. Target the deck pile container */
+  
+
+  /* 2. Scale the card image without breaking animations */
+  .pile-bg-wrap {
+    transform: scale(1.4) !important; /* Make it 40% bigger */
+    margin-bottom: 25px !important; /* Add space for the text below */
+    z-index: 10;
+  }
+
+  /* 3. Style the "40 cards remaining" text */
+  .deck-info {
+    font-size: 20px !important;
+    color: var(--gold) !important;
+    margin-top: 5px !important;
+  }
+  
+  /* Ensure the text "cards remaining" is also centered */
+  .deck-pile.left-center {
+    text-align: center !important;
+    font-family: 'Cinzel', serif;
+    color: var(--gold-dim);
+  }
+}
+@media screen and (max-width: 1024px) {
+  /* ── MOBILE FOOTER / STATUS BAR ── */
+ 
+
+  /* Adjust the player's zone to make room for the new footer */
+  #zone-player {
+    bottom: 20px !important;
+    padding-bottom: 20px !important;
+  }
+
+  /* Fix the Chat/Phrases menu so it doesn't get cut off by the footer */
+  .chat-menu {
+    bottom: 110% !important; 
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+@media screen and (max-width: 1024px) {
+  /* 1. THE FOOTER CONTAINER */
+  footer, .footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 20px !important; /* Slimmer for mobile */
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(10px) !important; /* Frosted glass effect */
+    border-top: 1px solid rgba(201, 168, 76, 0.2) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-around !important; /* Spreads out icons/links */
+    padding: 0 10px !important;
+    z-index: 999 !important;
+    /* This ensures it handles the "Home Bar" on new iPhones */
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+
+  /* 2. FOOTER TEXT/LINKS */
+  footer a, footer span, .footer-content {
+    font-family: 'Cinzel', serif !important;
+    font-size: 10px !important;
+    color: var(--gold-dim) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    text-decoration: none !important;
+  }
+
+  /* 3. PUSH CONTENT UP SO IT DOESN'T HIDE BEHIND THE FOOTER */
+  .lobby-wrap {
+    padding-bottom: 80px !important; /* Increases space at the bottom of the lobby */
+  }
+
+  /* 4. HIDE UNNECESSARY STUFF IN MOBILE FOOTER */
+  .footer-extra-text {
+    display: none !important; /* Hide long copyright strings on small screens */
+  }
+}
+/* Desktop Version (Default) */
+.btn-row {
+  display: flex !important;
+  flex-direction: row !important; /* Forces them side-by-side */
+  justify-content: center !important; /* Centers the pair on the screen */
+  gap: 15px !important; /* Space between the two buttons */
+  width: 100% !important;
+  margin-top: 20px !important;
+}
+
+.menu-btn {
+  flex: 0 1 auto !important; /* Prevents them from stretching too wide */
+  min-width: 180px !important; /* Gives them a consistent size */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Optional: Mobile adjustment if you want them to stack on small phones */
+@media screen and (max-width: 480px) {
+  .btn-row {
+    flex-direction: column !important; /* Stacks them on very small screens */
+    align-items: center !important;
+  }
+  .menu-btn {
+    width: 90% !important; /* Full width buttons on mobile */
   }
 }

@@ -704,7 +704,8 @@
               <label class="settings-check-label">
                 <input type="checkbox" id="menu-sfx" checked>
                 <span class="settings-check-custom"></span>
-                <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> <span data-i18n="sfxLabel">Enable Sound Effects</span></span>
+                <span class="sound-label"><img class="icon-vol" src="/img/volumeup.png" alt="Vol"> <span
+                    data-i18n="sfxLabel">Enable Sound Effects</span></span>
               </label>
             </div>
             <div class="settings-row" style="justify-content: center; margin-top: 15px;">
@@ -834,7 +835,11 @@
 
         <!-- ─────────────── SCREEN 2: HOST (CREATE) ─────────────── -->
         <div class="lobby-screen" id="screen-host">
-          <button onclick="showScreen('screen-choice')" style="align-self:flex-start; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin-bottom:8px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">← BACK</button>
+          <button onclick="showScreen('screen-choice')"
+            style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
+            onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
+            onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
+            BACK</button>
           <h1 class="lobby-title">YOUR PARTY</h1>
           <p class="lobby-subtitle">شارك الكود مع صاحبك</p>
 
@@ -911,7 +916,11 @@
 
         <!-- ─────────────── SCREEN 3: GUEST (JOIN) ─────────────── -->
         <div class="lobby-screen" id="screen-join-input">
-          <button onclick="showScreen('screen-choice')" style="align-self:flex-start; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin-bottom:8px; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'" onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">← BACK</button>
+          <button onclick="showScreen('screen-choice')"
+            style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
+            onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
+            onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
+            BACK</button>
           <h1 class="lobby-title">JOIN A PARTY</h1>
           <p class="lobby-subtitle">دخّل الكود تع صاحبك</p>
 
@@ -1082,7 +1091,7 @@
         carouselOffset += direction;
         if (carouselOffset < 0) carouselOffset = 0;
         if (carouselOffset > maxOffset) carouselOffset = maxOffset;
-        
+
         let xOffset = -carouselOffset * cardWidth;
         picker.style.transform = `translateX(${xOffset}px)`;
         updateCarouselArrows(maxOffset);
@@ -1254,10 +1263,10 @@
           const render1v1VS = (containerId) => {
             const container = document.getElementById(containerId);
             if (!container) return;
-            
+
             const host = players[0];
             const guest = players[1]; // Might be undefined
-            
+
             container.innerHTML = `
               <div class="lobby-vs-container">
                 <!-- Host -->
@@ -1485,9 +1494,12 @@
 
 
       <!-- CHKOBBA TOAST -->
-      <div class="chkobba-toast" id="chkobbaToast">⭐ CHKOBBA!</div>
+      <div class="chkobba-toast" id="chkobbaToast">+ CHKOBBA!</div>
       <div class="chkobba-toast" id="hayyaToast"
-        style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">♦️ L'7AYYA!</div>
+        style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">
+        <img src="/cards/7carreau.png" class="toast-card-icon" alt="7 Diamonds">
+        <span>L'7AYYA!</span>
+      </div>
       <div id="ekherJarya" class="ekher-jarya-toast">EKHER JARYA</div>
 
       <!-- LOG -->
@@ -1618,19 +1630,22 @@
             <img class="player-avatar" id="pfp-player" src="/img/pfp.jpg" alt="You">
             <div class="player-name" id="name-player">You</div>
             <div class="player-score-display" id="score-player">0</div>
-            
+
             <div style="display:flex; flex-direction:column; gap:8px; margin-left:12px;">
               <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
                 <img src="/img/message.png" alt="Chat">
               </button>
-              <button class="focus-button" id="focusBtn" onclick="toggleFocusMode()" title="Focus Mode (Ambience Toggle)">
-                <img src="/img/focus.png" alt="Focus" id="focusIcon" style="width:18px; height:18px; opacity:0.8; margin-right:6px;">
-                <span data-i18n="focus" style="font-family:'Cinzel', serif; font-size:10px; letter-spacing:1px; font-weight:700;">FOCUS</span>
+              <button class="focus-button" id="focusBtn" onclick="toggleFocusMode()"
+                title="Focus Mode (Ambience Toggle)">
+                <img src="/img/focus.png" alt="Focus" id="focusIcon"
+                  style="width:18px; height:18px; opacity:0.8; margin-right:6px;">
+                <span data-i18n="focus"
+                  style="font-family:'Cinzel', serif; font-size:10px; letter-spacing:1px; font-weight:700;">FOCUS</span>
               </button>
             </div>
           </div>
         </div>
-         
+
         <!-- Old info panels were moved into zones above -->
         <!-- Turn indicator: compass arrows, always present, styled per mode -->
         <div class="turn-indicator" id="turnIndicator">
@@ -1642,7 +1657,6 @@
 
         <!-- Piles & Deck -->
         <div class="corner-pile top-left" id="chkobba-bot"></div>
-
         <div class="deck-pile left-center" style="display:flex; flex-direction:column; align-items:center;">
           <div class="pile-bg-wrap" style="position:relative; width:var(--card-w); height:var(--card-h);">
             <div class="pile-bg"></div>
@@ -1650,7 +1664,6 @@
           <div class="deck-info" id="deckInfo"
             style="color:var(--gold-dim); font-size:14px; font-weight:700; margin-top:8px; text-shadow:none;">
             40</div>cards remaining
-
         </div>
 
         <div class="corner-pile bottom-right" id="chkobba-player"></div>
@@ -1674,8 +1687,8 @@
         <div id="matchStatus" class="match-status-text"></div>
         <div class="end-btn-row">
           <button class="menu-btn end-action-btn" id="btn-next-action" data-i18n="playAgain">Play Again</button>
-          <button class="menu-btn end-action-btn" id="btn-main-menu-static" onclick="showMenu()"><img src="/img/menu.png" class="btn-icon"> <span
-              data-i18n="mainMenu">Main Menu</span></button>
+          <button class="menu-btn end-action-btn" id="btn-main-menu-static" onclick="showMenu()"><img
+              src="/img/menu.png" class="btn-icon"> <span data-i18n="mainMenu">Main Menu</span></button>
         </div>
       </div> <!-- End of view-game -->
 
@@ -1686,7 +1699,7 @@
           easy: { name: "Sami (Easy)", img: "/img/easy.png" },
           medium: { name: "Hamdi (Medium)", img: "/img/medium.png" },
           hard: { name: "M3allem (Hard)", img: "/img/hard.png" },
-          expert: { name: "El General (Expert)", img: "/img/expert.png" }
+          expert: { name: "Lpatron (Expert)", img: "/img/expert.png" }
         };
 
         function updateBotPreview() {
@@ -1718,9 +1731,9 @@
         const sfxHover = new Audio('/sound/hover.mp3');
         const sfxWoosh = new Audio('/sound/woosh.mp3');
         const sfxWood = new Audio('/sound/woodbreaking.mp3');
-    const sfxFire = new Audio('/sound/fire.mp3'); // NEW FIRE SFX
+        const sfxFire = new Audio('/sound/fire.mp3'); // NEW FIRE SFX
         const sfxCheer = new Audio('/sound/cheer.mp3');
-        
+
         // Immersive Ambience & Focus Mode
         const sfxAmbience = new Audio('/sound/cafeambience.mp3');
         sfxAmbience.loop = true;
@@ -1798,7 +1811,7 @@
             // New Hand: 4 cards to table + 3 cards each (START OF JARYA ONLY)
             this.table = [];
             for (let i = 0; i < 4; i++) {
-                if (this.deck.length) this.table.push(this.deck.pop());
+              if (this.deck.length) this.table.push(this.deck.pop());
             }
             this.dealHands();
           }
@@ -2098,17 +2111,17 @@
           isFocusMode = !isFocusMode;
           const btn = document.getElementById('focusBtn');
           const icon = document.getElementById('focusIcon');
-          
+
           if (isFocusMode) {
             btn.classList.add('active');
-            
+
             // Play focus whoosh immediately for impact
             if (sfxEnabled) {
               sfxFocusStart.currentTime = 0;
-              sfxFocusStart.volume = 1; 
+              sfxFocusStart.volume = 1;
               sfxFocusStart.play().catch(e => e);
             }
-            
+
             // Simultaneously fade out ambience
             fadeAudio(sfxAmbience, 0, 1500, () => {
               sfxAmbience.pause();
@@ -2144,7 +2157,7 @@
             // Assign a random direction for the fly-off
             const randomX = (Math.random() - 0.5) * 600; // -300 to 300
             card.style.setProperty('--random-x', `${randomX}px`);
-            
+
             // Get current rotation to transition smoothly
             const currentRot = card.style.getPropertyValue('--initial-rot') || '0deg';
             card.style.setProperty('--initial-rot', currentRot);
@@ -2174,22 +2187,22 @@
         function showVictoryOverlay(winnerIdx) {
           const overlay = document.getElementById('victory-overlay');
           const p = engine.players[winnerIdx];
-          
+
           overlay.style.display = 'flex';
           overlay.style.backdropFilter = 'blur(4px)';
           overlay.style.background = 'rgba(0, 0, 0, 0.4)';
-          
+
           if (sfxEnabled) {
             sfxCheer.currentTime = 0;
             sfxCheer.play().catch(e => e);
           }
-          
+
           startCardRain();
 
           // After 8 seconds, remove the blur and tint (allowing the cards to finish falling)
           setTimeout(() => {
-             overlay.style.backdropFilter = 'none';
-             overlay.style.background = 'transparent';
+            overlay.style.backdropFilter = 'none';
+            overlay.style.background = 'transparent';
           }, 8000);
         }
 
@@ -2199,7 +2212,7 @@
           // Clean up particles
           const particles = overlay.querySelectorAll('.card-particle');
           particles.forEach(p => p.remove());
-          
+
           sfxCheer.pause();
           showMenu();
         }
@@ -2263,10 +2276,10 @@
             else if (idx === 1) badgeId = 'streak-bot';
             else if (idx === 2) badgeId = 'streak-p2';
             else if (idx === 3) badgeId = 'streak-p3';
-            
+
             const badge = document.getElementById(badgeId);
             if (!badge) return;
-            
+
             const count = p.currentRoundChkobbas || 0;
             if (count > 1) {
               const prevCount = parseInt(badge.getAttribute('data-count')) || 0;
@@ -2287,7 +2300,7 @@
           });
         }
 
-      
+
 
         let winScore = 21;
 
@@ -2489,7 +2502,7 @@
                   } else {
                     updateUI(false);
                   }
-                  
+
                   // Start Ambience for online match
                   if (sfxEnabled && !isFocusMode) {
                     sfxAmbience.play().catch(e => e);
@@ -3166,18 +3179,18 @@
 
           engine.table.forEach((card, idx) => {
             let div = el.querySelector(`.card[data-id="${card.id}"]`);
-            if (!div) { 
-              div = makeCardEl(card, false); 
-              
+            if (!div) {
+              div = makeCardEl(card, false);
+
               // Realistic unalignment (Only for new cards to avoid jumping)
               const randomDeg = (Math.random() * 18) - 9;      // -12 to +12 deg
               const randomX = (Math.random() * 10) - 5;       // -10 to +10 px
               const randomY = (Math.random() * 10) - 5;       // -10 to +10 px
-              
+
               div.style.setProperty('--initial-rot', `${randomDeg}deg`);
               div.style.transform = `rotate(${randomDeg}deg) translate(${randomX}px, ${randomY}px)`;
-              
-              el.appendChild(div); 
+
+              el.appendChild(div);
             }
             const isPartOfAny = allPossibleCapturedIds.has(card.id);
             const isSelected = selectedCapture && selectedCapture.find(sc => sc.id === card.id);
@@ -3337,7 +3350,7 @@
                 }
                 if (window.radioPlayer) window.radioPlayer.duck();
                 addLog(`+1 CHKOBBA! for ${pname}`, 'chkobba');
-                
+
                 // Bot reaction to getting a Chkobba
                 if (pidx === 1) {
                   const chIdx = Math.floor(Math.random() * 3) + 1;
@@ -3358,23 +3371,23 @@
               if (engine.handsEmpty()) {
                 if (engine.deckEmpty()) {
                   // LAST ROUND FINISHED: Score Calculation
-                  engine.finalize(); 
-                  isAnimating = false; 
+                  engine.finalize();
+                  isAnimating = false;
                   showEndScreen();
                 } else if (mode !== 'online') {
                   // MID-GAME DEAL: 3 cards only
-                  engine.dealHands(); 
-                  addLog('***New Round Deal***'); 
-                  updateUI(true); 
-                  setStatus(window.getTurnStatusMsg(engine.currentPlayer)); 
+                  engine.dealHands();
+                  addLog('***New Round Deal***');
+                  updateUI(true);
+                  setStatus(window.getTurnStatusMsg(engine.currentPlayer));
                   isAnimating = false;
                 } else {
                   isAnimating = false; // Wait for server to emit 'deal-cards'
                 }
               } else {
-                updateUI(); 
-                setStatus(window.getTurnStatusMsg(engine.currentPlayer)); 
-                isAnimating = false; 
+                updateUI();
+                setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+                isAnimating = false;
                 if (mode === 'single' && engine.currentPlayer === 1) setTimeout(botTurn, 800);
               }
             }, 200);
@@ -3390,24 +3403,24 @@
           botThinkTimeout = setTimeout(() => {
             if (isPaused || !engine) return; // Safety check
             const move = bot.chooseMove(1, engine.table);
-            
+
             // --- BOT PERSONALITY / REACTIONS ---
             const chatChance = Math.random();
             if (chatChance < 0.4) {
-               const has7ayya = (move.card.id === '7carreau') || (move.captured && move.captured.some(c => c.id === '7carreau'));
-               if (has7ayya) {
-                 showSpeechBubble(1, 'bot_7ayya');
-               } else if (totalScores[1] > totalScores[0] + 5) {
-                 // Bot winning
-                 showSpeechBubble(1, Math.random() > 0.5 ? 'bot_winning_1' : 'bot_winning_2');
-               } else if (totalScores[0] > totalScores[1] + 5) {
-                 // Bot losing
-                 showSpeechBubble(1, 'bot_losing');
-               }
+              const has7ayya = (move.card.id === '7carreau') || (move.captured && move.captured.some(c => c.id === '7carreau'));
+              if (has7ayya) {
+                showSpeechBubble(1, 'bot_7ayya');
+              } else if (totalScores[1] > totalScores[0] + 5) {
+                // Bot winning
+                showSpeechBubble(1, Math.random() > 0.5 ? 'bot_winning_1' : 'bot_winning_2');
+              } else if (totalScores[0] > totalScores[1] + 5) {
+                // Bot losing
+                showSpeechBubble(1, 'bot_losing');
+              }
             } else if (chatChance < 0.55) {
-               // 15% chance for a general themed idle phrase
-               const idleIdx = Math.floor(Math.random() * 12) + 1;
-               showSpeechBubble(1, `bot_idle_${idleIdx}`);
+              // 15% chance for a general themed idle phrase
+              const idleIdx = Math.floor(Math.random() * 12) + 1;
+              showSpeechBubble(1, `bot_idle_${idleIdx}`);
             }
 
             executeMove(1, move.card, move.captured);
@@ -3459,8 +3472,8 @@
             };
           } else {
             // Auto-Timer Logic for single player / pass n play
-            let timeLeftEnd = 30;
-            btnNextAction.textContent = `Next Round (30)`;
+            let timeLeftEnd = 60;
+            btnNextAction.textContent = `Next Round (60)`;
             btnNextAction.onclick = () => {
               if (endScreenTimer) clearInterval(endScreenTimer);
               document.getElementById('screen-end').style.display = 'none';
@@ -3508,8 +3521,8 @@
             `;
             tbody.appendChild(tr);
           }
-          const trTotal = document.createElement('tr'); 
-          trTotal.className = 'total-row'; 
+          const trTotal = document.createElement('tr');
+          trTotal.className = 'total-row';
           const arrowLeftTotal = result.pts[0] > result.pts[1] ? '<span style="color:var(--gold); margin-right:6px; font-size:12px;">◀</span>' : '';
           const arrowRightTotal = result.pts[1] > result.pts[0] ? '<span style="color:var(--gold); margin-left:6px; font-size:12px;">▶</span>' : '';
 
@@ -3548,7 +3561,7 @@
 
         function startNextRound() {
           // Restart Jarya: NEW HAND from scratch
-          engine.deck = engine._buildDeck(); 
+          engine.deck = engine._buildDeck();
           engine._shuffle(engine.deck); // Shuffle happens ONLY here
           engine.table = [];
           engine.players.forEach(p => {
@@ -3559,16 +3572,16 @@
           engine.currentPlayer = firstPlayerOfRound;
           hasShownEkherJarya = false;
 
-          engine.lastCaptor = -1; 
-          engine.roundOver = false; 
+          engine.lastCaptor = -1;
+          engine.roundOver = false;
           engine.players.forEach(p => p.currentRoundChkobbas = 0);
           updateStreakBadges();
           engine.dealInitial(); // 4 to table + 3 to each
-          
-          document.getElementById('screen-end').style.display = 'none'; 
+
+          document.getElementById('screen-end').style.display = 'none';
           document.getElementById('screen-game').style.display = 'flex';
-          isAnimating = false; 
-          updateUI(true); 
+          isAnimating = false;
+          updateUI(true);
           setStatus(window.getTurnStatusMsg(engine.currentPlayer));
         }
 
@@ -3586,7 +3599,7 @@
         }
         function showChkobbaToast(pname) {
           const t = document.getElementById('chkobbaToast');
-          t.textContent = `⭐ CHKOBBA! (${pname})`;
+          t.textContent = `+1 CHKOBBA! (${pname})`;
           t.classList.add('show');
           document.body.classList.add('shake-screen');
           setTimeout(() => {
@@ -3597,9 +3610,16 @@
 
         function show7ayyaToast(pname) {
           const t = document.getElementById('hayyaToast');
-          t.textContent = `♦️ L'7AYYA! (${pname})`;
+
+          // Replace 'img/cards/7_diamonds.png' with your actual path to the 7 of diamonds image
+          t.innerHTML = `
+    <img src="/cards/7carreau.png" class="toast-card-icon" alt="7 Diamonds">
+    <span>L'7AYYA! (${pname})</span>
+  `;
+
           t.classList.add('show');
           document.body.classList.add('shake-screen');
+
           setTimeout(() => {
             t.classList.remove('show');
             document.body.classList.remove('shake-screen');
@@ -3676,7 +3696,7 @@
   </div>
   </div>
   <footer class="site-footer">
-    &copy; <span id="year"></span> Playchkobba.tn. All Rights Reserved. Built with ❤️ by Med Dhia Allagui.
+    &copy; <span id="year"></span> Playchkobba.tn. All Rights Reserved. By Med Dhia Allagui.
   </footer>
   <script>document.getElementById('year').innerHTML = new Date().getFullYear();</script>
 </body>
