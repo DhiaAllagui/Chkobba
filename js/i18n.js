@@ -10,6 +10,13 @@ const translations = {
     gameSubtitle: "Tunisian Card Game",
     usernameLabel: "USERNAME",
     cardBackLabel: "CARD BACK",
+    tableThemeLabel: "TABLE THEME",
+    themeClassic: "Classic",
+    themeMidnight: "Midnight",
+    themeDesert: "Desert",
+    themeRoyal: "Royal",
+    themePink: "Pink",
+    themeSunset: "Sunset",
     langLabel: "LANGUAGE",
     sfxLabel: "Enable Sound Effects",
     playSingle: "Single Player",
@@ -94,6 +101,13 @@ const translations = {
     gameSubtitle: "Jeu de cartes Tunisien",
     usernameLabel: "NOM D'UTILISATEUR",
     cardBackLabel: "DOS DE CARTE",
+    tableThemeLabel: "THÈME DE TABLE",
+    themeClassic: "Classique",
+    themeMidnight: "Minuit",
+    themeDesert: "Désert",
+    themeRoyal: "Royal",
+    themePink: "Rose",
+    themeSunset: "Coucher",
     langLabel: "LANGUE",
     sfxLabel: "Activer les sons",
     playSingle: "Solo",
@@ -172,6 +186,13 @@ const translations = {
     gameSubtitle: "لعبة الشكوبة التونسية",
     usernameLabel: "إسم اللاعب",
     cardBackLabel: "ظهر الورقة",
+    tableThemeLabel: "ثيم الطاولة",
+    themeClassic: "كلاسيكي",
+    themeMidnight: "ليلي",
+    themeDesert: "صحراوي",
+    themeRoyal: "ملوكي",
+    themePink: "وردي",
+    themeSunset: "غروب",
     langLabel: "اللغة",
     sfxLabel: "تشغيل الصوت",
     playSingle: "إلعب وحدك",
@@ -250,6 +271,25 @@ const translations = {
 window.translations = translations;
 window.currentLang = localStorage.getItem('chkobba_lang') || 'en';
 
+// Keep these expressions in Tunisian Darja (Latin) even in Arabic UI.
+const darjaKeys = new Set([
+  'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'c11', 'c12', 'c13', 'c14', 'c15', 'c16', 'c17', 'c18',
+  'bot_7ayya', 'bot_winning_1', 'bot_winning_2', 'bot_losing',
+  'bot_idle_1', 'bot_idle_2', 'bot_idle_3', 'bot_idle_4', 'bot_idle_5', 'bot_idle_6',
+  'bot_idle_7', 'bot_idle_8', 'bot_idle_9', 'bot_idle_10', 'bot_idle_11', 'bot_idle_12',
+  'bot_chkobba_1', 'bot_chkobba_2', 'bot_chkobba_3'
+]);
+
+function getTranslationValue(lang, key) {
+  // If Arabic selected but key is Darja, keep Darja form from English map.
+  if (lang === 'ar' && darjaKeys.has(key)) {
+    return translations.en[key];
+  }
+  return (translations[lang] && translations[lang][key]) ||
+         (translations.en && translations.en[key]) ||
+         null;
+}
+
 window.changeLanguage = function (lang) {
   if (!translations[lang]) lang = 'en';
   window.currentLang = lang;
@@ -270,13 +310,14 @@ window.changeLanguage = function (lang) {
   const elements = document.querySelectorAll('[data-i18n]');
   elements.forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (translations[lang] && translations[lang][key]) {
-      // Check if it's an input/placeholder or textContent
-      if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'password' || el.type === 'search')) {
-        el.placeholder = translations[lang][key];
-      } else {
-        el.textContent = translations[lang][key];
-      }
+    const val = getTranslationValue(lang, key);
+    if (!val) return;
+
+    // Inputs use placeholder; other nodes use textContent.
+    if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'password' || el.type === 'search')) {
+      el.placeholder = val;
+    } else {
+      el.textContent = val;
     }
   });
   

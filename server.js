@@ -352,7 +352,10 @@ io.on('connection', (socket) => {
                   myHand: room.gameState.hands[playerIdx],
                   currentTurn: room.gameState.currentTurn,
                   numPlayers: room.gameState.numPlayers || 2,
-                  deckRemaining: room.gameState.deck.length
+                  deckRemaining: room.gameState.deck.length,
+                  totalScores: room.gameState.totalScores || [0, 0],
+                  jaryaCount: room.gameState.jaryaCount,
+                  maxJaryas: room.gameState.maxJaryas
               };
           }
           
@@ -365,7 +368,10 @@ io.on('connection', (socket) => {
                           myHand: room.gameState.hands[idx],
                           currentTurn: room.gameState.currentTurn,
                           numPlayers: room.gameState.numPlayers || 2,
-                          deckRemaining: room.gameState.deck.length
+                          deckRemaining: room.gameState.deck.length,
+                          totalScores: room.gameState.totalScores || [0, 0],
+                          jaryaCount: room.gameState.jaryaCount,
+                          maxJaryas: room.gameState.maxJaryas
                       };
                   }
                   io.to(p.id).emit('room-data', clientResponse);

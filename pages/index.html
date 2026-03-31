@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chkobba — The Tunisian Card Game</title>
-  <link rel="icon" type="image/png" href="/img/Chkobbalogo.png">
+  <link rel="icon" type="image/png" href="/img/chkobbalogo.png">
   <link rel="stylesheet" href="/css/style.css">
   <script src="/js/rules.js"></script>
   <script src="/js/i18n.js"></script>
@@ -622,6 +622,13 @@
 </head>
 
 <body>
+  <!-- ── DEBUG PANEL ── -->
+  <!--<div class="debug-panel">
+    <div class="debug-title">DEBUG TOOLS</div>
+    <button class="debug-btn" onclick="testScoreboard()">Scoreboard</button>
+    <button class="debug-btn" onclick="testVictory()">Win Screen</button>
+    <button class="debug-btn" onclick="testDefeat()">Loss Screen</button>
+  </div>-->
   <div class="bg-logo"></div>
 
   <!-- Tunisian Café Radio Widget (FAB) - Moved for Global Persistence -->
@@ -735,38 +742,38 @@
                 </label>
                 <label class="lang-option list-item">
                   <input type="radio" name="lang" value="ar" onclick="changeLanguage('ar')">
-                  <img src="/img/TU.png" alt="AR">
+                  <img src="/img/tu.png" alt="AR">
                   <span class="lang-name">العربية</span>
                 </label>
               </div>
             </div>
 
             <div class="settings-row" style="align-items:flex-start;">
-              <span class="settings-label">TABLE THEME</span>
+              <span class="settings-label" data-i18n="tableThemeLabel">TABLE THEME</span>
               <div class="table-theme-grid" id="table-theme-grid">
                 <button type="button" class="table-theme-option" data-theme="classic" onclick="applyTableTheme('classic')">
                   <span class="table-theme-swatch theme-classic"></span>
-                  <span class="table-theme-name">Classic</span>
+                  <span class="table-theme-name" data-i18n="themeClassic">Classic</span>
                 </button>
                 <button type="button" class="table-theme-option" data-theme="midnight" onclick="applyTableTheme('midnight')">
                   <span class="table-theme-swatch theme-midnight"></span>
-                  <span class="table-theme-name">Midnight</span>
+                  <span class="table-theme-name" data-i18n="themeMidnight">Midnight</span>
                 </button>
                 <button type="button" class="table-theme-option" data-theme="desert" onclick="applyTableTheme('desert')">
                   <span class="table-theme-swatch theme-desert"></span>
-                  <span class="table-theme-name">Desert</span>
+                  <span class="table-theme-name" data-i18n="themeDesert">Desert</span>
                 </button>
                 <button type="button" class="table-theme-option" data-theme="royal" onclick="applyTableTheme('royal')">
                   <span class="table-theme-swatch theme-royal"></span>
-                  <span class="table-theme-name">Royal</span>
+                  <span class="table-theme-name" data-i18n="themeRoyal">Royal</span>
                 </button>
                 <button type="button" class="table-theme-option" data-theme="pink" onclick="applyTableTheme('pink')">
                   <span class="table-theme-swatch theme-pink"></span>
-                  <span class="table-theme-name">Pink</span>
+                  <span class="table-theme-name" data-i18n="themePink">Pink</span>
                 </button>
                 <button type="button" class="table-theme-option" data-theme="sunset" onclick="applyTableTheme('sunset')">
                   <span class="table-theme-swatch theme-sunset"></span>
-                  <span class="table-theme-name">Sunset</span>
+                  <span class="table-theme-name" data-i18n="themeSunset">Sunset</span>
                 </button>
               </div>
             </div>
@@ -1080,6 +1087,7 @@
           id="btn-sync-game" onclick="requestSync()" onmouseover="this.style.background='rgba(255,255,255,0.25)'"
           onmouseout="this.style.background='rgba(255,255,255,0.15)'">🔄 SYNC</button>
       </div>
+
       <div class="lobby-toast" id="lobby-toast"></div>
     </div>
 
@@ -1092,8 +1100,9 @@
       const socket = io();
       let myName = localStorage.getItem('chkobba_username') || 'Player';
       let myAvatar = localStorage.getItem('chkobba_user_pfp') || '/img/pfp.jpg';
-      let mySessionToken = sessionStorage.getItem('chkobba_session_token') || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
+      let mySessionToken = localStorage.getItem('chkobba_session_token') || sessionStorage.getItem('chkobba_session_token') || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
       sessionStorage.setItem('chkobba_session_token', mySessionToken);
+      localStorage.setItem('chkobba_session_token', mySessionToken);
       let partyCode = '';
       let isHost = false;
       let currentSettings = { mode: '1v1', score: 21 };
@@ -1101,6 +1110,22 @@
       let knownPlayerCount = 1;
       let lastPlayers = [];
       let lastTeams = { 1: [null, null], 2: [null, null] };
+
+      function saveSessionState(code, token) {
+        if (code) {
+          localStorage.setItem('chkobba_room_code', code);
+          sessionStorage.setItem('chkobba_room_code', code);
+        }
+        if (token) {
+          localStorage.setItem('chkobba_session_token', token);
+          sessionStorage.setItem('chkobba_session_token', token);
+        }
+      }
+
+      function clearSessionState() {
+        localStorage.removeItem('chkobba_room_code');
+        sessionStorage.removeItem('chkobba_room_code');
+      }
 
       window.addEventListener('DOMContentLoaded', () => {
         // Username Init & Logic
@@ -1165,6 +1190,20 @@
         const carouselPicker = document.getElementById('back-picker');
         if (carouselPicker) updateCarouselArrows(carouselPicker.children.length - cardLimit);
       });
+
+      window.onload = () => {
+        const persistedCode = localStorage.getItem('chkobba_room_code');
+        const persistedToken = localStorage.getItem('chkobba_session_token');
+        if (!persistedCode || !persistedToken) return;
+
+        mySessionToken = persistedToken;
+        sessionStorage.setItem('chkobba_session_token', persistedToken);
+        sessionStorage.setItem('chkobba_room_code', persistedCode);
+
+        // Boot online mode immediately, then room-data will rebuild state.
+        startGame('online', myName, true, localStorage.getItem('chkobba_back') || 'back.png', 21, 'medium', '1v1');
+        showView('view-game');
+      };
 
       window.applyTableTheme = function (theme, opts = { persist: true }) {
         let t = theme || 'classic';
@@ -1501,7 +1540,7 @@
       }
 
       function navigateToGame(data) {
-        sessionStorage.setItem('chkobba_room_code', data.code);
+        saveSessionState(data.code, mySessionToken);
         const gameMode = (data.settings && data.settings.mode) || '1v1';
         startGame('online', myName, true, localStorage.getItem('chkobba_back') || 'back.png', data.settings.score, 'medium', gameMode);
 
@@ -1536,6 +1575,7 @@
       function leaveRoom(msg) {
         if (msg) showToast(msg, 4000);
         if (socket && socket.connected) socket.emit('leave-room');
+        clearSessionState();
         cleanupGame();
         showView('view-menu');
         // Clean up UI
@@ -1582,6 +1622,7 @@
         partyCode = code;
         isHost = true;
         currentSettings = settings;
+        saveSessionState(code, mySessionToken);
         document.getElementById('host-code').textContent = code;
 
         console.log("[LOBBY] Created:", code, players);
@@ -1604,6 +1645,7 @@
       socket.on('join-success', ({ code, settings, players, teams }) => {
         partyCode = code;
         isHost = false;
+        saveSessionState(code, mySessionToken);
         document.getElementById('guest-code-display').textContent = `Code: ${code}`;
         applyGuestSettings(settings);
         renderPlayerList(players, teams);
@@ -1613,8 +1655,9 @@
       socket.on('rejoin-success', ({ code, settings, players, teams }) => {
         partyCode = code;
         currentSettings = settings;
+        saveSessionState(code, mySessionToken);
         // Host check: If I am at slot 0 (first player), I am the host
-        const myToken = localStorage.getItem('sessionToken');
+        const myToken = localStorage.getItem('chkobba_session_token');
         const myPlayer = players.find(p => p.sessionToken === myToken);
         if (myPlayer && players.indexOf(myPlayer) === 0) {
           isHost = true;
@@ -1661,12 +1704,14 @@
 
       socket.on('room-closed', () => {
         clearDisconnectOverlay();
+        clearSessionState();
         showToast('Room closed. Returning to menu…', 3000);
         setTimeout(() => window.location.href = 'menu.html', 2000);
       });
 
       socket.on('player-kicked', ({ msg }) => {
         console.log("[LOBBY] I have been kicked! Redirecting...");
+        clearSessionState();
         showToast(msg, 5000);
         setTimeout(() => window.location.href = '/', 2000);
       });
@@ -2668,11 +2713,12 @@
             window.gameInstanceId = (window.gameInstanceId || 0) + 1;
             const thisGameInstanceId = window.gameInstanceId;
 
-            const roomCode = sessionStorage.getItem('chkobba_room_code') || urlParams.get('room');
+            const roomCode = sessionStorage.getItem('chkobba_room_code') || localStorage.getItem('chkobba_room_code') || urlParams.get('room');
             // Prefer tab-specific sessionStorage token to prevent collisions when testing in multiple tabs
-            const token = sessionStorage.getItem('chkobba_session_token') || urlParams.get('token');
+            const token = sessionStorage.getItem('chkobba_session_token') || localStorage.getItem('chkobba_session_token') || urlParams.get('token');
             // In SPA, socket is already global
             window.activeSocket = socket;
+            saveSessionState(roomCode, token);
 
             // Prevent duplicate handlers across multiple online games
             detachOnlineGameSocketListeners();
@@ -2682,6 +2728,21 @@
             socket.on('room-data', (data) => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               console.log("[DEBUG] room-data received:", data.gameState);
+              // Some server sync payloads are state-only and don't include players/settings.
+              if (!data.players) {
+                const gs = data.gameState || data;
+                if (gs) {
+                  if (gs.table !== undefined) engine.table = gs.table || [];
+                  if (gs.myHand !== undefined) engine.players[0].hand = gs.myHand || [];
+                  if (gs.currentTurn !== undefined) engine.currentPlayer = gs.currentTurn;
+                  if (gs.deckRemaining !== undefined) engine.deck.length = gs.deckRemaining;
+                  if (Array.isArray(gs.totalScores)) gs.totalScores.forEach((v, i) => { totalScores[i] = v; });
+                  updateUI(false);
+                  setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+                }
+                return;
+              }
+
               const players = data.players;
               const idx = players.findIndex(p => p.sessionToken === token);
               if (idx !== -1) {
@@ -2787,6 +2848,9 @@
 
                   engine.currentPlayer = data.gameState.currentTurn;
                   engine.deck.length = data.gameState.deckRemaining !== undefined ? data.gameState.deckRemaining : 40;
+                  if (Array.isArray(data.gameState.totalScores)) {
+                    data.gameState.totalScores.forEach((v, i) => { totalScores[i] = v; });
+                  }
 
                   if (engine.table.length > 0 && engine.players[0].hand.length > 0) {
                     updateUI(true); // Animate the initial deal if cards are present
@@ -3008,7 +3072,7 @@
               const rowsData = [
                 { key: 'Cards', img: 'img/icon_carta.png', ...renderForMyPerspective(results.s0.cards, results.s1.cards, results.carta === 0, results.carta === 1) },
                 { key: 'Dineri', img: 'img/icon_dineri.png', ...renderForMyPerspective(results.s0.dineri, results.s1.dineri, results.dineri === 0, results.dineri === 1) },
-                { key: '7ayya', img: 'img/icon_7ayya.png', ...renderForMyPerspective(results.s0.sab3a ? 'Yes' : 'No', results.s1.sab3a ? 'Yes' : 'No', results.sab3a === 0, results.sab3a === 1) },
+                { key: '7ayya', img: 'img/icon_7ayya.png', ...renderForMyPerspective(results.s0.sab3a ? '✓' : '✗', results.s1.sab3a ? '✓' : '✗', results.sab3a === 0, results.sab3a === 1) },
                 { key: 'Barmila', img: 'img/icon_barmila.png', ...renderForMyPerspective(`${results.s0.sevens}x7, ${results.s0.sixes}x6`, `${results.s1.sevens}x7, ${results.s1.sixes}x6`, results.barmila === 0, results.barmila === 1) },
                 { key: 'Chkobbas', img: 'img/icon_chkobba.png', ...renderForMyPerspective(results.chkobba0, results.chkobba1, results.chkobba0 > results.chkobba1, results.chkobba1 > results.chkobba0) }
               ];
@@ -3017,12 +3081,16 @@
                 const tr = document.createElement('tr');
                 const myClass = r.myWin ? 'winner' : (r.oppWin ? 'loser' : '');
                 const oppClass = r.oppWin ? 'winner' : (r.myWin ? 'loser' : '');
+                const isTie = !r.myWin && !r.oppWin;
 
                 let myVal = r.my, oppVal = r.opp;
-                if (myVal === 'Yes') myVal = '<span data-i18n="c11">' + (window.translations?.[window.currentLang]?.c11 || 'Yes') + '</span>';
-                if (myVal === 'No') myVal = '<span data-i18n="c12">' + (window.translations?.[window.currentLang]?.c12 || 'No') + '</span>';
-                if (oppVal === 'Yes') oppVal = '<span data-i18n="c11">' + (window.translations?.[window.currentLang]?.c11 || 'Yes') + '</span>';
-                if (oppVal === 'No') oppVal = '<span data-i18n="c12">' + (window.translations?.[window.currentLang]?.c12 || 'No') + '</span>';
+                if ((r.key === 'Cards' || r.key === 'Dineri' || r.key === 'Barmila') && isTie) {
+                  myVal = 'baji';
+                  oppVal = 'baji';
+                } else {
+                  if (r.myWin) myVal = `<span style="color:var(--gold); font-weight:900; text-shadow:0 0 8px rgba(201,168,76,0.5)">${myVal}</span>`;
+                  if (r.oppWin) oppVal = `<span style="color:var(--gold); font-weight:900; text-shadow:0 0 8px rgba(201,168,76,0.5)">${oppVal}</span>`;
+                }
 
                 const arrowLeft = r.myWin && !r.oppWin ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; opacity:0.85">◀</span>' : '';
                 const arrowRight = r.oppWin && !r.myWin ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; opacity:0.85">▶</span>' : '';
@@ -3046,7 +3114,7 @@
                 nBtn.textContent = 'Main Menu';
                 nBtn.onclick = () => {
                   if (endScreenTimer) clearInterval(endScreenTimer);
-                  window.location.href = 'menu.html';
+                  leaveRoom();
                 }
               } else {
                 let timeLeftEnd = 30;
@@ -3104,9 +3172,12 @@
               startJarya();
             });
 
-            socket.on('player-disconnected', (name) => {
+            socket.on('player-disconnected', ({ name }) => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              showDisconnectOverlay(name);
+              if (name && name !== myName) {
+                showDisconnectOverlay(name);
+                showToast(`${name} disconnected. Waiting for reconnect...`, 3000);
+              }
             });
             socket.on('room-closed', () => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
@@ -3518,7 +3589,8 @@
           const randomCard = hand[Math.floor(Math.random() * hand.length)];
           const res = engine.checkCapture(randomCard, engine.table);
           const cap = res.type !== 'none' ? res.captures[0] : [];
-          doLocalOrRemoteMove(myHandIdx, randomCard, cap);
+          const movePlayerIdx = (mode === 'online') ? myPlayerSlot : myHandIdx;
+          doLocalOrRemoteMove(movePlayerIdx, randomCard, cap);
         }
 
 
@@ -3733,11 +3805,12 @@
               if (chkobba) {
                 showChkobbaToast(pname);
                 engine.players[pidx].currentRoundChkobbas = (engine.players[pidx].currentRoundChkobbas || 0) + 1;
-                updateStreakBadges();
+                // Always play Chkobba sound on every Chkobba.
                 if (sfxEnabled) {
-                  sfxFire.currentTime = 0;
-                  sfxFire.play().catch(e => e);
+                  sfxChkobba.currentTime = 0;
+                  sfxChkobba.play().catch(e => e);
                 }
+                updateStreakBadges();
                 if (window.radioPlayer) window.radioPlayer.duck();
                 addLog(`+1 CHKOBBA! for ${pname}`, 'chkobba');
 
@@ -3904,7 +3977,7 @@
           const rows = [
             { img: 'img/icon_carta.png', v0: result.s0.cards, v1: result.s1.cards, label: 'Carta' },
             { img: 'img/icon_dineri.png', v0: result.s0.dineri, v1: result.s1.dineri, label: 'Dineri' },
-            { img: 'img/icon_7ayya.png', v0: result.s0.sab3a ? 1 : 0, v1: result.s1.sab3a ? 1 : 0, label: 'Sab3a' },
+            { img: 'img/icon_7ayya.png', v0: result.s0.sab3a ? '✓' : '✗', v1: result.s1.sab3a ? '✓' : '✗', label: 'Sab3a' },
             { img: 'img/icon_barmila.png', v0: result.barmila === 0 ? 1 : 0, v1: result.barmila === 1 ? 1 : 0, label: 'Barmila' },
             { img: 'img/icon_chkobba.png', v0: result.chkobba0, v1: result.chkobba1, label: 'Chkobba', isChkobba: true },
           ];
@@ -3912,19 +3985,25 @@
             const tr = document.createElement('tr');
             if (row.isChkobba && (row.v0 > 0 || row.v1 > 0)) tr.classList.add('pulse-win');
 
+            const leftWins = row.v0 > row.v1;
+            const rightWins = row.v1 > row.v0;
+            const isTie = !leftWins && !rightWins;
+            const tieToBaji = row.label === 'Carta' || row.label === 'Dineri' || row.label === 'Barmila';
+            const leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
+            const rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
             // Winner Indicators
-            const arrowLeft = row.v0 > row.v1 ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
-            const arrowRight = row.v1 > row.v0 ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
+            const arrowLeft = leftWins ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
+            const arrowRight = rightWins ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
 
             // 3-Column: P1 Score | Icon (with Indicators) | P2 Score
             tr.innerHTML = `
-              <td style="text-align:left; font-weight:700; color:${row.v0 > row.v1 ? 'var(--gold)' : 'var(--parchment)'}">${row.v0}</td>
+              <td style="text-align:left; font-weight:${leftWins ? 900 : 700}; color:${leftWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${leftWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${leftVal}</td>
               <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
                 ${arrowLeft}
                 <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
                 ${arrowRight}
               </td>
-              <td style="text-align:right; font-weight:700; color:${row.v1 > row.v0 ? 'var(--gold)' : 'var(--parchment)'}">${row.v1}</td>
+              <td style="text-align:right; font-weight:${rightWins ? 900 : 700}; color:${rightWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${rightWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${rightVal}</td>
             `;
             tbody.appendChild(tr);
           }
@@ -4054,6 +4133,33 @@
         };
 
 
+
+        // ── DEBUG FUNCTIONS ──
+        window.testScoreboard = function() {
+          if (!engine) {
+            // Mock engine for end-screen testing if not in a game
+            window.engine = {
+              calculateRoundPoints: () => ({
+                pts: [3, 2],
+                s0: { cards: 21, dineri: 6, sab3a: true, sevens: 3, sixes: 4 },
+                s1: { cards: 19, dineri: 4, sab3a: false, sevens: 1, sixes: 2 },
+                carta: 0, dineri: 0, sab3a: 0, barmila: 0,
+                chkobba0: 1, chkobba1: 0
+              }),
+              players: [{ name: 'Me' }, { name: 'Opponent' }],
+              finalize: () => {}
+            };
+          }
+          showEndScreen();
+        };
+
+        window.testVictory = function() {
+          if (typeof showVictoryOverlay === 'function') showVictoryOverlay(0);
+        };
+
+        window.testDefeat = function() {
+          if (typeof showDefeatOverlay === 'function') showDefeatOverlay();
+        };
       </script>
       <script src="/js/radio.js"></script>
     </div>
