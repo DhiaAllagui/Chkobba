@@ -3848,3 +3848,123 @@ body.menu-page .menu-btn {
     width: 90% !important; /* Full width buttons on mobile */
   }
 }
+/* --- GLOBAL MENU BUTTON STYLE --- */
+.side-nav-links {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important; /* Tighter spacing for a cleaner list */
+  padding: 10px 0 !important;
+  align-items: stretch !important; /* Makes buttons fill the menu width */
+}
+
+.side-nav-links .side-nav-link {
+  /* Remove the "Container" look */
+  background: transparent !important;
+  border: none !important;
+  border-left: 3px solid transparent !important; /* Invisible accent line */
+  border-radius: 0 !important;
+  
+  /* Layout */
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 15px 25px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  
+  /* Typography */
+  color: var(--gold-dim) !important;
+  font-family: 'Cinzel', serif !important;
+  font-size: 14px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  text-align: left !important;
+}
+
+/* --- THE HOVER/ACTIVE STATE --- */
+.side-nav-links .side-nav-link:hover, 
+.side-nav-links .side-nav-link:active {
+  background: rgba(201, 168, 76, 0.08) !important; /* Very faint gold glow */
+  color: var(--gold) !important;
+  border-left: 3px solid var(--gold) !important; /* Gold accent appears on the left */
+  padding-left: 30px !important; /* Subtle slide-in effect */
+}
+
+/* --- THE ICON STYLE --- */
+.side-nav-links .side-nav-link .btn-icon {
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 20px !important;
+  filter: grayscale(1) brightness(0.8) !important; /* Keeps icons subtle */
+  transition: all 0.3s ease !important;
+}
+
+.side-nav-links .side-nav-link:hover .btn-icon {
+  filter: grayscale(0) brightness(1.2) sepia(1) !important; /* Icons turn gold on hover */
+  transform: scale(1.1) !important;
+}
+@media screen and (max-width: 1024px) {
+  .side-nav-links .side-nav-link {
+    padding: 18px 25px !important; /* Larger hit area for thumbs */
+    font-size: 13px !important;
+  }
+  
+  .side-nav-links .side-nav-link:active {
+    background: rgba(201, 168, 76, 0.15) !important;
+    transform: scale(0.98) !important;
+  }
+} 
+/* Kick Buttons */
+.kick-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  background: #c0392b;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s, background 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.kick-badge:hover {
+  transform: scale(1.1);
+  background: #e74c3c;
+}
+
+.kick-bubble {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background: #c0392b;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s, background 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.kick-bubble:hover {
+  transform: scale(1.2);
+  background: #e74c3c;
+}

@@ -708,10 +708,17 @@
                     data-i18n="sfxLabel">Enable Sound Effects</span></span>
               </label>
             </div>
+            <div class="side-nav-links">
+              <button class="side-nav-link" onclick="handleNavAction('fullscreen')">
+                <img src="/img/fullscreen.png" class="btn-icon">
+                <span>Fullscreen</span>
+              </button>
+            </div>
             <div class="settings-row" style="justify-content: center; margin-top: 15px;">
               <button class="rule-menu-btn" onclick="showRules()"><img src="/img/rules.png" class="btn-icon"> <span
                   data-i18n="howToPlay">How to Play</span></button>
             </div>
+
           </div>
 
           <div class="menu-settings settings-lang">
@@ -835,11 +842,11 @@
 
         <!-- ─────────────── SCREEN 2: HOST (CREATE) ─────────────── -->
         <div class="lobby-screen" id="screen-host">
-          <button onclick="showScreen('screen-choice')"
+          <button onclick="leaveRoom()"
             style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
             onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
             onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
-            BACK</button>
+            LEAVE PARTY</button>
           <h1 class="lobby-title">YOUR PARTY</h1>
           <p class="lobby-subtitle">شارك الكود مع صاحبك</p>
 
@@ -934,6 +941,11 @@
 
         <!-- ─────────────── SCREEN 4: GUEST WAITING ROOM ─────────────── -->
         <div class="lobby-screen" id="screen-guest-wait">
+          <button onclick="leaveRoom()"
+            style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
+            onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
+            onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
+            LEAVE PARTY</button>
           <h1 class="lobby-title">LOBBY</h1>
           <p class="lobby-subtitle" id="guest-code-display">Code: —</p>
 
@@ -976,7 +988,7 @@
             <div id="guest-player-list"></div>
           </div>
 
-          <div class="waiting-indicator">
+          <div class="waiting-indicator" id="guest-waiting">
             <div class="card-loader">
               <div class="card-loader-inner">
                 <div class="card-loader-front"></div>
@@ -995,12 +1007,25 @@
           <div class="dc-timer" id="dc-timer">30</div>
           <button class="menu-btn" id="dc-back-btn"
             style="margin-top:24px; width:220px; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px;"
-            onclick="clearDcCountdown(); showView('view-menu');">
+            onclick="clearDcCountdown(); leaveRoom();">
             <img src="/img/menu.png" style="width:18px;height:18px;object-fit:contain;" alt=""> Back to Menu
           </button>
         </div>
       </div>
 
+      <div id="game-sync-controls"
+        style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none;">
+        <div id="match-round-status"
+          style="background:rgba(0,0,0,0.8); color:#ffd700; padding:6px 12px; border-radius:12px; font-size:14px; font-weight:bold; border:1px solid rgba(255,215,0,0.3); backdrop-filter:blur(10px); display:none; text-shadow: 0 0 10px rgba(255,215,0,0.5);">
+          Round 1</div>
+        <div id="match-jarya-status"
+          style="background:rgba(255,255,255,0.1); color:white; padding:4px 10px; border-radius:10px; font-size:12px; font-weight:500; border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(8px); display:none;">
+          Jarya 1 / 6</div>
+        <button class="nav-btn"
+          style="background:rgba(255,255,255,0.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.2); color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold; cursor:pointer; pointer-events:auto; display:none; transition: all 0.2s;"
+          id="btn-sync-game" onclick="requestSync()" onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+          onmouseout="this.style.background='rgba(255,255,255,0.15)'">🔄 SYNC</button>
+      </div>
       <div class="lobby-toast" id="lobby-toast"></div>
     </div>
 
@@ -1281,11 +1306,12 @@
                 <div class="lobby-vs-badge">VS</div>
                 
                 <!-- Guest / Placeholder -->
-                <div class="lobby-side">
+                <div class="lobby-side" style="position:relative;">
+                  ${(isHost && guest) ? `<button class="kick-badge" onclick="requestKick('${guest.id}')" title="Kick Player">×</button>` : ''}
                   <div class="lobby-pfp-wrap ${!guest ? 'placeholder' : ''}">
                     ${guest ? `<img src="${guest.avatar}" onerror="this.src='/img/pfp.jpg'">` : '<span class="placeholder-icon">?</span>'}
                   </div>
-                  <div class="lobby-player-name">${guest ? guest.name : 'Waiting for player...'}</div>
+                  <div class="lobby-player-name">${guest ? guest.name : 'Waiting...'}</div>
                 </div>
               </div>
             `;
@@ -1325,6 +1351,7 @@
               chairEl.innerHTML = `
                 <div class="chair-avatar-wrap" onclick="pickTeam(${conf.team}, ${conf.slot})">
                   ${player ? `<img src="${avatarSrc}" onerror="this.src='/img/pfp.jpg'" class="chair-img">` : '<span class="chair-join-icon">+</span>'}
+                  ${(isHost && player && player.id !== socket.id) ? `<button class="kick-bubble" onclick="event.stopPropagation(); requestKick('${player.id}')">×</button>` : ''}
                 </div>
                 <div class="chair-info">
                    <div class="chair-name">${player ? player.name : ''}</div>
@@ -1348,6 +1375,9 @@
             sBtn.disabled = players.length < 2;
           }
         }
+
+        // Hide/Show waiting indicator
+        updateStartBtn(players);
       }
 
       function createPlayerEntry(p) {
@@ -1365,11 +1395,30 @@
       };
 
       function updateStartBtn(players) {
+        if (!currentSettings) return;
         const required = currentSettings.mode === '2v2' ? 4 : 2;
         const btn = document.getElementById('start-game-btn');
         const waiting = document.getElementById('host-waiting');
-        btn.disabled = players.length < required;
-        waiting.style.display = players.length < required ? 'flex' : 'none';
+        const gWaitingIndicator = document.getElementById('guest-waiting');
+        const gWaiting = document.getElementById('guest-wait-msg');
+        const hWaitingText = waiting ? waiting.querySelector('span') : null;
+
+        const isFull = (players && players.length >= required);
+
+        // Debug visibility
+        console.log(`[LOBBY] updateStartBtn: mode=${currentSettings.mode}, players=${players ? players.length : 0}, required=${required}, isFull=${isFull}`);
+
+        if (btn) btn.disabled = !isFull;
+        if (waiting) waiting.style.display = isFull ? 'none' : 'flex';
+        if (gWaitingIndicator) gWaitingIndicator.style.display = isFull ? 'none' : 'flex';
+
+        if (hWaitingText) {
+          hWaitingText.textContent = (currentSettings.mode === '1v1') ? 'Waiting for opponent…' : 'Waiting for opponents…';
+        }
+
+        if (gWaiting) {
+          gWaiting.textContent = isFull ? 'Table is full! Waiting for host...' : 'Waiting for more players...';
+        }
       }
 
       function applyGuestSettings(settings) {
@@ -1384,29 +1433,79 @@
         sessionStorage.setItem('chkobba_room_code', data.code);
         const gameMode = (data.settings && data.settings.mode) || '1v1';
         startGame('online', myName, true, localStorage.getItem('chkobba_back') || 'back.png', data.settings.score, 'medium', gameMode);
+
+        // Show Sync UI
+        const syncBox = document.getElementById('game-sync-controls');
+        if (syncBox) {
+          syncBox.style.pointerEvents = 'none';
+          const rStat = document.getElementById('match-round-status');
+          const jStat = document.getElementById('match-jarya-status');
+          const btn = syncBox.querySelector('#btn-sync-game');
+          if (rStat) { rStat.style.display = 'block'; rStat.textContent = 'Round 1'; }
+          if (jStat) { jStat.style.display = 'block'; jStat.textContent = 'Jarya 1 / ' + (gameMode === '2v2' ? 3 : 6); }
+          if (btn) { btn.style.display = 'block'; btn.style.pointerEvents = 'auto'; }
+        }
+
         showView('view-game');
       }
 
       function showToast(msg, duration = 2000) {
         const t = document.getElementById('lobby-toast');
+        if (!t) return;
         t.textContent = msg;
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), duration);
       }
 
-      function startDcCountdown(name) {
+      window.requestSync = () => {
+        showToast("Syncing Game State...", 1000);
+        socket.emit('sync-state');
+      };
+
+      function leaveRoom(msg) {
+        if (msg) showToast(msg, 4000);
+        if (socket && socket.connected) socket.emit('leave-room');
+        cleanupGame();
+        showView('view-menu');
+        // Clean up UI
+        const syncBox = document.getElementById('game-sync-controls');
+        if (syncBox) syncBox.style.display = 'none';
+
+        // Remove room from URL to avoid auto-joining
+        const url = new URL(window.location);
+        url.searchParams.delete('code');
+        window.history.replaceState({}, '', url);
+      }
+
+      function showDisconnectOverlay(name) {
         let secs = 30;
-        document.getElementById('dc-msg').textContent = `${name} disconnected. Reconnecting…`;
-        document.getElementById('dc-timer').textContent = secs;
-        document.getElementById('dc-overlay').classList.add('show');
+        const dcMsg = document.getElementById('dc-msg');
+        const dcTimer = document.getElementById('dc-timer');
+        const dcOverlay = document.getElementById('dc-overlay');
+
+        if (dcMsg) dcMsg.textContent = `${name} disconnected. Reconnecting…`;
+        if (dcTimer) dcTimer.textContent = secs;
+        if (dcOverlay) dcOverlay.classList.add('show');
+
         dcCountdown = setInterval(() => {
           secs--;
-          document.getElementById('dc-timer').textContent = secs;
-          if (secs <= 0) { clearInterval(dcCountdown); dcCountdown = null; showView('view-menu'); }
+          if (dcTimer) dcTimer.textContent = secs;
+          if (secs <= 0) {
+            clearInterval(dcCountdown);
+            dcCountdown = null;
+            window.location.href = '/';
+          }
         }, 1000);
       }
 
-      function clearDcCountdown() { if (dcCountdown) { clearInterval(dcCountdown); dcCountdown = null; } document.getElementById('dc-overlay').classList.remove('show'); }
+      function clearDisconnectOverlay() {
+        if (dcCountdown) {
+          clearInterval(dcCountdown);
+          dcCountdown = null;
+        }
+        const dcOverlay = document.getElementById('dc-overlay');
+        if (dcOverlay) dcOverlay.classList.remove('show');
+      }
 
       socket.on('party-created', ({ code, settings, teams, players }) => {
         partyCode = code;
@@ -1442,10 +1541,21 @@
 
       socket.on('rejoin-success', ({ code, settings, players, teams }) => {
         partyCode = code;
-        document.getElementById('guest-code-display').textContent = `Code: ${code}`;
-        applyGuestSettings(settings);
+        currentSettings = settings;
+        // Host check: If I am at slot 0 (first player), I am the host
+        const myToken = localStorage.getItem('sessionToken');
+        const myPlayer = players.find(p => p.sessionToken === myToken);
+        if (myPlayer && players.indexOf(myPlayer) === 0) {
+          isHost = true;
+          document.getElementById('host-code').textContent = code;
+          showScreen('screen-host');
+        } else {
+          isHost = false;
+          document.getElementById('guest-code-display').textContent = `Code: ${code}`;
+          applyGuestSettings(settings);
+          showScreen('screen-guest-wait');
+        }
         renderPlayerList(players, teams);
-        showScreen('screen-guest-wait');
       });
 
       socket.on('new-msg', ({ text, senderId }) => {
@@ -1465,24 +1575,44 @@
       });
 
       socket.on('player-disconnected', ({ name }) => {
-        if (name !== myName) startDcCountdown(name);
+        if (name !== myName) showDisconnectOverlay(name);
       });
 
       socket.on('player-reconnected', ({ name }) => {
-        clearDcCountdown();
+        clearDisconnectOverlay();
         showToast(`${name} reconnected!`);
       });
 
       socket.on('player-left', ({ name }) => {
-        clearDcCountdown();
+        clearDisconnectOverlay();
         showToast(`${name} left the game.`, 3000);
       });
 
       socket.on('room-closed', () => {
-        clearDcCountdown();
-        showToast('Host closed the room. Returning to menu…', 3000);
-        setTimeout(() => showView('view-menu'), 3000);
+        clearDisconnectOverlay();
+        showToast('Room closed. Returning to menu…', 3000);
+        setTimeout(() => window.location.href = 'menu.html', 2000);
       });
+
+      socket.on('player-kicked', ({ msg }) => {
+        console.log("[LOBBY] I have been kicked! Redirecting...");
+        showToast(msg, 5000);
+        setTimeout(() => window.location.href = '/', 2000);
+      });
+
+      socket.on('kick-error', ({ msg }) => {
+        showToast(msg, 3000);
+        console.warn("[LOBBY] Kick error:", msg);
+      });
+
+      window.requestKick = (pid) => {
+        console.log("[LOBBY] Requesting kick for:", pid);
+        if (isHost) {
+          socket.emit('kick-player', { playerId: pid });
+        } else {
+          console.warn("[LOBBY] Kick requested but not host.");
+        }
+      };
     </script>
 
     <!-- Tunisian Café Radio Widget -->
@@ -1546,8 +1676,6 @@
             <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
               <button class="menu-btn" onclick="togglePause()" style="width:200px;margin:0"><img src="/img/resume.png"
                   class="btn-icon"><span data-i18n="resumeGame">Resume Game</span></button>
-              <button class="menu-btn" onclick="showMenu()" style="width:200px;margin:0"><img src="/img/menu.png"
-                  class="btn-icon"> <span data-i18n="quitToMenu">Quit to Menu</span></button>
             </div>
           </div>
         </div>
@@ -2059,14 +2187,35 @@
         let myPlayerSlot = 0; // Default to host
         let endScreenTimer = null; // Auto-next round timer
         let botThinkTimeout = null;
+        let lastTurnForTimer = null; // avoid resetting timer on every UI render (online)
+
+        function detachOnlineGameSocketListeners() {
+          if (typeof socket === 'undefined' || !socket) return;
+          [
+            'room-data',
+            'move-played',
+            'deal-cards',
+            'jarya-started',
+            'jarya-ended',
+            'player-ready',
+            'player-disconnected',
+            'player-reconnected',
+            'player-left',
+            'room-closed'
+          ].forEach((ev) => socket.off(ev));
+        }
 
         function cleanupGame() {
           if (turnTimerInterval) clearInterval(turnTimerInterval);
-          if (endScreenTimer) clearTimeout(endScreenTimer);
+          if (turnTimerCountdown) clearTimeout(turnTimerCountdown);
+          if (endScreenTimer) clearInterval(endScreenTimer);
           if (botThinkTimeout) clearTimeout(botThinkTimeout);
           turnTimerInterval = null;
+          turnTimerCountdown = null;
           endScreenTimer = null;
           botThinkTimeout = null;
+          window.gameActive = false;
+          detachOnlineGameSocketListeners();
           engine = null;
           bot = null;
           if (mode === 'online' && typeof socket !== 'undefined') socket.emit('leave-match');
@@ -2361,12 +2510,19 @@
           window.getPlayerNameByServerSlot = function (slot) {
             if (mode !== 'online') return engine.players[slot] ? engine.players[slot].name : 'Player';
             if (slot === myPlayerSlot) return 'You';
-            if (slot === window.game2v2TopSlot) return engine.players[1].name;
+            if (slot === window.game2v2TopSlot) return (engine.players[1] && engine.players[1].name) ? engine.players[1].name : 'Player';
             if (window.currentGameMode === '2v2') {
-              if (slot === window.game2v2LeftSlot) return engine.players[2].name;
-              if (slot === window.game2v2RightSlot) return engine.players[3].name;
+              if (slot === window.game2v2LeftSlot) return (engine.players[2] && engine.players[2].name) ? engine.players[2].name : 'Player';
+              if (slot === window.game2v2RightSlot) return (engine.players[3] && engine.players[3].name) ? engine.players[3].name : 'Player';
             }
             return 'Player';
+          };
+
+          window.getCardShortName = function (card) {
+            if (!card) return 'Card';
+            const suits = { 'carreau': '♦', 'coeur': '♥', 'trefel': '♣', 'pique': '♠' };
+            const v = card.value === 1 ? '1' : (card.value === 8 ? 'J' : (card.value === 9 ? 'Q' : (card.value === 10 ? 'K' : card.value)));
+            return `${v}${suits[card.suit] || card.suit}`;
           };
 
           window.getTurnStatusMsg = function (slot) {
@@ -2392,20 +2548,29 @@
           // immediately fire the "Ekher Jarya" toast before room-data arrives.
           if (m === 'online') engine.deck.length = 40;
 
-          updateUI(true);
+          // In online mode, avoid deal animation until server state arrives
+          updateUI(m !== 'online');
           setStatus(window.getTurnStatusMsg(engine.currentPlayer));
 
           // --- ONLINE MODE ATTACHMENTS ---
           if (mode === 'online') {
+            window.gameActive = true;
+            window.gameInstanceId = (window.gameInstanceId || 0) + 1;
+            const thisGameInstanceId = window.gameInstanceId;
+
             const roomCode = sessionStorage.getItem('chkobba_room_code') || urlParams.get('room');
             // Prefer tab-specific sessionStorage token to prevent collisions when testing in multiple tabs
             const token = sessionStorage.getItem('chkobba_session_token') || urlParams.get('token');
             // In SPA, socket is already global
             window.activeSocket = socket;
 
+            // Prevent duplicate handlers across multiple online games
+            detachOnlineGameSocketListeners();
+
             socket.emit('join-room', roomCode, token);
 
             socket.on('room-data', (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               console.log("[DEBUG] room-data received:", data.gameState);
               const players = data.players;
               const idx = players.findIndex(p => p.sessionToken === token);
@@ -2436,6 +2601,22 @@
                   ? (myPlayerSlot + 2) % 4
                   : (myPlayerSlot ^ 1);
                 window.game2v2TopSlot = topSlot;
+
+                // Live mapping of playerId -> visual seat index for chat bubbles
+                window.playerSeatsById = {};
+                players.forEach((p, serverSlotIdx) => {
+                  if (!p || !p.id) return;
+                  let seat = -1;
+                  if (serverSlotIdx === myPlayerSlot) seat = 0;
+                  else if (window.currentGameMode === '2v2') {
+                    if (serverSlotIdx === topSlot) seat = 1;
+                    else if (serverSlotIdx === window.game2v2LeftSlot) seat = 2;
+                    else if (serverSlotIdx === window.game2v2RightSlot) seat = 3;
+                  } else {
+                    seat = 1; // 1v1 opponent always top
+                  }
+                  if (seat !== -1) window.playerSeatsById[p.id] = seat;
+                });
 
                 // ── Update bottom / top info panels ──────────────────
                 const me = players[myPlayerSlot];
@@ -2515,8 +2696,13 @@
             });
 
             socket.on('move-played', (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               console.log("[DEBUG] Server move played:", data);
-              const { playerIdx, cardId, capturedIds, newTurn, newCardsDealt, deckRemaining } = data;
+              const { playerIdx, cardId, capturedIds, newTurn, newCardsDealt, deckRemaining, jaryaCount, maxJaryas } = data;
+
+              if (jaryaCount && maxJaryas) {
+                console.log(`[GAME] State: Jarya ${jaryaCount}/${maxJaryas}, Deck: ${deckRemaining}`);
+              }
 
               const processMove = () => {
                 if (isAnimating) { setTimeout(processMove, 100); return; }
@@ -2549,12 +2735,18 @@
                 const captured = engine.table.filter(t => capturedIds.includes(t.id));
 
                 if (card) {
+                  const pName = window.getPlayerNameByServerSlot(playerIdx);
+                  let logMsg = `${pName} plays ${window.getCardShortName(card)}`;
+                  if (captured && captured.length > 0) {
+                    logMsg += ` and captures ${captured.map(c => window.getCardShortName(c)).join(', ')}`;
+                  }
+                  addLog(logMsg);
+
+                  window.pendingServerTurn = newTurn;
                   executeMove(engineIdx, card, captured);
-                  setTimeout(() => {
-                    engine.currentPlayer = newTurn;
-                    setStatus(window.getTurnStatusMsg(newTurn));
-                    updateTurnIndicator(newTurn);
-                  }, 800);
+                  engine.currentPlayer = newTurn;
+                  setStatus(window.getTurnStatusMsg(newTurn));
+                  updateTurnIndicator(newTurn);
                 }
 
                 engine.deck.length = deckRemaining;
@@ -2564,14 +2756,29 @@
               processMove();
             });
 
-            socket.on('deal-cards', (data) => {
-              const { myHand } = data;
-              const waitForAnimations = () => {
-                if (isAnimating) { setTimeout(waitForAnimations, 100); return; }
-                // Engine uses slot 0 = me, 1 = top, 2 = left, 3 = right
-                engine.players[0].hand = myHand;
+            const handleStateSync = (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
+              const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount } = data;
+              const sync = () => {
+                if (isAnimating) { setTimeout(sync, 100); return; }
+
+                if (myHand !== undefined) engine.players[0].hand = myHand;
+                if (table !== undefined) engine.table = table;
+                if (currentTurn !== undefined) engine.currentPlayer = currentTurn;
+                if (deckRemaining !== undefined) engine.deck.length = deckRemaining;
+
+                if (roundCount !== undefined) {
+                  const rEl = document.getElementById('match-round-status');
+                  if (rEl) rEl.textContent = `Round ${roundCount}`;
+                }
+
+                if (jaryaCount && maxJaryas) {
+                  const statusEl = document.getElementById('match-jarya-status');
+                  if (statusEl) statusEl.textContent = `Jarya ${jaryaCount} / ${maxJaryas}`;
+                  console.log(`[SYNC] Jarya ${jaryaCount}/${maxJaryas}, Deck: ${deckRemaining}`);
+                }
+
                 const dummyCards = [{ id: 'd1' }, { id: 'd2' }, { id: 'd3' }];
-                // Populate opponents with dummy cards based on mode
                 engine.players[1].hand = [...dummyCards];
                 if (window.currentGameMode === '2v2') {
                   if (engine.players[2]) engine.players[2].hand = [...dummyCards];
@@ -2580,28 +2787,31 @@
                   if (engine.players[2]) engine.players[2].hand = [];
                   if (engine.players[3]) engine.players[3].hand = [];
                 }
-                updateUI(true);
-              };
-              waitForAnimations();
-            });
 
-            socket.on('jarya-started', (data) => {
-              const { table, currentTurn } = data;
-              engine.table = table;
-              engine.currentPlayer = currentTurn;
-              hasShownEkherJarya = false;
-              updateUI(true);
-            });
+                hasShownEkherJarya = (deckRemaining === 0);
+                updateUI(true);
+                updateTurnIndicator(engine.currentPlayer);
+                setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+              };
+              sync();
+            };
+
+            socket.on('deal-cards', handleStateSync);
+            socket.on('jarya-started', handleStateSync);
 
             socket.on('jarya-ended', (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               if (endScreenTimer) clearInterval(endScreenTimer);
               const { results, totals, winScore } = data;
 
               // Synchronize the 2 Team Totals
               totals.forEach((v, i) => { totalScores[i] = v; });
 
-              document.getElementById('screen-game').style.display = 'none';
-              document.getElementById('screen-end').style.display = 'flex';
+              // Give time for any last table-capture animations to finish
+              setTimeout(() => {
+                document.getElementById('screen-game').style.display = 'none';
+                document.getElementById('screen-end').style.display = 'flex';
+              }, 1000);
 
               const myTeamIdx = window.currentGameMode === '2v2' ? (myPlayerSlot % 2) : 0;
               const oppTeamIdx = window.currentGameMode === '2v2' ? ((myPlayerSlot + 1) % 2) : 1;
@@ -2656,11 +2866,11 @@
               };
 
               const rowsData = [
-                { label: 'Cards', ...renderForMyPerspective(results.s0.cards, results.s1.cards, results.carta === 0, results.carta === 1) },
-                { label: 'Dineri', ...renderForMyPerspective(results.s0.dineri, results.s1.dineri, results.dineri === 0, results.dineri === 1) },
-                { label: '7ayya', ...renderForMyPerspective(results.s0.sab3a ? 'Yes' : 'No', results.s1.sab3a ? 'Yes' : 'No', results.sab3a === 0, results.sab3a === 1) },
-                { label: 'Barmila', ...renderForMyPerspective(`${results.s0.sevens}x7, ${results.s0.sixes}x6`, `${results.s1.sevens}x7, ${results.s1.sixes}x6`, results.barmila === 0, results.barmila === 1) },
-                { label: 'Chkobbas', ...renderForMyPerspective(results.chkobba0, results.chkobba1, results.chkobba0 > results.chkobba1, results.chkobba1 > results.chkobba0) }
+                { key: 'Cards', img: 'img/icon_carta.png', ...renderForMyPerspective(results.s0.cards, results.s1.cards, results.carta === 0, results.carta === 1) },
+                { key: 'Dineri', img: 'img/icon_dineri.png', ...renderForMyPerspective(results.s0.dineri, results.s1.dineri, results.dineri === 0, results.dineri === 1) },
+                { key: '7ayya', img: 'img/icon_7ayya.png', ...renderForMyPerspective(results.s0.sab3a ? 'Yes' : 'No', results.s1.sab3a ? 'Yes' : 'No', results.sab3a === 0, results.sab3a === 1) },
+                { key: 'Barmila', img: 'img/icon_barmila.png', ...renderForMyPerspective(`${results.s0.sevens}x7, ${results.s0.sixes}x6`, `${results.s1.sevens}x7, ${results.s1.sixes}x6`, results.barmila === 0, results.barmila === 1) },
+                { key: 'Chkobbas', img: 'img/icon_chkobba.png', ...renderForMyPerspective(results.chkobba0, results.chkobba1, results.chkobba0 > results.chkobba1, results.chkobba1 > results.chkobba0) }
               ];
 
               rowsData.forEach(r => {
@@ -2668,23 +2878,24 @@
                 const myClass = r.myWin ? 'winner' : (r.oppWin ? 'loser' : '');
                 const oppClass = r.oppWin ? 'winner' : (r.myWin ? 'loser' : '');
 
-                let i18tag = "";
-                let labelText = r.label;
-                if (r.label === 'Cards') {
-                  i18tag = 'data-i18n="cardsName"';
-                  if (window.translations?.[window.currentLang]) labelText = window.translations[window.currentLang]['cardsName'];
-                } else if (r.label === 'Chkobbas') {
-                  i18tag = 'data-i18n="chkobbasName"';
-                  if (window.translations?.[window.currentLang]) labelText = window.translations[window.currentLang]['chkobbasName'];
-                }
-
                 let myVal = r.my, oppVal = r.opp;
                 if (myVal === 'Yes') myVal = '<span data-i18n="c11">' + (window.translations?.[window.currentLang]?.c11 || 'Yes') + '</span>';
                 if (myVal === 'No') myVal = '<span data-i18n="c12">' + (window.translations?.[window.currentLang]?.c12 || 'No') + '</span>';
                 if (oppVal === 'Yes') oppVal = '<span data-i18n="c11">' + (window.translations?.[window.currentLang]?.c11 || 'Yes') + '</span>';
                 if (oppVal === 'No') oppVal = '<span data-i18n="c12">' + (window.translations?.[window.currentLang]?.c12 || 'No') + '</span>';
 
-                tr.innerHTML = `<td ${i18tag}>${labelText}</td><td class="${myClass}">${myVal}</td><td class="${oppClass}">${oppVal}</td>`;
+                const arrowLeft = r.myWin && !r.oppWin ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; opacity:0.85">◀</span>' : '';
+                const arrowRight = r.oppWin && !r.myWin ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; opacity:0.85">▶</span>' : '';
+
+                tr.innerHTML = `
+                  <td class="${myClass}" style="text-align:left; font-weight:700;">${myVal}</td>
+                  <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
+                    ${arrowLeft}
+                    <img src="/${r.img}" class="scoreboard-icon" title="${r.key}">
+                    ${arrowRight}
+                  </td>
+                  <td class="${oppClass}" style="text-align:right; font-weight:700;">${oppVal}</td>
+                `;
                 tbody.appendChild(tr);
               });
 
@@ -2720,37 +2931,51 @@
             });
 
             socket.on('player-ready', (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               if (data.playerIdx !== myPlayerSlot) {
                 showToast(`${engine.players[data.playerIdx].name} is ready!`);
               }
             });
 
             socket.on('jarya-started', (data) => {
-              engine.table = data.table;
-              engine.currentPlayer = data.currentTurn;
-              engine.deck.length = 40; // fake reset for UI
-              engine.players[0].chkobbas = [];
-              engine.players[1].chkobbas = [];
-              engine.players[0].pile = [];
-              engine.players[1].pile = [];
-              hasShownEkherJarya = false;
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
+              const startJarya = () => {
+                if (isAnimating) { setTimeout(startJarya, 100); return; }
 
-              document.getElementById('screen-end').style.display = 'none';
-              document.getElementById('screen-game').style.display = 'flex';
+                engine.table = data.table;
+                engine.currentPlayer = data.currentTurn;
+                engine.deck.length = 40; // fake reset for UI
+                engine.players[0].chkobbas = [];
+                engine.players[1].chkobbas = [];
+                engine.players[0].pile = [];
+                engine.players[1].pile = [];
+                hasShownEkherJarya = false;
 
-              const nBtn = document.getElementById('btn-next-action');
-              nBtn.disabled = false;
+                document.getElementById('screen-end').style.display = 'none';
+                document.getElementById('screen-game').style.display = 'flex';
 
-              updateUI(true);
-              setStatus(`${engine.players[engine.currentPlayer].name}'s turn`);
-              isAnimating = false;
+                const nBtn = document.getElementById('btn-next-action');
+                if (nBtn) nBtn.disabled = false;
+
+                updateUI(true);
+                setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+                isAnimating = false;
+              };
+              startJarya();
             });
 
             socket.on('player-disconnected', (name) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               showDisconnectOverlay(name);
             });
             socket.on('room-closed', () => {
-              window.location.href = 'menu.html';
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
+              leaveRoom("Mool el ghorfa khraj! (Host closed the room)");
+            });
+
+            socket.on('player-left', (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
+              showToast(`${data.name} khraj mel ghorfa.`, 3000);
             });
           }
         }
@@ -2764,8 +2989,11 @@
           });
 
           if (window.currentGameMode === '2v2') {
-            // slot 0 → Down, slot 1 → Up, slot 2 → Left, slot 3 → Right
-            const map2v2 = ['Down', 'Up', 'Left', 'Right'];
+            // Slot 0 (Me) -> Down
+            // Slot 1 (Next) -> Left
+            // Slot 2 (Partner) -> Up
+            // Slot 3 (Prev) -> Right
+            const map2v2 = ['Down', 'Left', 'Up', 'Right'];
             const dir = map2v2[serverTurnIdx];
             if (dir) {
               const el = document.getElementById('turnArrow' + dir);
@@ -2791,6 +3019,21 @@
           const isMyTurn = (engine.currentPlayer === myPlayerSlot);
           const isTopTurn = (engine.currentPlayer === topServerSlot);
 
+          // Online timer should start only when the turn actually changes
+          if (mode === 'online') {
+            if (engine.currentPlayer !== lastTurnForTimer) {
+              lastTurnForTimer = engine.currentPlayer;
+              if (engine.currentPlayer === myPlayerSlot) startTurnTimer();
+              else stopTurnTimer();
+            }
+          }
+
+          // AUTO-SYNC: If it's my turn and hand is empty (and matches are not over), request state
+          if (mode === 'online' && isMyTurn && engine.players[0].hand.length === 0 && engine.deck.length > 0 && !isAnimating) {
+            console.warn("[AUTO-SYNC] Turn with empty hand! Requesting restore...");
+            window.requestSync();
+          }
+
           // My hand
           renderHand('hand-player', engine.players[0].hand, true, isMyTurn);
           // Top hand
@@ -2800,8 +3043,8 @@
           if (window.currentGameMode === '2v2') {
             const isLeftTurn = (engine.currentPlayer === window.game2v2LeftSlot);
             const isRightTurn = (engine.currentPlayer === window.game2v2RightSlot);
-            renderHand('hand-p2', engine.players[2].hand, false, isLeftTurn);
-            renderHand('hand-p3', engine.players[3].hand, false, isRightTurn);
+            if (engine.players[2]) renderHand('hand-p2', engine.players[2].hand, false, isLeftTurn);
+            if (engine.players[3]) renderHand('hand-p3', engine.players[3].hand, false, isRightTurn);
           } else {
             document.getElementById('hand-p2').innerHTML = '';
             document.getElementById('hand-p3').innerHTML = '';
@@ -2990,6 +3233,10 @@
           if (!senderId) return -1;
           if (senderId === socket.id) return 0;
 
+          if (window.playerSeatsById && (senderId in window.playerSeatsById)) {
+            return window.playerSeatsById[senderId];
+          }
+
           if (window.currentGameMode === '2v2' && lastTeams) {
             const t1 = lastTeams[1];
             const t2 = lastTeams[2];
@@ -3028,6 +3275,7 @@
         }
 
         function renderHand(containerId, hand, interactive, isCurrentTurn) {
+          if (!hand) return;
           const el = document.getElementById(containerId);
           const existing = Array.from(el.children);
           const cardIds = hand.map(c => c.id);
@@ -3060,12 +3308,7 @@
             if (el.children[idx] !== div) el.insertBefore(div, el.children[idx]);
           });
 
-          // Manage Turn Timer VISUALLY
-          if (isCurrentTurn && interactive) {
-            startTurnTimer();
-          } else {
-            stopTurnTimer();
-          }
+          // Turn timer is managed centrally in updateUI to avoid resets on re-render.
         }
 
         function startTurnTimer(isResume = false) {
@@ -3154,7 +3397,7 @@
 
         function renderTable() {
           const el = document.getElementById('tableCards');
-          if (engine.table.length === 0) {
+          if (!engine.table || engine.table.length === 0) {
             let emptyText = window.translations?.[window.currentLang]?.tableEmpty || 'Table is empty';
             el.innerHTML = `<span style="color:var(--gold-dim);font-style:italic;font-size:14px;">${emptyText}</span>`;
             return;
@@ -3336,6 +3579,13 @@
             const totalCardsInHands = engine.players[0].hand.length + engine.players[1].hand.length;
             const isLastMoveOfEntireGame = engine.deck.length === 0 && totalCardsInHands === 1;
             const { chkobba } = engine.playCard(pidx, card, captured, isLastMoveOfEntireGame);
+
+            // In online mode, server is authoritative for turn order
+            if (mode === 'online' && window.pendingServerTurn !== undefined && window.pendingServerTurn !== null) {
+              engine.currentPlayer = window.pendingServerTurn;
+              window.pendingServerTurn = null;
+            }
+
             const pname = engine.players[pidx].name;
             if (captured.length > 0) {
               const capturedNames = captured.map(c => engine.getCardName(c)).join('+');
@@ -3371,9 +3621,11 @@
               if (engine.handsEmpty()) {
                 if (engine.deckEmpty()) {
                   // LAST ROUND FINISHED: Score Calculation
-                  engine.finalize();
                   isAnimating = false;
-                  showEndScreen();
+                  if (mode !== 'online') {
+                    engine.finalize();
+                    showEndScreen();
+                  }
                 } else if (mode !== 'online') {
                   // MID-GAME DEAL: 3 cards only
                   engine.dealHands();
@@ -3429,6 +3681,18 @@
 
         function showEndScreen() {
           if (endScreenTimer) clearInterval(endScreenTimer);
+
+          // Hide Sync UI
+          const syncBox = document.getElementById('game-sync-controls');
+          if (syncBox) {
+            const rStat = syncBox.querySelector('#match-round-status');
+            const jStat = syncBox.querySelector('#match-jarya-status');
+            const btn = syncBox.querySelector('#btn-sync-game');
+            if (rStat) rStat.style.display = 'none';
+            if (jStat) jStat.style.display = 'none';
+            if (btn) btn.style.display = 'none';
+          }
+
           const result = engine.calculateRoundPoints();
           totalScores[0] += result.pts[0]; totalScores[1] += result.pts[1];
           document.getElementById('screen-game').style.display = 'none';
@@ -3468,7 +3732,7 @@
             btnNextAction.textContent = 'Main Menu';
             btnNextAction.onclick = () => {
               if (endScreenTimer) clearInterval(endScreenTimer);
-              window.location.href = 'menu.html';
+              leaveRoom();
             };
           } else {
             // Auto-Timer Logic for single player / pass n play

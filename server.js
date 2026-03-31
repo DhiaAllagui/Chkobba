@@ -57,7 +57,7 @@ function generateDeck() {
 function calculateScore(pile) {
   const cards = pile.length;
   const dineri = pile.filter(c => c.suit === 'carreau').length;
-  const sab3a = pile.some(c => c.suit === 'carreau' && c.value === 7);
+  const sab3a = pile.some(c => c.is7ayya);
   const sevens = pile.filter(c => c.value === 7).length;
   const sixes = pile.filter(c => c.value === 6).length;
   return { cards, dineri, sab3a, sevens, sixes };
@@ -94,9 +94,9 @@ function calculateRoundPoints(state) {
 
   return {
     pts, s0, s1,
-    carta: s0.cards > s1.cards ? 0 : (s1.cards > s0.cards ? 1 : -1),
+    carta:  s0.cards > s1.cards ? 0 : (s1.cards > s0.cards ? 1 : -1),
     dineri: s0.dineri > s1.dineri ? 0 : (s1.dineri > s0.dineri ? 1 : -1),
-    sab3a: s0.sab3a ? 0 : (s1.sab3a ? 1 : -1),
+    sab3a:  s0.sab3a ? 0 : (s1.sab3a ? 1 : -1),
     barmila,
     chkobba0: state.chkobbas[0].length,
     chkobba1: state.chkobbas[1].length,
@@ -157,11 +157,22 @@ io.on('connection', (socket) => {
         clearTimeout(room.reconnectTimers[existing.id]);
         delete room.reconnectTimers[existing.id];
       }
+      const oldId = existing.id;
       existing.id = socket.id; // update to new socket
+      if (room.host === oldId) {
+          room.host = socket.id;
+          console.log(`[ROOM] ${name} (Host) reconnected to ${code}. Host updated to ${socket.id}`);
+      }
       socket.join(code);
       socket.data.code = code;
       socket.data.name = name;
       socket.data.sessionToken = sessionToken;
+
+      // Sync team slot with new socket ID
+      for (let t in room.teams) {
+          room.teams[t] = room.teams[t].map(sid => (sid === oldId ? socket.id : sid));
+      }
+
       io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
       socket.emit('rejoin-success', { code, settings: room.settings, players: room.players, teams: room.teams });
       io.to(code).emit('player-reconnected', { name });
@@ -270,6 +281,8 @@ io.on('connection', (socket) => {
         }
     }
 
+    room.roundCount = (room.roundCount || 0) + 1;
+
     room.gameState = {
         deck: deck,
         table: table,
@@ -278,9 +291,20 @@ io.on('connection', (socket) => {
         chkobbas:           [[], []],
         lastCaptor: -1,
         totalScores:        [0, 0],
+        jaryaCount:         1, // Track which deal we are on
+        maxJaryas:          numPlayers === 4 ? 3 : 6, // 1v1=6 deals, 2v2=3 deals
         readyForNextRound:  Array.from({ length: numPlayers }, () => false),
-        currentTurn: 1, // slot-1 (Top) plays first
+        currentTurn: (room.roundCount % 2 === 1) ? 0 : 1, // Alternate: Host starts R1, Guest starts R2
         numPlayers: numPlayers,
+    };
+
+    const roomDataBase = {
+      table: table,
+      currentTurn: room.gameState.currentTurn,
+      numPlayers: numPlayers,
+      deckRemaining: deck.length,
+      jaryaCount: 1,
+      maxJaryas: room.gameState.maxJaryas
     };
 
     io.to(code).emit('game-init', {
@@ -289,7 +313,17 @@ io.on('connection', (socket) => {
       players: room.players,
       hostId: room.host
     });
-    console.log(`[ROOM] Game started in ${code} (${numPlayers}P)`);
+
+    for (let i = 0; i < numPlayers; i++) {
+        const p = room.players[i];
+        if (p && p.id) {
+            io.to(p.id).emit('room-data', {
+                ...roomDataBase,
+                myHand: hands[i]
+            });
+        }
+    }
+    console.log(`[ROOM] Game started in ${code} (${numPlayers}P). Initial data pushed.`);
   });
 
   // ── GAME ROOM HANDLERS ───────────────────────────────────────
@@ -387,9 +421,11 @@ io.on('connection', (socket) => {
         state.piles[teamIdx].push(cardObj, ...capturedCards);
         state.lastCaptor = teamIdx;
         
-        const isLastCardOfJarya = state.deck.length === 0 && state.hands.every(h => h.length === 0);
+        // RULE: No Chkobba on the very last card of the entire 40-card round
+        // We detect this by checking if the deck is empty AND hands will be empty after this move
+        const isFinalCardOfRound = state.deck.length === 0 && state.hands.every(h => h.length === 0);
         
-        if (state.table.length === 0 && !isLastCardOfJarya) {
+        if (state.table.length === 0 && !isFinalCardOfRound) {
             state.chkobbas[teamIdx].push(cardObj);
             chkobba = true;
         }
@@ -408,9 +444,9 @@ io.on('connection', (socket) => {
     let results = null;
     
     if (allHandsEmpty) {
-        // If deck is NOT empty, deal 3 cards per player (MID-GAME DEAL)
         if (state.deck.length > 0) {
-            const np = state.numPlayers || 2;
+            // NEXT JARYA: Deal 3 cards to everyone
+            state.jaryaCount++;
             for (let p = 0; p < np; p++) {
                 for (let i = 0; i < 3; i++) {
                     const card = state.deck.pop();
@@ -418,16 +454,20 @@ io.on('connection', (socket) => {
                 }
             }
             newCardsDealt = true;
-            console.log(`[GAME] Mid-game deal executed. Deck remaining: ${state.deck.length}`);
+            console.log(`[GAME] Next Jarya ${state.jaryaCount} in room ${code}. Deck remaining: ${state.deck.length}`);
         } else {
-            // DECK IS EMPTY: This is the LAST ROUND transition to SCORE CALCULATION
+            // ROUND END: Deck and Hands are both empty
             jaryaEnded = true;
-            console.log(`[GAME] Last round finished. Triggering score calculation...`);
+            console.log(`[GAME] Round Over in room ${code}. Deck and Hands exhausted.`);
             
-            // Finalize Jarya (give remaining table cards to last captor)
-            if (state.lastCaptor >= 0 && state.table.length > 0) {
-                state.piles[state.lastCaptor].push(...state.table);
-                state.table = [];
+            // Finalize Round: award ALL remaining table AND deck cards to last captor
+            if (state.lastCaptor >= 0) {
+                const leftovers = [...state.table];
+                if (leftovers.length > 0) {
+                    state.piles[state.lastCaptor].push(...leftovers);
+                    console.log(`   -> Awarded ${leftovers.length} table cards to team ${state.lastCaptor}`);
+                    state.table = [];
+                }
             }
             // Calculate Scores
             results = calculateRoundPoints(state);
@@ -444,14 +484,28 @@ io.on('connection', (socket) => {
         newTurn: state.currentTurn,
         newCardsDealt: newCardsDealt,
         deckRemaining: state.deck.length,
-        isJaryaEnded: jaryaEnded
+        isJaryaEnded: jaryaEnded,
+        jaryaCount: state.jaryaCount,
+        maxJaryas: state.maxJaryas
     });
     
     if (newCardsDealt) {
         const np3 = state.numPlayers || 2;
+        const jaryaData = {
+            table: state.table,
+            currentTurn: state.currentTurn,
+            jaryaCount: state.jaryaCount,
+            maxJaryas: state.maxJaryas,
+            deckRemaining: state.deck.length
+        };
         for (let i = 0; i < np3; i++) {
             const p = room.players[i];
-            if (p && p.id) io.to(p.id).emit('deal-cards', { myHand: state.hands[i] });
+            if (p && p.id) {
+                io.to(p.id).emit('deal-cards', { 
+                    myHand: state.hands[i],
+                    ...jaryaData
+                });
+            }
         }
     } else if (jaryaEnded) {
         setTimeout(() => {
@@ -476,40 +530,166 @@ io.on('connection', (socket) => {
       
       io.to(code).emit('player-ready', { playerIdx: mySlotIdx });
       
-      // Check all players are ready
-      const allReady = state.readyForNextRound.slice(0, np).every(r => r);
-      if (allReady) {
-          // ── RESTART JARYA (New Hand) ──────────────────────────
-          const deck = generateDeck(); // Shuffle ONLY at round start
-          const table = [];
-          for (let i = 0; i < 4; i++) table.push(deck.pop());
-          const hands = Array.from({ length: np }, () => []);
-          for (let p = 0; p < np; p++) {
-              for (let i = 0; i < 3; i++) hands[p].push(deck.pop());
-          }
-          state.deck = deck;
-          state.table = table;
-          state.hands = hands;
-          state.piles     = [[], []]; // Reset piles for new round
-          state.chkobbas  = [[], []];
-          state.lastCaptor = -1;
-          state.readyForNextRound = Array.from({ length: np }, () => false);
-          state.currentTurn = 1;
+      // Robust Readiness Check: rely on slot indices, not socket IDs
+      const readyCount = state.readyForNextRound.filter(val => val === true).length;
+
+      if (readyCount >= np) {
+          // Restart Round
+          const newDeck = generateDeck();
+          const newTable = [];
+          for (let i = 0; i < 4; i++) newTable.push(newDeck.pop());
           
-          io.to(code).emit('jarya-started', {
-              table: state.table,
-              currentTurn: state.currentTurn
-          });
+          const newHands = Array.from({ length: np }, () => []);
+          for (let p = 0; p < np; p++) {
+              for (let i = 0; i < 3; i++) newHands[p].push(newDeck.pop());
+          }
+          
+          room.roundCount++;
+          
+          // Rebuild gameState: preserve totalScores, reset everything else
+          room.gameState = {
+              ...state, // preserves totalScores
+              deck: newDeck,
+              table: newTable,
+              hands: newHands,
+              piles: [[], []],
+              chkobbas: [[], []],
+              lastCaptor: -1,
+              jaryaCount: 1,
+              readyForNextRound: [false, false, false, false],
+              currentTurn: (room.roundCount % 2 === 0) ? 1 : 0 // Alternate: Round 1 (Odd) Host starts, Round 2 (Even) Guest starts
+          };
+
+          const jaryaData = {
+              table: room.gameState.table,
+              currentTurn: room.gameState.currentTurn,
+              jaryaCount: 1,
+              maxJaryas: room.gameState.maxJaryas,
+              deckRemaining: room.gameState.deck.length
+          };
           
           for (let i = 0; i < np; i++) {
               const p = room.players[i];
-              if (p && p.id) io.to(p.id).emit('deal-cards', { myHand: hands[i] });
+              if (p && p.id) {
+                  io.to(p.id).emit('deal-cards', { 
+                      myHand: room.gameState.hands[i],
+                      ...jaryaData
+                  });
+              }
           }
-           console.log(`[GAME] New Jarya started in room: ${code}`);
+          console.log(`[GAME] New Round ${room.roundCount} initialized in room: ${code}`);
       }
   });
 
+  // ── KICK PLAYER (host only) ───────────────────────────────────
+  socket.on('kick-player', ({ playerId }) => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    console.log(`[ROOM] Kick attempt: room=${code}, target=${playerId}, requester=${socket.id}`);
+    if (!room) { 
+      socket.emit('kick-error', { msg: "Ghorfa mouch mawjouda" });
+      console.log("   -> Room not found"); return; 
+    }
+    if (room.host !== socket.id) { 
+      socket.emit('kick-error', { msg: "Mouch enti el moulat-el-ghorfa!" });
+      console.log(`   -> Not host (Host is ${room.host})`); return; 
+    }
+    if (room.gameStarted) { 
+      socket.emit('kick-error', { msg: "El partie bdit!" });
+      console.log("   -> Game already started"); return; 
+    }
+    
+    // Find player index
+    const pIdx = room.players.findIndex(p => p.id === playerId);
+    if (pIdx === -1) { 
+      socket.emit('kick-error', { msg: "La3eb mouch mawjoud fi el ghorfa" });
+      console.log("   -> Target player not in room.players list"); return; 
+    }
+    if (room.players[pIdx].role === 'host') { 
+      socket.emit('kick-error', { msg: "Matnajamch t'kiki el moulat-el-ghorfa!" });
+      console.log("   -> Target is host (cannot kick)"); return; 
+    }
+
+    const kickedPlayer = room.players[pIdx];
+    
+    // Remove from teams
+    for (let t in room.teams) {
+      room.teams[t] = room.teams[t].map(sid => sid === playerId ? null : sid);
+    }
+    
+    // Remove from players list
+    room.players.splice(pIdx, 1);
+    
+    // Force leave room and clear data
+    const kickedSocket = io.sockets.sockets.get(playerId);
+    if (kickedSocket) {
+        kickedSocket.leave(code);
+        delete kickedSocket.data.code;
+    }
+
+    // Inform the kicked player (emit directly to socket id in case they left room already)
+    io.to(playerId).emit('player-kicked', { msg: "Yezik mil l3ab, t'7atit lbara (Kicked by Host)" });
+    
+    // Inform others
+    io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
+    io.to(code).emit('player-left', { name: kickedPlayer.name });
+    console.log(`[ROOM] ${kickedPlayer.name} kicked from ${code}`);
+  });
+
   // ── DISCONNECT ────────────────────────────────────────────────
+  socket.on('sync-state', () => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    if (!room || !room.gameState) return;
+    
+    const pIdx = room.players.findIndex(p => p.id === socket.id);
+    if (pIdx === -1) return;
+
+    socket.emit('room-data', {
+        table: room.gameState.table,
+        myHand: room.gameState.hands[pIdx],
+        currentTurn: room.gameState.currentTurn,
+        numPlayers: room.gameState.numPlayers || 2,
+        deckRemaining: room.gameState.deck.length,
+        jaryaCount: room.gameState.jaryaCount,
+        maxJaryas: room.gameState.maxJaryas
+    });
+  });
+
+  socket.on('leave-room', () => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    if (!room) return;
+
+    if (room.host === socket.id) {
+        // Host leaves: Close Entire Room
+        console.log(`[ROOM] Host left. Closing room: ${code}`);
+        io.to(code).emit('room-closed');
+        delete rooms[code];
+    } else {
+        // Guest leaves: Remove them
+        const pIdx = room.players.findIndex(p => p.id === socket.id);
+        if (pIdx !== -1) {
+            const name = room.players[pIdx].name;
+            console.log(`[ROOM] Player ${name} left: ${code}`);
+            room.players.splice(pIdx, 1);
+            
+            // Remove from teams
+            for (let t in room.teams) {
+                room.teams[t] = room.teams[t].map(sid => sid === socket.id ? null : sid);
+            }
+            
+            io.to(code).emit('player-left', { name });
+            io.to(code).emit('room-data', {
+                players: room.players,
+                settings: room.settings
+            });
+        }
+    }
+    socket.leave(code);
+    delete socket.data.code;
+  });
+
   socket.on('disconnect', () => {
     const code = socket.data.code;
     const room = rooms[code];
