@@ -760,6 +760,14 @@
                   <span class="table-theme-swatch theme-royal"></span>
                   <span class="table-theme-name">Royal</span>
                 </button>
+                <button type="button" class="table-theme-option" data-theme="pink" onclick="applyTableTheme('pink')">
+                  <span class="table-theme-swatch theme-pink"></span>
+                  <span class="table-theme-name">Pink</span>
+                </button>
+                <button type="button" class="table-theme-option" data-theme="sunset" onclick="applyTableTheme('sunset')">
+                  <span class="table-theme-swatch theme-sunset"></span>
+                  <span class="table-theme-name">Sunset</span>
+                </button>
               </div>
             </div>
 
@@ -1159,7 +1167,9 @@
       });
 
       window.applyTableTheme = function (theme, opts = { persist: true }) {
-        const t = theme || 'classic';
+        let t = theme || 'classic';
+        // Back-compat for older saved value
+        if (t === 'emerald') t = 'pink';
         if (opts.persist !== false) localStorage.setItem('chkobba_table_theme', t);
 
         if (t === 'classic') document.body.removeAttribute('data-table-theme');
@@ -1876,8 +1886,6 @@
         <div id="matchStatus" class="match-status-text"></div>
         <div class="end-btn-row">
           <button class="menu-btn end-action-btn" id="btn-next-action" data-i18n="playAgain">Play Again</button>
-          <button class="menu-btn end-action-btn" id="btn-main-menu-static" onclick="showMenu()"><img
-              src="/img/menu.png" class="btn-icon"> <span data-i18n="mainMenu">Main Menu</span></button>
         </div>
       </div> <!-- End of view-game -->
 
@@ -2394,9 +2402,24 @@
           }
         }
 
+        function startDefeatRain() {
+          const container = document.getElementById('victory-overlay');
+          const symbols = ['💔', '☠', '✖', '☹'];
+          for (let i = 0; i < 70; i++) {
+            const span = document.createElement('span');
+            span.className = 'card-particle defeat';
+            span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            span.style.left = Math.random() * 100 + 'vw';
+            span.style.animationDuration = (Math.random() * 2 + 3.5) + 's';
+            span.style.animationDelay = (Math.random() * 2) + 's';
+            span.style.transform = `rotate(${Math.random() * 50 - 25}deg)`;
+            container.appendChild(span);
+          }
+        }
+
         function showVictoryOverlay(winnerIdx) {
           const overlay = document.getElementById('victory-overlay');
-          const p = engine.players[winnerIdx];
+          overlay.classList.remove('defeat');
 
           overlay.style.display = 'flex';
           overlay.style.backdropFilter = 'blur(4px)';
@@ -2416,9 +2439,35 @@
           }, 8000);
         }
 
+        function showDefeatOverlay() {
+          const overlay = document.getElementById('victory-overlay');
+          overlay.classList.add('defeat');
+          overlay.style.display = 'flex';
+          overlay.style.backdropFilter = 'blur(2px)';
+          overlay.style.background = 'rgba(0, 0, 0, 0.55)';
+
+          // No cheering sound for the loser
+          sfxCheer.pause();
+          sfxCheer.currentTime = 0;
+
+          // Use a heavier "thud" as loss cue
+          if (sfxEnabled) {
+            sfxWood.currentTime = 0;
+            sfxWood.play().catch(e => e);
+          }
+
+          startDefeatRain();
+
+          setTimeout(() => {
+            overlay.style.backdropFilter = 'none';
+            overlay.style.background = 'transparent';
+          }, 8000);
+        }
+
         function resetFromVictory() {
           const overlay = document.getElementById('victory-overlay');
           overlay.style.display = 'none';
+          overlay.classList.remove('defeat');
           // Clean up particles
           const particles = overlay.querySelectorAll('.card-particle');
           particles.forEach(p => p.remove());
@@ -3809,7 +3858,10 @@
           if (isGameOver) {
             matchStatus.textContent = `${engine.players[leaderIdx].name} is the WINNER!`;
             // Trigger Victory Overlay
-            setTimeout(() => showVictoryOverlay(leaderIdx), 500);
+            setTimeout(() => {
+              if (leaderIdx === 0) showVictoryOverlay(leaderIdx);
+              else showDefeatOverlay();
+            }, 500);
           } else {
             matchStatus.textContent = `Only ${remaining} points left to WIN!`;
           }
@@ -3903,18 +3955,16 @@
           }
 
           const btnGame = document.getElementById('btn-next-action');
-          const btnStatic = document.getElementById('btn-main-menu-static');
           btnGame.classList.add('gold-glow-btn'); // Add glow
           if (isGameOver) {
             btnGame.textContent = 'Main Menu'; btnGame.onclick = () => showMenu();
-            if (btnStatic) btnStatic.style.display = 'none';
           } else {
             btnGame.textContent = 'Next Round'; btnGame.onclick = () => { btnGame.classList.remove('gold-glow-btn'); startNextRound(); };
-            if (btnStatic) btnStatic.style.display = '';
           }
         }
 
         function startNextRound() {
+          if (endScreenTimer) { clearInterval(endScreenTimer); endScreenTimer = null; }
           // Restart Jarya: NEW HAND from scratch
           engine.deck = engine._buildDeck();
           engine._shuffle(engine.deck); // Shuffle happens ONLY here
