@@ -622,13 +622,13 @@
 </head>
 
 <body>
-  <!-- ── DEBUG PANEL ── -->
-  <!--<div class="debug-panel">
+  <!-- ── DEBUG PANEL ──
+  <div class="debug-panel">
     <div class="debug-title">DEBUG TOOLS</div>
     <button class="debug-btn" onclick="testScoreboard()">Scoreboard</button>
     <button class="debug-btn" onclick="testVictory()">Win Screen</button>
     <button class="debug-btn" onclick="testDefeat()">Loss Screen</button>
-  </div>-->
+  </div> -->
   <div class="bg-logo"></div>
 
   <!-- Tunisian Café Radio Widget (FAB) - Moved for Global Persistence -->
@@ -670,42 +670,38 @@
         <p class="menu-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
         <div class="menu-divider"></div>
 
-        <!-- Profile Upload Section -->
-        <div class="profile-section">
+        <!-- New Profile Header Row -->
+        <div class="menu-profile-header">
           <div class="avatar-wrapper" onclick="document.getElementById('pfpInput').click()">
             <img id="pfpPreview" src="/img/pfp.jpg" alt="Profile">
             <div class="avatar-overlay"><span>CHANGE</span></div>
           </div>
           <input type="file" id="pfpInput" accept="image/*" style="display:none">
-          <div class="profile-welcome">Welcome, <span id="welcome-name" style="color:var(--gold)">Player</span></div>
-        </div>
-
-        <div class="settings-layout">
-          <div class="menu-settings settings-main">
-            <div class="settings-row">
-              <span class="settings-label" data-i18n="usernameLabel">USERNAME</span>
-              <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11"
-                data-i18n="usernameLabel">
-            </div>
-            <div class="settings-row" style="justify-content: center; margin-top: 15px;">
-              <button class="rule-menu-btn" onclick="showRules()"><img src="/img/rules.png" class="btn-icon"> <span
-                  data-i18n="howToPlay">How to Play</span></button>
-            </div>
-
+          
+          <div class="menu-username-container">
+            <span class="settings-label" data-i18n="usernameLabel">USERNAME</span>
+            <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11">
+            <div class="profile-welcome">Welcome, <span id="welcome-name" style="color:var(--gold)">Player</span></div>
           </div>
         </div>
 
-        <div class="btn-row">
-          <button class="menu-btn" onclick="showView('view-single-settings')"><img src="/img/singleplayer.png"
-              class="btn-icon"> <span data-i18n="playSingle">Single Player</span></button>
-          <button class="menu-btn" onclick="showView('view-lobby')"><img src="/img/multiplayer.png" class="btn-icon">
-            <span data-i18n="playMulti">Multiplayer</span></button>
-        </div>
-
-        <div class="btn-row" style="margin-top: 12px;">
-          <button class="menu-btn" onclick="showView('view-settings')">
-            <img src="/img/setting.png" class="btn-icon">
+        <!-- New Menu Cards Grid -->
+        <div class="menu-cards-grid">
+          <button class="menu-card-btn" onclick="showView('view-single-settings')">
+            <img src="/img/solocard.png" alt="Single Player">
+            <span data-i18n="playSingle">Single Player</span>
+          </button>
+          <button class="menu-card-btn" onclick="showView('view-lobby')">
+            <img src="/img/multiplayercard.png" alt="Multiplayer">
+            <span data-i18n="playMulti">Multiplayer</span>
+          </button>
+          <button class="menu-card-btn" onclick="showView('view-settings')">
+            <img src="/img/settingscard.png" alt="Settings">
             <span data-i18n="settings">Settings</span>
+          </button>
+          <button class="menu-card-btn" onclick="showRules()">
+            <img src="/img/creditscard.png" alt="How to Play">
+            <span data-i18n="howToPlay">How to Play</span>
           </button>
         </div>
 
@@ -3051,7 +3047,7 @@
                 let txt = window.translations?.[window.currentLang]?.sultan || '{name} has become the WINNER!';
                 matchStatus.textContent = txt.replace('{name}', winnerGroup);
               } else {
-                let txt = window.translations?.[window.currentLang]?.matchStatus || `Only {points} points left to WIN!`;
+                let txt = window.translations?.[window.currentLang]?.matchStatus || ` {points} points left to WIN!`;
                 matchStatus.textContent = txt.replace('{points}', remaining);
               }
               const endTable = document.querySelector('.end-table');
@@ -3936,7 +3932,7 @@
               else showDefeatOverlay();
             }, 500);
           } else {
-            matchStatus.textContent = `Only ${remaining} points left to WIN!`;
+            matchStatus.textContent = ` ${remaining} points left to WIN!`;
           }
           const endTable = document.querySelector('.end-table');
           if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
@@ -3977,7 +3973,7 @@
           const rows = [
             { img: 'img/icon_carta.png', v0: result.s0.cards, v1: result.s1.cards, label: 'Carta' },
             { img: 'img/icon_dineri.png', v0: result.s0.dineri, v1: result.s1.dineri, label: 'Dineri' },
-            { img: 'img/icon_7ayya.png', v0: result.s0.sab3a ? '✓' : '✗', v1: result.s1.sab3a ? '✓' : '✗', label: 'Sab3a' },
+            { img: 'img/icon_7ayya.png', v0: result.s0.sab3a ? 1 : 0, v1: result.s1.sab3a ? 1 : 0, label: 'Sab3a', isBoolean: true },
             { img: 'img/icon_barmila.png', v0: result.barmila === 0 ? 1 : 0, v1: result.barmila === 1 ? 1 : 0, label: 'Barmila' },
             { img: 'img/icon_chkobba.png', v0: result.chkobba0, v1: result.chkobba1, label: 'Chkobba', isChkobba: true },
           ];
@@ -3989,8 +3985,13 @@
             const rightWins = row.v1 > row.v0;
             const isTie = !leftWins && !rightWins;
             const tieToBaji = row.label === 'Carta' || row.label === 'Dineri' || row.label === 'Barmila';
-            const leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
-            const rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
+            let leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
+            let rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
+
+            if (row.isBoolean) {
+              leftVal = row.v0 ? '✓' : '✗';
+              rightVal = row.v1 ? '✓' : '✗';
+            }
             // Winner Indicators
             const arrowLeft = leftWins ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
             const arrowRight = rightWins ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
@@ -4030,7 +4031,7 @@
           if (isGameOver) {
             mStatus.innerHTML = `🏁 <span style="color:var(--gold)">${engine.players[leadingIdx].name}</span> is the WINNER!`;
           } else {
-            mStatus.textContent = `Only ${pointsLeft} points left to WIN!`;
+            mStatus.textContent = ` ${pointsLeft} points left to WIN!`;
           }
 
           const btnGame = document.getElementById('btn-next-action');
