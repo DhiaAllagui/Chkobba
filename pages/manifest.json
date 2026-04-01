@@ -1,0 +1,22 @@
+{
+  "name": "Chkobba — The Tunisian Card Game",
+  "short_name": "Chkobba",
+  "description": "The authentic Tunisian card game experience, solo or with friends.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#c9a84c",
+  "icons": [
+    {
+      "src": "/img/chkobbalogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/img/chkobbalogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

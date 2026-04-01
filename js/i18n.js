@@ -92,9 +92,16 @@ const translations = {
     resumeGame: "Resume Game",
     quitToMenu: "Quit to Menu",
     // Table Headers
-    category: "Category",
-    cardsName: "Cards",
-    chkobbasName: "Chkobbas"
+    chkobbasName: "Chkobbas",
+    betaBannerTitle: "Beta Version:",
+    betaBannerBody: "Chkobba is currently in active development, this is a beta version for testing, please report any bugs or issues you find, thank you for your help, A new online+ranked mode is coming soon.",
+    contactUs: "Contact Us",
+    supportDev: "Support the Dev",
+    onlineLabel: "Online",
+    contactModalTitle: "CONTACT US",
+    contactModalMsg: "For bug reports, feedback, or business inquiries, reach out via email:",
+    copyEmail: "Copy Email",
+    allRightsReserved: "All Rights Reserved. By Med Dhia Allagui."
   },
   fr: {
     slogan: "Joue n'importe où, n'importe quand",
@@ -177,9 +184,16 @@ const translations = {
     paused: "EN PAUSE",
     resumeGame: "Reprendre",
     quitToMenu: "Quitter le jeu",
-    category: "Catégorie",
-    cardsName: "Cartes",
-    chkobbasName: "Chkobbas"
+    chkobbasName: "Chkobbas",
+    betaBannerTitle: "Version Bêta :",
+    betaBannerBody: "Chkobba est en développement actif. Signalez les bugs, merci ! Un mode en ligne classé arrive bientôt.",
+    contactUs: "Contactez-nous",
+    supportDev: "Soutenir le Dév",
+    onlineLabel: "En ligne",
+    contactModalTitle: "CONTACT",
+    contactModalMsg: "Pour vos retours ou rapports de bug, envoyez-nous un email :",
+    copyEmail: "Copier l'email",
+    allRightsReserved: "Tous droits réservés. Par Med Dhia Allagui."
   },
   ar: {
     slogan: "شكّب وين ما تحبّ وقت ما تحبّ",
@@ -264,7 +278,16 @@ const translations = {
     quitToMenu: "أخرج للقايمة",
     category: "تحسيب",
     cardsName: "كارطة",
-    chkobbasName: "شكايب"
+    chkobbasName: "شكايب",
+    betaBannerTitle: "نسخة تجريبية:",
+    betaBannerBody: "لعبة الشكوبة مازالت في طور التطوير، كان فما أي مشكل ولا غلتة تنجم تبعثلنا، شكرا على المساعدة. مود الأونلاين الجديد والرانكد قادم في القريب العاجل.",
+    contactUs: "إتصل بنا",
+    supportDev: "دعم المطور",
+    onlineLabel: "أونلاين",
+    contactModalTitle: "إتصل بنا",
+    contactModalMsg: "لأية تقارير عن الأخطاء أو الملاحظات، اتصل بنا عبر البريد الإلكتروني:",
+    copyEmail: "نسخ",
+    allRightsReserved: "جميع الحقوق محفوظة. بواسطة محمد ضياء العلاقي."
   }
 };
 
@@ -319,6 +342,14 @@ window.changeLanguage = function (lang) {
     } else {
       el.textContent = val;
     }
+  });
+
+  // Translate all [data-i18n-title] elements
+  const titleElements = document.querySelectorAll('[data-i18n-title]');
+  titleElements.forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    const val = getTranslationValue(lang, key);
+    if (val) el.title = val;
   });
   
   // Re-run dynamic text if game is active
