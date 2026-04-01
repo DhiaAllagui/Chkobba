@@ -213,7 +213,7 @@ body::after {
   width: 70vw;
   height: 70vh;
   background: url('/img/Chkobbalogo.png') center/contain no-repeat;
-  opacity: 0.03;
+  opacity: 0.065;
   pointer-events: none;
   z-index: 0;
 }
@@ -2046,72 +2046,7 @@ body::after {
   opacity: 1;
 }
 
-/* Paused Screen Overlay */
-.pause-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  z-index: 5000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
 
-.pause-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.pause-window {
-  text-align: center;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(201, 168, 76, 0.3);
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-}
-
-.pause-title {
-  font-family: 'Cinzel', serif;
-  font-size: 32px;
-  color: var(--gold);
-  margin-bottom: 30px;
-  letter-spacing: 4px;
-}
-
-/* Pause Button FAB - Now matched to hamburger menu */
-.pause-btn {
-  position: fixed;
-  top: 20px;
-  right: 74px;
-  /* Perfectly aligned next to hamburger (20 + 44 + 10) */
-  width: 44px;
-  height: 44px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(201, 168, 76, 0.3);
-  border-radius: 50%;
-  color: var(--gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2000;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.pause-btn:hover {
-  transform: scale(1.1);
-  border-color: var(--gold);
-  box-shadow: 0 0 15px rgba(201, 168, 76, 0.3);
-}
 
 /* Chkobba Piles & Peeking Visuals */
 .corner-pile {
@@ -2374,13 +2309,6 @@ body::after {
 
   /* Corner piles re-enabled for mobile */
 
-  /* Pause button */
-  .pause-btn {
-    top: 6px;
-    right: 58px;
-    width: 36px;
-    height: 36px;
-  }
 
   /* Log â€” hidden */
   .log-area {
@@ -4728,25 +4656,36 @@ body::after {
 
 @media (max-width: 600px) {
   .top-right-actions {
-    top: 10px;
-    right: 10px;
-    gap: 10px;
+    top: 52px !important; /* Tighter to the banner */
+    right: 12px;
+    gap: 8px;
   }
   
   .player-count {
-    font-size: 11px;
+    font-size: 10px;
     padding: 4px 8px;
+    gap: 6px;
   }
   
   .action-btn {
-    width: 35px;
-    height: 35px;
-    padding: 6px;
+    width: 32px;
+    height: 32px;
+    padding: 7px;
   }
   
   .email-display {
     font-size: 14px;
     padding: 10px;
+  }
+}
+
+/* Extra small screens optimization */
+@media (max-width: 400px) {
+  .online-label {
+    display: none; /* Hide 'Online' text, keep dot and count */
+  }
+  .player-count {
+    padding: 4px 6px;
   }
 }
 
@@ -4775,5 +4714,44 @@ body::after {
   50% { transform: scale(1.1) rotate(2deg); text-shadow: 0 10px 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.8); color: #fff; }
   100% { transform: scale(1); text-shadow: 0 4px 20px rgba(201, 168, 76, 0.4); color: var(--gold); }
 }
+
+.dev-banner {
+    width: 100%;
+    background: linear-gradient(90deg, #b8860b, #daa520); /* Gold gradient */
+    color: #000;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 1001; /* Stays above your top-right icons */
+}
+
+.dev-banner p {
+    margin: 0;
+}
+
+/* Pulsing dot to show it's "Live" */
+.pulp-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #d63031; /* Red dot */
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
 
 

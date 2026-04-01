@@ -622,6 +622,11 @@
 </head>
 
 <body>
+  <div class="dev-banner">
+    <span class="pulp-dot"></span>
+    <p><strong>Beta Version:</strong> Chkobba is currently in active development, this is a beta version for testing, please report any bugs or issues you find, thank you for your help, A new online+ranked mode is coming soon.
+    </p>
+  </div>
   <!-- ── DEBUG PANEL ──
   <div class="debug-panel">
     <div class="debug-title">DEBUG TOOLS</div>
@@ -665,14 +670,15 @@
     <div id="view-menu" class="spa-view active">
       <div class="top-right-actions">
         <div class="player-count">
-            <span class="pulse-dot"></span>
-            <span id="online-count">67</span> Online
+          <span class="pulse-dot"></span>
+          <span id="online-count"></span>7<span class="online-label">Online</span>
         </div>
         <button onclick="openContactModal()" class="action-btn" title="Contact Us">
-            <img src="/img/mail.png" alt="Email">
+          <img src="/img/mail.png" alt="Email">
         </button>
-        <a href="https://ba9chich.com//fr/allagui" target="_blank" class="action-btn donate-btn" title="Support the Dev">
-            <img src="/img/donate.png" alt="Donate">
+        <a href="https://ba9chich.com//fr/allagui" target="_blank" class="action-btn donate-btn"
+          title="Support the Dev">
+          <img src="/img/donate.png" alt="Donate">
         </a>
       </div>
 
@@ -689,7 +695,7 @@
             <div class="avatar-overlay"><span>CHANGE</span></div>
           </div>
           <input type="file" id="pfpInput" accept="image/*" style="display:none">
-          
+
           <div class="menu-username-container">
             <span class="settings-label" data-i18n="usernameLabel">USERNAME</span>
             <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11">
@@ -699,19 +705,19 @@
 
         <!-- New Menu Cards Grid -->
         <div class="menu-cards-grid">
-          <button class="menu-card-btn" onclick="showView('view-single-settings')">
+          <button class="menu-card-btn" onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()" onclick="showView('view-single-settings')">
             <img src="/img/solocard.png" alt="Solo">
             <span data-i18n="playSingle">Solo</span>
           </button>
-          <button class="menu-card-btn" onclick="showView('view-lobby')">
+          <button class="menu-card-btn" onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()" onclick="showView('view-lobby')">
             <img src="/img/multiplayercard.png" alt="Multiplayer">
             <span data-i18n="playMulti">Multiplayer</span>
           </button>
-          <button class="menu-card-btn" onclick="showView('view-settings')">
+          <button class="menu-card-btn" onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()" onclick="showView('view-settings')">
             <img src="/img/settingscard.png" alt="Settings">
             <span data-i18n="settings">Settings</span>
           </button>
-          <button class="menu-card-btn" onclick="showRules()">
+          <button class="menu-card-btn" onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()" onclick="showRules()">
             <img src="/img/creditscard.png" alt="How to Play">
             <span data-i18n="howToPlay">How to Play</span>
           </button>
@@ -759,15 +765,18 @@
             <div class="settings-row" style="align-items:flex-start;">
               <span class="settings-label" data-i18n="tableThemeLabel">TABLE THEME</span>
               <div class="table-theme-grid" id="table-theme-grid">
-                <button type="button" class="table-theme-option" data-theme="classic" onclick="applyTableTheme('classic')">
+                <button type="button" class="table-theme-option" data-theme="classic"
+                  onclick="applyTableTheme('classic')">
                   <span class="table-theme-swatch theme-classic"></span>
                   <span class="table-theme-name" data-i18n="themeClassic">Classic</span>
                 </button>
-                <button type="button" class="table-theme-option" data-theme="midnight" onclick="applyTableTheme('midnight')">
+                <button type="button" class="table-theme-option" data-theme="midnight"
+                  onclick="applyTableTheme('midnight')">
                   <span class="table-theme-swatch theme-midnight"></span>
                   <span class="table-theme-name" data-i18n="themeMidnight">Midnight</span>
                 </button>
-                <button type="button" class="table-theme-option" data-theme="desert" onclick="applyTableTheme('desert')">
+                <button type="button" class="table-theme-option" data-theme="desert"
+                  onclick="applyTableTheme('desert')">
                   <span class="table-theme-swatch theme-desert"></span>
                   <span class="table-theme-name" data-i18n="themeDesert">Desert</span>
                 </button>
@@ -779,7 +788,8 @@
                   <span class="table-theme-swatch theme-pink"></span>
                   <span class="table-theme-name" data-i18n="themePink">Pink</span>
                 </button>
-                <button type="button" class="table-theme-option" data-theme="sunset" onclick="applyTableTheme('sunset')">
+                <button type="button" class="table-theme-option" data-theme="sunset"
+                  onclick="applyTableTheme('sunset')">
                   <span class="table-theme-swatch theme-sunset"></span>
                   <span class="table-theme-name" data-i18n="themeSunset">Sunset</span>
                 </button>
@@ -1592,15 +1602,15 @@
         }
         clearSessionState();
         cleanupGame();
-        
+
         // Reset lobby global state
         partyCode = null;
         isHost = false;
         isGameStarted = false;
-        
+
         // Reset lobby UI to Choice screen
         showScreen('screen-choice');
-        
+
         showView('view-menu');
 
         // Clean up UI
@@ -1732,7 +1742,7 @@
         let msg = 'Tawla tsakkret (Room closed). Returning to menu…';
         if (reason === 'host-timeout') msg = 'Mool el ghorfa makhrajch fi el wa9t! Room closed.';
         else if (reason === 'host-left') msg = 'Mool el ghorfa khraj! Room closed.';
-        
+
         clearDisconnectOverlay();
         clearSessionState();
         showToast(msg, 4000);
@@ -1809,22 +1819,7 @@
         </div>
         <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
 
-        <!-- Pause Button -->
-        <button class="pause-btn" id="pauseBtn" onclick="togglePause()" title="Pause Game"
-          style="display:flex; align-items:center; justify-content:center;">
-          <img src="/img/pause.png" style="width: 50%; height: 50%; opacity: 0.9; object-fit: contain;">
-        </button>
 
-        <!-- Pause Overlay -->
-        <div class="pause-overlay" id="pauseOverlay">
-          <div class="pause-window">
-            <h2 class="pause-title" data-i18n="paused">PAUSED</h2>
-            <div style="display:flex; flex-direction:column; gap:16px; align-items:center;">
-              <button class="menu-btn" onclick="togglePause()" style="width:200px;margin:0"><img src="/img/resume.png"
-                  class="btn-icon"><span data-i18n="resumeGame">Resume Game</span></button>
-            </div>
-          </div>
-        </div>
 
         <!-- Quick Chat Menu (Moved into player-info-card below) -->
 
@@ -2005,6 +2000,9 @@
         const sfxWood = new Audio('/sound/woodbreaking.mp3');
         const sfxFire = new Audio('/sound/fire.mp3'); // NEW FIRE SFX
         const sfxCheer = new Audio('/sound/cheer.mp3');
+        const sfxLoser = new Audio('/sound/loser.mp3');
+        const sfxMenuHover = new Audio('/sound/menuhover.mp3');
+        const sfxNewGame = new Audio('/sound/newgame.mp3');
 
         // Immersive Ambience & Focus Mode
         const sfxAmbience = new Audio('/sound/cafeambience.mp3');
@@ -2322,7 +2320,7 @@
         const cardWidth = 120 + 10;
         let lastCustomName = '';
         let hasShownEkherJarya = false;
-        let isPaused = false;
+
         let turnTimerInterval = null;
         let turnTimerCountdown = null;
         let timeLeft = 25;
@@ -2521,7 +2519,12 @@
           overlay.style.backdropFilter = 'blur(2px)';
           overlay.style.background = 'rgba(0, 0, 0, 0.55)';
 
-          // No cheering sound for the loser
+          // Play loser sound
+          if (typeof sfxEnabled !== 'undefined' && sfxEnabled) {
+            sfxLoser.currentTime = 0;
+            sfxLoser.play().catch(e => e);
+          }
+
           sfxCheer.pause();
           sfxCheer.currentTime = 0;
 
@@ -2639,6 +2642,10 @@
         let winScore = 21;
 
         function startGame(m, customName = '', sfx = true, back = 'back.png', targetScore = 21, difficulty = 'medium', gameMode = '1v1') {
+          if (sfx) {
+            sfxNewGame.currentTime = 0;
+            sfxNewGame.play().catch(e => e);
+          }
           const urlParams = new URLSearchParams(window.location.search);
           const seed = urlParams.get('seed') ? parseInt(urlParams.get('seed')) : Math.random() * 1000000;
 
@@ -3492,28 +3499,7 @@
           return -1;
         }
 
-        function togglePause() {
-          if (isAnimating || engine.roundOver || mode === 'online') return;
-          isPaused = !isPaused;
-          const overlay = document.getElementById('pauseOverlay');
-          const btn = document.getElementById('pauseBtn');
 
-          if (isPaused) {
-            overlay.classList.add('show');
-            btn.innerHTML = '▶';
-            if (turnTimerInterval) {
-              clearInterval(turnTimerInterval);
-              turnTimerInterval = 'paused';
-            }
-          } else {
-            overlay.classList.remove('show');
-            btn.innerHTML = '⏸';
-            if (turnTimerInterval === 'paused') {
-              turnTimerInterval = null;
-              startTurnTimer(true); // Call with isResume = true
-            }
-          }
-        }
 
         function renderHand(containerId, hand, interactive, isCurrentTurn) {
           if (!hand) return;
@@ -3552,10 +3538,9 @@
           // Turn timer is managed centrally in updateUI to avoid resets on re-render.
         }
 
-        function startTurnTimer(isResume = false) {
-          if (isPaused) return;
+        function startTurnTimer() {
           stopTurnTimer(); // Clear any running timer first
-          if (!isResume) timeLeft = 25; // Only reset if not resuming
+          timeLeft = 25; // Reset to full time
           const bar = document.getElementById('turn-timer-bar');
           const container = document.getElementById('turn-timer');
           if (container) container.style.display = 'block';
@@ -3612,7 +3597,7 @@
         }
 
         function autoPlayRandomCard() {
-          if (!engine || isAnimating || isPaused || engine.roundOver) return;
+          if (!engine || isAnimating || engine.roundOver) return;
           const myHandIdx = 0; // engine slot 0 is always the local player
           const hand = engine.players[myHandIdx].hand;
           if (hand.length === 0) return;
@@ -3814,7 +3799,7 @@
         }
 
         function executeMove(pidx, card, captured) {
-          if (isAnimating || isPaused) return;
+          if (isAnimating) return;
           isAnimating = true;
           playVisualMove(pidx, card, captured, () => {
             // Absolute last card check: only true if only 1 card remains across BOTH hands
@@ -3891,12 +3876,12 @@
 
         function botTurn() {
           if (!engine || mode === 'online') return; // DISABLE BOT IN ONLINE MODE OR IF QUITTED
-          if (engine.currentPlayer !== 1 || engine.roundOver || isPaused) return;
+          if (engine.currentPlayer !== 1 || engine.roundOver) return;
           if (isAnimating) { botThinkTimeout = setTimeout(botTurn, 500); return; } // Robust retry if animation still pending
 
           setStatus('Bot is thinking…');
           botThinkTimeout = setTimeout(() => {
-            if (isPaused || !engine) return; // Safety check
+            if (!engine) return; // Safety check
             const move = bot.chooseMove(1, engine.table);
 
             // --- BOT PERSONALITY / REACTIONS ---
@@ -4170,7 +4155,7 @@
 
 
         // ── DEBUG FUNCTIONS ──
-        window.testScoreboard = function() {
+        window.testScoreboard = function () {
           if (!engine) {
             // Mock engine for end-screen testing if not in a game
             window.engine = {
@@ -4182,17 +4167,17 @@
                 chkobba0: 1, chkobba1: 0
               }),
               players: [{ name: 'Me' }, { name: 'Opponent' }],
-              finalize: () => {}
+              finalize: () => { }
             };
           }
           showEndScreen();
         };
 
-        window.testVictory = function() {
+        window.testVictory = function () {
           if (typeof showVictoryOverlay === 'function') showVictoryOverlay(0);
         };
 
-        window.testDefeat = function() {
+        window.testDefeat = function () {
           if (typeof showDefeatOverlay === 'function') showDefeatOverlay();
         };
       </script>
@@ -4228,85 +4213,86 @@
   </div>
   </div>
 
-    <!-- ── RULES MODAL ── -->
-    <div class="modal-overlay" id="rulesModal">
-      <div class="modal-window">
-        <div class="modal-header">
-          <h2 class="rules-modal-main-title" data-i18n="howToPlay">How to Play</h2>
-          <button class="modal-close" onclick="closeRules()">&times;</button>
-        </div>
-        <div class="modal-body" id="rulesBody">
-          <h2 class="modal-title" id="rulesTitle"></h2>
-          <p style="text-align:center; font-style:italic; margin-bottom: 24px; opacity:0.8;" id="rulesIntro"></p>
-          <div id="rulesSections"></div>
-        </div>
+  <!-- ── RULES MODAL ── -->
+  <div class="modal-overlay" id="rulesModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="rules-modal-main-title" data-i18n="howToPlay">How to Play</h2>
+        <button class="modal-close" onclick="closeRules()">&times;</button>
+      </div>
+      <div class="modal-body" id="rulesBody">
+        <h2 class="modal-title" id="rulesTitle"></h2>
+        <p style="text-align:center; font-style:italic; margin-bottom: 24px; opacity:0.8;" id="rulesIntro"></p>
+        <div id="rulesSections"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ── CONTACT MODAL ── -->
-    <div class="modal-overlay" id="contactModal">
-      <div class="modal-window" style="max-width: 450px;">
-        <div class="modal-header">
-          <h2 class="rules-modal-main-title">Contact</h2>
-          <button class="modal-close" onclick="closeContactModal()">&times;</button>
-        </div>
-        <div class="modal-body" style="text-align: center; padding: 30px;">
-          <p style="font-size: 16px; color: var(--parchment); line-height: 1.6; margin-bottom: 20px;">
-            Help us improve Chkobba! > We are committed to providing the best card game experience. If you’ve encountered a technical glitch, a scoring error, or have a suggestion for new features, we’d love to hear from you.
+  <!-- ── CONTACT MODAL ── -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal-window" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2 class="rules-modal-main-title">Contact</h2>
+        <button class="modal-close" onclick="closeContactModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 30px;">
+        <p style="font-size: 16px; color: var(--parchment); line-height: 1.6; margin-bottom: 20px;">
+          Help us improve Chkobba! > We are committed to providing the best card game experience. If you’ve encountered
+          a technical glitch, a scoring error, or have a suggestion for new features, we’d love to hear from you.
 
-Contact our team at:
-          </p>
-          <div class="email-display">chkobbacontact@gmail.com</div>
-        </div>
+          Contact our team at:
+        </p>
+        <div class="email-display">chkobba.contact@gmail.com</div>
       </div>
     </div>
-    
-    <script>
-      function openContactModal() {
-        document.getElementById('contactModal').classList.add('show');
-        if (typeof window.sfxClick !== 'undefined' && window.sfxEnabled) {
-          window.sfxClick.currentTime = 0;
-          window.sfxClick.play().catch(e => e);
+  </div>
+
+  <script>
+    function openContactModal() {
+      document.getElementById('contactModal').classList.add('show');
+      if (typeof window.sfxClick !== 'undefined' && window.sfxEnabled) {
+        window.sfxClick.currentTime = 0;
+        window.sfxClick.play().catch(e => e);
+      }
+    }
+    function closeContactModal() {
+      document.getElementById('contactModal').classList.remove('show');
+      if (typeof window.sfxClick !== 'undefined' && window.sfxEnabled) {
+        window.sfxClick.currentTime = 0;
+        window.sfxClick.play().catch(e => e);
+      }
+    }
+
+    let chkobbaClickCount = 0;
+    let chkobbaClickTimer = null;
+
+    function playMenuChkobbaSfx() {
+      chkobbaClickCount++;
+
+      if (chkobbaClickTimer) clearTimeout(chkobbaClickTimer);
+      chkobbaClickTimer = setTimeout(() => {
+        chkobbaClickCount = 0;
+      }, 1500); // Reset clicks if too slow
+
+      if (chkobbaClickCount >= 5) {
+        chkobbaClickCount = 0; // Reset after trigger
+
+        const titleEl = document.querySelector('.menu-title');
+        titleEl.classList.remove('chkobba-anim');
+        void titleEl.offsetWidth; // trigger reflow
+        titleEl.classList.add('chkobba-anim');
+
+        // Use existing global sfx if available, fallback to new Audio
+        if (typeof sfxChkobba !== 'undefined' && window.sfxEnabled !== false) {
+          sfxChkobba.currentTime = 0;
+          sfxChkobba.play().catch(e => e);
+        } else if (window.sfxEnabled !== false) {
+          const sfxFallback = new Audio('/sound/chkobba.mp3');
+          sfxFallback.play().catch(e => e);
         }
       }
-      function closeContactModal() {
-        document.getElementById('contactModal').classList.remove('show');
-        if (typeof window.sfxClick !== 'undefined' && window.sfxEnabled) {
-          window.sfxClick.currentTime = 0;
-          window.sfxClick.play().catch(e => e);
-        }
-      }
-
-      let chkobbaClickCount = 0;
-      let chkobbaClickTimer = null;
-
-      function playMenuChkobbaSfx() {
-        chkobbaClickCount++;
-
-        if (chkobbaClickTimer) clearTimeout(chkobbaClickTimer);
-        chkobbaClickTimer = setTimeout(() => {
-          chkobbaClickCount = 0;
-        }, 1500); // Reset clicks if too slow
-
-        if (chkobbaClickCount >= 5) {
-          chkobbaClickCount = 0; // Reset after trigger
-
-          const titleEl = document.querySelector('.menu-title');
-          titleEl.classList.remove('chkobba-anim');
-          void titleEl.offsetWidth; // trigger reflow
-          titleEl.classList.add('chkobba-anim');
-          
-          // Use existing global sfx if available, fallback to new Audio
-          if (typeof sfxChkobba !== 'undefined' && window.sfxEnabled !== false) {
-            sfxChkobba.currentTime = 0;
-            sfxChkobba.play().catch(e => e);
-          } else if (window.sfxEnabled !== false) {
-            const sfxFallback = new Audio('/sound/chkobba.mp3');
-            sfxFallback.play().catch(e => e);
-          }
-        }
-      }
-    </script>
+    }
+  </script>
 
   <footer class="site-footer">
     &copy; <span id="year"></span> Playchkobba.tn. All Rights Reserved. By Med Dhia Allagui.
