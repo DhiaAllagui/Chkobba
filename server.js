@@ -112,6 +112,7 @@ io.on('connection', (socket) => {
     do { code = generateCode(); } while (rooms[code]);
 
     rooms[code] = {
+      code,
       host: socket.id,
       settings: { mode: '1v1', score: 21 },
       players: [{ id: socket.id, name: name || 'Host', avatar: avatar || '', sessionToken: sessionToken || '', role: 'host' }],
@@ -692,40 +693,55 @@ io.on('connection', (socket) => {
       delete room.reconnectTimers[oldId];
     }
 
-    room.reconnectTimers[oldId] = setTimeout(() => {
-      const r = rooms[code];
-      if (!r) return;
-
-      // If they've reconnected, their player record id will be different (or socket exists)
-      const stillSameSocket = r.players.some(p => p && p.id === oldId);
-      if (!stillSameSocket) {
-        delete r.reconnectTimers[oldId];
-        return;
-      }
-
-      const idx2 = r.players.findIndex(p => p && p.id === oldId);
-      const pname = idx2 !== -1 ? (r.players[idx2].name || name) : name;
-
-      if (r.host === oldId) {
-        console.log(`[ROOM] Host did not return in 30s. Closing room: ${code}`);
-        io.to(code).emit('room-closed');
+    if (!room.gameStarted) {
+      if (room.host === oldId) {
+        console.log(`[ROOM] Host left lobby. Closing room: ${code}`);
+        io.to(code).emit('room-closed', { reason: 'host-left' });
         delete rooms[code];
-        return;
+      } else {
+        const idx = room.players.findIndex(p => p && p.id === oldId);
+        if (idx !== -1) room.players.splice(idx, 1);
+        for (let t in room.teams) {
+          room.teams[t] = room.teams[t].map(sid => (sid === oldId ? null : sid));
+        }
+        io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
+        io.to(code).emit('player-left', { name });
+        if (room.players.length === 0) delete rooms[code];
+        console.log(`[ROOM] Player ${name} left lobby: ${code}`);
       }
-
-      if (idx2 !== -1) r.players.splice(idx2, 1);
-      for (let t in r.teams) {
-        r.teams[t] = r.teams[t].map(sid => (sid === oldId ? null : sid));
+    } else {
+      // In-game cleanup: For deliberate leave-room, we can close immediately if host
+      if (room.host === oldId) {
+        console.log(`[ROOM] Host left game gracefully. Closing room: ${code}`);
+        io.to(code).emit('room-closed', { reason: 'host-left' });
+        delete rooms[code];
+      } else {
+        // Guest left: 30s grace period for reconnect
+        room.reconnectTimers[oldId] = setTimeout(() => {
+          const r = rooms[code];
+          if (!r) return;
+          const stillSameSocket = r.players.some(p => p && p.id === oldId);
+          if (!stillSameSocket) {
+            delete r.reconnectTimers[oldId];
+            return;
+          }
+          const idx2 = r.players.findIndex(p => p && p.id === oldId);
+          const pname = idx2 !== -1 ? (r.players[idx2].name || name) : name;
+          if (idx2 !== -1) r.players.splice(idx2, 1);
+          for (let t in r.teams) {
+            r.teams[t] = r.teams[t].map(sid => (sid === oldId ? null : sid));
+          }
+          io.to(code).emit('players-updated', { players: r.players, teams: r.teams });
+          io.to(code).emit('player-left', { name: pname });
+          delete r.reconnectTimers[oldId];
+          console.log(`[ROOM] Player ${pname} removed after 30s: ${code}`);
+        }, 30000);
       }
-
-      io.to(code).emit('players-updated', { players: r.players, teams: r.teams });
-      io.to(code).emit('player-left', { name: pname });
-      delete r.reconnectTimers[oldId];
-      console.log(`[ROOM] Player ${pname} removed after 30s: ${code}`);
-    }, 30000);
+    }
 
     socket.leave(code);
     delete socket.data.code;
+    delete socket.data.slotIdx;
   });
 
   socket.on('disconnect', () => {
@@ -734,18 +750,28 @@ io.on('connection', (socket) => {
     if (room) {
       io.to(code).emit('player-disconnected', { name: socket.data.name });
       
-      // Delay room cleanup to allow for refreshes/reconnects
+      // Delay room cleanup for active games to allow for reconnects
+      // BUT if it's a lobby and nobody is left, delete it faster
+      const cleanupTime = room.gameStarted ? 30000 : 5000;
+
       if (!room.cleanupTimeout) {
           room.cleanupTimeout = setTimeout(() => {
-              // Check if any players are still connected
               const anyActive = room.players.some(p => io.sockets.sockets.has(p.id));
               if (!anyActive) {
                   delete rooms[code];
-                  console.log(`[ROOM] Deleted idle room: ${code}`);
+                  console.log(`[ROOM] Deleted idle room: ${code} (${room.gameStarted ? 'Game' : 'Lobby'})`);
               } else {
-                  delete room.cleanupTimeout;
+                  // If host is gone but others are here, and it's a lobby, we should probably close it
+                  const hostActive = io.sockets.sockets.has(room.host);
+                  if (!hostActive) {
+                    console.log(`[ROOM] Host timeout in ${room.gameStarted ? 'Game' : 'Lobby'}. Closing: ${code}`);
+                    io.to(code).emit('room-closed', { reason: 'host-timeout' });
+                    delete rooms[code];
+                  } else {
+                    delete room.cleanupTimeout;
+                  }
               }
-          }, 30000); // 30 seconds grace period
+          }, cleanupTime);
       }
     }
   });

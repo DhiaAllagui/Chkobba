@@ -663,10 +663,22 @@
 
   <div class="spa-page">
     <div id="view-menu" class="spa-view active">
+      <div class="top-right-actions">
+        <div class="player-count">
+            <span class="pulse-dot"></span>
+            <span id="online-count">67</span> Online
+        </div>
+        <button onclick="openContactModal()" class="action-btn" title="Contact Us">
+            <img src="/img/mail.png" alt="Email">
+        </button>
+        <a href="https://ba9chich.com//fr/allagui" target="_blank" class="action-btn donate-btn" title="Support the Dev">
+            <img src="/img/donate.png" alt="Donate">
+        </a>
+      </div>
 
       <div class="menu-wrap">
         <p class="menu-ornament" data-i18n="slogan">Chakkeb: Win ma t7eb, wa9t ma t7eb.</p>
-        <h1 class="menu-title">CHKOBBA</h1>
+        <h1 class="menu-title" onclick="playMenuChkobbaSfx()">CHKOBBA</h1>
         <p class="menu-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
         <div class="menu-divider"></div>
 
@@ -688,8 +700,8 @@
         <!-- New Menu Cards Grid -->
         <div class="menu-cards-grid">
           <button class="menu-card-btn" onclick="showView('view-single-settings')">
-            <img src="/img/solocard.png" alt="Single Player">
-            <span data-i18n="playSingle">Single Player</span>
+            <img src="/img/solocard.png" alt="Solo">
+            <span data-i18n="playSingle">Solo</span>
           </button>
           <button class="menu-card-btn" onclick="showView('view-lobby')">
             <img src="/img/multiplayercard.png" alt="Multiplayer">
@@ -821,7 +833,7 @@
 
       <div class="lobby-wrap">
         <div class="lobby-screen active">
-          <h1 class="lobby-title" data-i18n="singleTitle">SINGLE PLAYER</h1>
+          <h1 class="lobby-title" data-i18n="singleTitle">Solo</h1>
           <p class="lobby-subtitle" data-i18n="singleSub">Game Settings</p>
 
           <div class="lobby-settings" style="width:100%; max-width:400px; margin: 20px 0;">
@@ -872,7 +884,7 @@
 
 
       <!-- Back arrow -->
-      <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
+      <button class="lobby-back-btn" onclick="leaveRoom()" title="Back to Menu">←</button>
 
       <div class="lobby-wrap">
         <!-- ─────────────── SCREEN 1: CHOICE ─────────────── -->
@@ -1270,7 +1282,11 @@
 
       function showView(id) {
         const incoming = document.getElementById(id);
+        if (!incoming) return;
         const outgoing = document.querySelector('.spa-view.active');
+
+        // Robustness: clear any stuck animations
+        document.querySelectorAll('.spa-view').forEach(v => v.classList.remove('exiting'));
 
         // Apply global theme immediately
         if (id === 'view-menu') {
@@ -1289,24 +1305,25 @@
         }
 
         if (outgoing && outgoing !== incoming) {
-          // Play exit animation on current view
           outgoing.classList.add('exiting');
           outgoing.classList.remove('active');
 
-          const exitDuration = 280; // matches viewSlideOut duration in ms
+          const exitDuration = 280;
           setTimeout(() => {
             outgoing.classList.remove('exiting');
-            // Show new view
             incoming.classList.add('active');
           }, exitDuration);
         } else {
+          if (outgoing) outgoing.classList.remove('active');
           incoming.classList.add('active');
         }
       }
 
       function showScreen(id) {
-        document.querySelectorAll('.lobby-screen').forEach(s => s.classList.remove('active'));
         const incoming = document.getElementById(id);
+        if (!incoming) return;
+        // Scope the removal of 'active' to sub-screens within the same parent container
+        incoming.parentElement.querySelectorAll('.lobby-screen').forEach(s => s.classList.remove('active'));
         incoming.classList.add('active', 'entering');
         setTimeout(() => incoming.classList.remove('entering'), 400);
       }
@@ -1570,10 +1587,22 @@
 
       function leaveRoom(msg) {
         if (msg) showToast(msg, 4000);
-        if (socket && socket.connected) socket.emit('leave-room');
+        if (typeof socket !== 'undefined' && socket.connected) {
+          socket.emit('leave-room');
+        }
         clearSessionState();
         cleanupGame();
+        
+        // Reset lobby global state
+        partyCode = null;
+        isHost = false;
+        isGameStarted = false;
+        
+        // Reset lobby UI to Choice screen
+        showScreen('screen-choice');
+        
         showView('view-menu');
+
         // Clean up UI
         const syncBox = document.getElementById('game-sync-controls');
         if (syncBox) syncBox.style.display = 'none';
@@ -1698,18 +1727,23 @@
         showToast(`${name} left the game.`, 3000);
       });
 
-      socket.on('room-closed', () => {
+      socket.on('room-closed', (data) => {
+        const reason = (data && data.reason) || 'host-left';
+        let msg = 'Tawla tsakkret (Room closed). Returning to menu…';
+        if (reason === 'host-timeout') msg = 'Mool el ghorfa makhrajch fi el wa9t! Room closed.';
+        else if (reason === 'host-left') msg = 'Mool el ghorfa khraj! Room closed.';
+        
         clearDisconnectOverlay();
         clearSessionState();
-        showToast('Room closed. Returning to menu…', 3000);
-        setTimeout(() => window.location.href = 'menu.html', 2000);
+        showToast(msg, 4000);
+        setTimeout(() => leaveRoom(), 2500);
       });
 
       socket.on('player-kicked', ({ msg }) => {
-        console.log("[LOBBY] I have been kicked! Redirecting...");
+        console.log("[LOBBY] You have been kicked! Redirecting...");
         clearSessionState();
         showToast(msg, 5000);
-        setTimeout(() => window.location.href = '/', 2000);
+        setTimeout(() => leaveRoom(), 2000);
       });
 
       socket.on('kick-error', ({ msg }) => {
@@ -1736,7 +1770,7 @@
 
 
       <!-- CHKOBBA TOAST -->
-      <div class="chkobba-toast" id="chkobbaToast">+ CHKOBBA!</div>
+      <div class="chkobba-toast" id="chkobbaToast">+1 CHKOBBA!</div>
       <div class="chkobba-toast" id="hayyaToast"
         style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">
         <img src="/cards/7carreau.png" class="toast-card-icon" alt="7 Diamonds">
@@ -1819,7 +1853,7 @@
         </div>
         <!-- Table -->
         <div class="table-area">
-          <div class="table-label"> ◆ Table ◆ </div>
+          <div class="table-label"> ◆ Tawla ◆ </div>
           <div id="captureConfirmArea" style="display:flex; justify-content:center; align-items:center;"></div>
           <div class="table-cards" id="tableCards"></div>
           <div id="turn-timer" class="turn-timer-container" style="display:none;">
@@ -4191,6 +4225,9 @@
       </div>
     </div>
 
+  </div>
+  </div>
+
     <!-- ── RULES MODAL ── -->
     <div class="modal-overlay" id="rulesModal">
       <div class="modal-window">
@@ -4205,8 +4242,72 @@
         </div>
       </div>
     </div>
-  </div>
-  </div>
+
+    <!-- ── CONTACT MODAL ── -->
+    <div class="modal-overlay" id="contactModal">
+      <div class="modal-window" style="max-width: 450px;">
+        <div class="modal-header">
+          <h2 class="rules-modal-main-title">Contact</h2>
+          <button class="modal-close" onclick="closeContactModal()">&times;</button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 30px;">
+          <p style="font-size: 16px; color: var(--parchment); line-height: 1.6; margin-bottom: 20px;">
+            Help us improve Chkobba! > We are committed to providing the best card game experience. If you’ve encountered a technical glitch, a scoring error, or have a suggestion for new features, we’d love to hear from you.
+
+Contact our team at:
+          </p>
+          <div class="email-display">chkobbacontact@gmail.com</div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      function openContactModal() {
+        document.getElementById('contactModal').classList.add('show');
+        if (typeof window.sfxClick !== 'undefined' && window.sfxEnabled) {
+          window.sfxClick.currentTime = 0;
+          window.sfxClick.play().catch(e => e);
+        }
+      }
+      function closeContactModal() {
+        document.getElementById('contactModal').classList.remove('show');
+        if (typeof window.sfxClick !== 'undefined' && window.sfxEnabled) {
+          window.sfxClick.currentTime = 0;
+          window.sfxClick.play().catch(e => e);
+        }
+      }
+
+      let chkobbaClickCount = 0;
+      let chkobbaClickTimer = null;
+
+      function playMenuChkobbaSfx() {
+        chkobbaClickCount++;
+
+        if (chkobbaClickTimer) clearTimeout(chkobbaClickTimer);
+        chkobbaClickTimer = setTimeout(() => {
+          chkobbaClickCount = 0;
+        }, 1500); // Reset clicks if too slow
+
+        if (chkobbaClickCount >= 5) {
+          chkobbaClickCount = 0; // Reset after trigger
+
+          const titleEl = document.querySelector('.menu-title');
+          titleEl.classList.remove('chkobba-anim');
+          void titleEl.offsetWidth; // trigger reflow
+          titleEl.classList.add('chkobba-anim');
+          
+          // Use existing global sfx if available, fallback to new Audio
+          if (typeof sfxChkobba !== 'undefined' && window.sfxEnabled !== false) {
+            sfxChkobba.currentTime = 0;
+            sfxChkobba.play().catch(e => e);
+          } else if (window.sfxEnabled !== false) {
+            const sfxFallback = new Audio('/sound/chkobba.mp3');
+            sfxFallback.play().catch(e => e);
+          }
+        }
+      }
+    </script>
+
   <footer class="site-footer">
     &copy; <span id="year"></span> Playchkobba.tn. All Rights Reserved. By Med Dhia Allagui.
   </footer>

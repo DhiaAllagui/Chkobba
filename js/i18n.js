@@ -19,7 +19,7 @@ const translations = {
     themeSunset: "Sunset",
     langLabel: "LANGUAGE",
     sfxLabel: "Enable Sound Effects",
-    playSingle: "Single Player",
+    playSingle: "Solo",
     playMulti: "Multiplayer",
     howToPlay: "How to Play",
     

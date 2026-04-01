@@ -30,6 +30,12 @@
   padding: 0;
 }
 
+input, textarea {
+  user-select: auto;
+  -webkit-user-select: auto;
+}
+
+
 body {
   --felt-bg: var(--green-felt-dark);
   --table-surface-bg: rgba(0, 0, 0, 0.2);
@@ -45,6 +51,8 @@ body {
   max-width: 100vw;
   position: relative;
   transition: background-color 1s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Expert Mode Visual Alert */
@@ -1046,6 +1054,26 @@ body::after {
   }
 }
 
+.menu-btn {
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--gold);
+  color: var(--cream);
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 1;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  min-height: 48px;
+}
 
 .menu-btn::before {
   content: '';
@@ -4612,3 +4640,140 @@ body::after {
   opacity: 0.8;
   letter-spacing: 1px;
 }
+
+/* Top Right Actions */
+.top-right-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 100;
+}
+
+.player-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #2ecc71;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+.action-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px;
+}
+
+.action-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 4px 12px rgba(201, 168, 76, 0.4);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.email-display {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(201, 168, 76, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  user-select: all;
+  margin: 0 auto;
+  display: inline-block;
+  cursor: text;
+}
+
+@media (max-width: 600px) {
+  .top-right-actions {
+    top: 10px;
+    right: 10px;
+    gap: 10px;
+  }
+  
+  .player-count {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .action-btn {
+    width: 35px;
+    height: 35px;
+    padding: 6px;
+  }
+  
+  .email-display {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
+/* CHKOBBA Title Animation */
+.menu-title {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.menu-title:hover {
+  transform: scale(1.05);
+  text-shadow: 0 4px 30px rgba(201, 168, 76, 0.8), 0 0 100px rgba(201, 168, 76, 0.3);
+}
+
+.menu-title:active {
+  transform: scale(0.95);
+}
+
+.chkobba-anim {
+  animation: chkobbaTitleFlash 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes chkobbaTitleFlash {
+  0% { transform: scale(1); text-shadow: 0 4px 20px rgba(201, 168, 76, 0.4); color: var(--gold); }
+  20% { transform: scale(1.2) rotate(-2deg); text-shadow: 0 10px 40px rgba(255, 215, 0, 1), 0 0 100px rgba(255, 215, 0, 0.8); color: #fff; }
+  50% { transform: scale(1.1) rotate(2deg); text-shadow: 0 10px 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.8); color: #fff; }
+  100% { transform: scale(1); text-shadow: 0 4px 20px rgba(201, 168, 76, 0.4); color: var(--gold); }
+}
+
+
