@@ -2094,9 +2094,36 @@ body::after {
   /* Removed brightness filter to keep face-up card clear */
 }
 
+
 .corner-pile.top-left {
   top: 40px;
   left: 60px;
+}
+
+/* ── TOP-RIGHT STATUS DOT ── */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #27ae60;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(39, 174, 96, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(39, 174, 96, 0);
+  }
 }
 
 .corner-pile.bottom-right {

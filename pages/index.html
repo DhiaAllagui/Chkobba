@@ -687,7 +687,7 @@
       <div class="top-right-actions">
         <div class="player-count">
           <span class="pulse-dot"></span>
-          <span id="online-count"></span>5<span class="online-label" data-i18n="onlineLabel">Online</span>
+          <span id="online-count">0</span> <span class="online-label" data-i18n="onlineLabel">Online</span>
         </div>
         <button onclick="openContactModal()" class="action-btn" data-i18n-title="contactUs" title="Contact Us">
           <img src="/img/mail.png" alt="Email">
@@ -1140,6 +1140,17 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();
+
+      socket.on('connect', () => {
+         socket.emit('get-user-count');
+      });
+
+      // Real-time Online Player Counter Listener
+      socket.on('userCountUpdate', (count) => {
+        const onlineCountEl = document.getElementById('online-count');
+        if (onlineCountEl) onlineCountEl.innerText = count;
+      });
+
       let myName = localStorage.getItem('chkobba_username') || 'Player';
       let myAvatar = localStorage.getItem('chkobba_user_pfp') || '/img/pfp.jpg';
       let mySessionToken = localStorage.getItem('chkobba_session_token') || sessionStorage.getItem('chkobba_session_token') || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
@@ -4334,6 +4345,7 @@
     &copy; <span id="year"></span> Playchkobba.tn. <span data-i18n="allRightsReserved">All Rights Reserved. By Med Dhia
       Allagui.</span>
   </footer>
+
   <script>document.getElementById('year').innerHTML = new Date().getFullYear();</script>
 </body>
 

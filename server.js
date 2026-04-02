@@ -27,7 +27,6 @@ app.get(['/', '/menu.html', '/lobby.html', '/chkobba.html'], (req, res) => {
 });
 
 // ----- In-memory room store -----
-// rooms[code] = { host, settings, players: [{id, name, avatar}], reconnectTimers: {} }
 const rooms = {};
 
 function generateCode() {
@@ -104,7 +103,16 @@ function calculateRoundPoints(state) {
 }
 
 io.on('connection', (socket) => {
-  console.log(`[+] Connected: ${socket.id}`);
+  // Use built-in clientsCount for real-time accuracy (with tiny delay to ensure sync)
+  setTimeout(() => {
+    io.emit('userCountUpdate', io.engine.clientsCount);
+  }, 100);
+  console.log(`[+] Connected: ${socket.id} (Total: ${io.engine.clientsCount})`);
+
+  // ── USER COUNT HANDSHAKE ────────────────────────────────────────
+  socket.on('get-user-count', () => {
+    socket.emit('userCountUpdate', io.engine.clientsCount);
+  });
 
   // ── CREATE PARTY ──────────────────────────────────────────────
   socket.on('create-party', ({ name, avatar, sessionToken }) => {
@@ -745,6 +753,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    io.emit('userCountUpdate', io.engine.clientsCount);
     const code = socket.data.code;
     const room = rooms[code];
     if (room) {
