@@ -4802,5 +4802,52 @@ body::after {
     100% { opacity: 1; }
 }
 
+/* ── QUICK CHAT EMOJIS ── */
+.chat-emoji-container {
+  grid-column: 1 / 4; /* Span across all 3 grid columns */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  justify-content: center;
+  background: rgba(255, 215, 0, 0.05); /* Slight tint for the header row */
+  margin: -8px -8px 8px -8px; /* Offset parent padding */
+  border-radius: 12px 12px 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.chat-emoji-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.chat-emoji-btn:hover {
+  background: rgba(255, 215, 0, 0.15);
+  transform: scale(1.15);
+}
+
+.chat-emoji-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.bubble img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  display: block;
+  margin: 4px auto;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+
 
 

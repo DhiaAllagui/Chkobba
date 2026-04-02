@@ -1128,6 +1128,8 @@
           style="background:rgba(255,255,255,0.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.2); color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold; cursor:pointer; pointer-events:auto; display:none; transition: all 0.2s;"
           id="btn-sync-game" onclick="requestSync()" onmouseover="this.style.background='rgba(255,255,255,0.25)'"
           onmouseout="this.style.background='rgba(255,255,255,0.15)'">🔄 SYNC</button>
+
+       
       </div>
 
       <div class="lobby-toast" id="lobby-toast"></div>
@@ -1144,6 +1146,40 @@
       socket.on('connect', () => {
          socket.emit('get-user-count');
       });
+function toggleSfxFromNav() {
+    const realCheckbox = document.getElementById('menu-sfx');
+    const sideIcon = document.getElementById('side-sfx-icon');
+
+    if (realCheckbox) {
+        // 1. Manually flip the checkmark
+        realCheckbox.checked = !realCheckbox.checked;
+        // Add this inside the 'if (realCheckbox)' block if the above fails
+        realCheckbox.click();
+
+        // 2. FORCE the game to recognize the change
+        // This triggers any 'change' or 'input' listeners attached to the checkbox
+        realCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        realCheckbox.dispatchEvent(new Event('input', { bubbles: true }));
+
+        // 3. Update the side-nav icon to match
+        if (sideIcon) {
+            sideIcon.src = realCheckbox.checked ? '/img/volumeup.png' : '/img/volumedown.png';
+        }
+        
+        // 4. Debugging (Optional: Remove this once it works)
+        console.log("SFX Checkbox is now:", realCheckbox.checked);
+    } else {
+        console.error("Could not find the 'menu-sfx' checkbox!");
+    }
+}
+
+// 4. Sync the side-nav icon if the user clicks the ACTUAL checkbox in settings
+document.getElementById('menu-sfx')?.addEventListener('change', function() {
+    const sideIcon = document.getElementById('side-sfx-icon');
+    if (sideIcon) {
+        sideIcon.src = this.checked ? '/img/volumeup.png' : '/img/volumedown.png';
+    }
+});
 
       // Real-time Online Player Counter Listener
       socket.on('userCountUpdate', (count) => {
@@ -1850,6 +1886,10 @@
                 class="btn-icon"> <span data-i18n="fullscreen">Fullscreen</span></button>
             <button class="side-nav-link" onclick="handleNavAction('menu')"><img src="/img/menu.png" class="btn-icon">
               <span data-i18n="mainMenu">Main Menu</span></button>
+            <button class="side-nav-link" onclick="toggleSfxFromNav()">
+              <img id="side-sfx-icon" src="/img/volumeup.png" class="btn-icon">
+              <span data-i18n="sfxLabel">Sound Effects</span>
+            </button>
           </div>
         </div>
         <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
@@ -1911,6 +1951,22 @@
             <div class="streak-badge" id="streak-player">🔥0</div>
             <!-- Quick Chat Menu (Moved here to anchor correctly) -->
             <div class="chat-menu" id="chatMenu">
+              <!-- Emoji Section (Now First Row) -->
+              <div class="chat-emoji-container">
+                <button class="chat-emoji-btn" onclick="sendChat('/img/queenlauthing.png')">
+                  <img src="/img/queenlauthing.png" class="chat-emoji-img" alt="Laughing">
+                </button>
+                <button class="chat-emoji-btn" onclick="sendChat('/img/kingmad.png')">
+                  <img src="/img/kingmad.png" class="chat-emoji-img" alt="Mad">
+                </button>
+                <button class="chat-emoji-btn" onclick="sendChat('/img/valletff.png')">
+                  <img src="/img/valletff.png" class="chat-emoji-img" alt="Surrender">
+                </button>
+                 <button class="chat-emoji-btn" onclick="sendChat('/img/kingaura.png')">
+                  <img src="/img/kingaura.png" class="chat-emoji-img" alt="kingaura">
+                </button>
+              </div>
+
               <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
               <div class="chat-phrase" onclick="sendChat('c2')" data-i18n="c2">CHKOBTEK!</div>
               <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya 3andek?</div>
@@ -3500,12 +3556,20 @@
 
           const bubble = document.createElement('div');
           bubble.className = 'bubble';
-          // Try to translate the key, fallback to the text itself (for backward compatibility)
-          let localized = text;
-          if (window.translations && window.currentLang && window.translations[window.currentLang][text]) {
-            localized = window.translations[window.currentLang][text];
+          
+          if (text.startsWith('/img/')) {
+            const img = document.createElement('img');
+            img.src = text;
+            bubble.appendChild(img);
+          } else {
+            // Try to translate the key, fallback to the text itself (for backward compatibility)
+            let localized = text;
+            if (window.translations && window.currentLang && window.translations[window.currentLang][text]) {
+              localized = window.translations[window.currentLang][text];
+            }
+            bubble.textContent = localized;
           }
-          bubble.textContent = localized;
+          
           target.prepend(bubble);
 
           // Auto-remove after animation
