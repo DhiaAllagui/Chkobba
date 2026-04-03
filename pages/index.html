@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' wss: ws: https:; media-src 'self' blob:;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chkobba — The Tunisian Card Game</title>
   <meta name="description"
@@ -455,6 +457,100 @@
       opacity: 1;
     }
 
+    /* Ranked queue: full-screen loading */
+    #view-matchmaking-queue {
+      background: radial-gradient(ellipse at center, #1a2520 0%, #0a0c0b 70%);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    #view-matchmaking-queue .queue-matchmaking-inner {
+      text-align: center;
+      padding: 2rem;
+      max-width: 420px;
+    }
+
+    #view-matchmaking-queue .queue-spin-card-wrap {
+      perspective: 900px;
+      margin: 0 auto 2rem;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #view-matchmaking-queue .queue-spin-card-inner {
+      position: relative;
+      width: 118px;
+      height: 165px;
+      border-radius: 10px;
+      transform-style: preserve-3d;
+      animation: chkobbaQueueCardSpin 2.4s ease-in-out infinite;
+    }
+
+    #view-matchmaking-queue .queue-spin-card-front,
+    #view-matchmaking-queue .queue-spin-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 168, 76, 0.25);
+    }
+
+    #view-matchmaking-queue .queue-spin-card-front {
+      background-image: url('/cards/7carreau.png');
+      background-color: white;
+    }
+
+    #view-matchmaking-queue .queue-spin-card-back {
+      background-image: url('/cards/back4.png'); /* default fallback, JS overrides */
+      transform: rotateY(180deg);
+    }
+
+    @keyframes chkobbaQueueCardSpin {
+      0%, 100% {
+        transform: rotateY(0deg) translateZ(0);
+      }
+      45% {
+        transform: rotateY(180deg) scale(1.04) translateZ(12px);
+      }
+      55% {
+        transform: rotateY(360deg) scale(1.04) translateZ(12px);
+      }
+    }
+
+    #view-matchmaking-queue .queue-status {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      font-size: 13px;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    #view-matchmaking-queue .queue-cancel-btn {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(201, 168, 76, 0.35);
+      color: var(--gold);
+      padding: 10px 28px;
+      border-radius: 999px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      cursor: pointer;
+    }
+
+    #view-matchmaking-queue .queue-cancel-btn:hover {
+      background: rgba(201, 168, 76, 0.12);
+      border-color: var(--gold);
+    }
+
     /* Disconnect overlay */
     .dc-overlay {
       position: fixed;
@@ -640,7 +736,7 @@
     <span class="pulp-dot"></span>
     <p><strong data-i18n="betaBannerTitle">Beta Version:</strong> <span data-i18n="betaBannerBody">Chkobba is currently
         in active development, this is a beta version for testing, please report any bugs or issues you find, thank you
-        for your help, A new online+ranked mode is coming soon.</span>
+        for your help.</span>
     </p>
   </div>
   <!-- ── DEBUG PANEL ──
@@ -914,6 +1010,42 @@
         </div>
       </div>
     </div>
+
+    <!-- NEW VIEWS FOR ACCOUNT, LEADERBOARD, HISTORY -->
+    <div id="view-account" class="spa-view">
+      <button class="lobby-back-btn" onclick="history.back()" title="Back">←</button>
+      <div class="lobby-wrap">
+        <div class="lobby-screen active">
+          <h1 class="lobby-title" data-i18n="accTitle">MY ACCOUNT</h1>
+          <p class="lobby-subtitle" data-i18n="accSub">Manage your profile & login</p>
+          <div id="account-panel-slot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-leaderboard" class="spa-view">
+      <button class="lobby-back-btn" onclick="history.back()" title="Back">←</button>
+      <div class="lobby-wrap">
+        <div class="lobby-screen active">
+          <h1 class="lobby-title" data-i18n="lbTitle">TOP PLAYERS</h1>
+          <p class="lobby-subtitle" data-i18n="lbSub">Global Leaderboard</p>
+          <div id="leaderboard-out" style="width:100%;background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.01));border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:14px 16px;overflow:auto;font-family:'Crimson Pro',serif;font-size:13px;color:var(--parchment,#f5e6c8);"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-history" class="spa-view">
+      <button class="lobby-back-btn" onclick="history.back()" title="Back">←</button>
+      <div class="lobby-wrap">
+        <div class="lobby-screen active">
+          <h1 class="lobby-title" data-i18n="histTitle">MATCH HISTORY</h1>
+          <p class="lobby-subtitle" data-i18n="histSub">Your recent matches</p>
+          <div id="history-out" style="width:100%;background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.01));border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:14px 16px;overflow:auto;font-family:'Crimson Pro',serif;font-size:13px;color:var(--parchment,#f5e6c8);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW LOBBY -->
     <div id="view-lobby" class="spa-view">
 
 
@@ -926,21 +1058,62 @@
           <h1 class="lobby-title" data-i18n="multiTitle">MULTIPLAYER</h1>
           <p class="lobby-subtitle" data-i18n="multiSub">Play with your friend</p>
 
-          <button class="lobby-choice-btn" onclick="goCreate()">
-            <span class="lobby-choice-icon"><img src="/img/create.png" class="lobby-choice-img" alt=""></span>
-            <span class="lobby-choice-text">
-              <strong data-i18n="createParty">Create a Party</strong>
-              <small data-i18n="createPartySub">GENERATE A CODE — INVITE YOUR FRIEND</small>
-            </span>
-          </button>
+          <div class="lobby-category">
+            <h3 class="category-title" data-i18n="catProfile">PROFILE</h3>
+            <button class="lobby-choice-btn" onclick="showView('view-account')">
+              <span class="lobby-choice-icon"><img src="/img/account.png" class="lobby-choice-img" alt=""></span>
+              <span class="lobby-choice-text">
+                <strong data-i18n="btnMyAcc">My Account</strong>
+                <small data-i18n="subMyAcc">SIGN IN & PROFILE</small>
+              </span>
+            </button>
+          </div>
+          <div class="lobby-category">
+            <h3 class="category-title" data-i18n="catMatchmaking">MATCHMAKING</h3>
+            <button class="lobby-choice-btn" onclick="goCreate()">
+              <span class="lobby-choice-icon"><img src="/img/create.png" class="lobby-choice-img" alt=""></span>
+              <span class="lobby-choice-text">
+                <strong data-i18n="createParty">Create a Party</strong>
+                <small data-i18n="createPartySub">GENERATE A CODE — INVITE YOUR FRIEND</small>
+              </span>
+            </button>
 
-          <button class="lobby-choice-btn" onclick="goJoin()">
-            <span class="lobby-choice-icon"><img src="/img/join.png" class="lobby-choice-img" alt=""></span>
-            <span class="lobby-choice-text">
-              <strong data-i18n="joinParty">Join a Party</strong>
-              <small data-i18n="joinPartySub">ENTER YOUR FRIEND'S CODE</small>
-            </span>
-          </button>
+            <button class="lobby-choice-btn" onclick="goJoin()">
+              <span class="lobby-choice-icon"><img src="/img/join.png" class="lobby-choice-img" alt=""></span>
+              <span class="lobby-choice-text">
+                <strong data-i18n="joinParty">Join a Party</strong>
+                <small data-i18n="joinPartySub">ENTER YOUR FRIEND'S CODE</small>
+              </span>
+            </button>
+
+            <button type="button" class="lobby-choice-btn lobby-choice-btn--queue" onclick="queueForGlobalMatch()">
+              <span class="lobby-choice-icon"><img src="/img/findmatch.png" class="lobby-choice-img" alt=""></span>
+              <span class="lobby-choice-text">
+                <strong data-i18n="findMatchBtn">Find a match</strong>
+                <small data-i18n="findMatchSub">QUEUE FOR A RANDOM OPPONENT (Classic: 21 Pts)</small>
+              </span>
+            </button>
+          </div>
+
+
+          <div class="lobby-category">
+            <h3 class="category-title" data-i18n="catAnalytics">ANALYTICS</h3>
+            <button class="lobby-choice-btn" onclick="if(typeof window.fsShowLeaderboard==='function'){ window.fsShowLeaderboard(); showView('view-leaderboard'); } else { if(typeof window.showToast==='function') window.showToast('Leaderboard needs Supabase configured.',4000); }">
+              <span class="lobby-choice-icon"><img src="/img/topplayers.png" class="lobby-choice-img" alt=""></span>
+              <span class="lobby-choice-text">
+                <strong data-i18n="btnTop">Top Players</strong>
+                <small data-i18n="subTop">GLOBAL LEADERBOARD</small>
+              </span>
+            </button>
+
+            <button class="lobby-choice-btn" onclick="if(typeof window.fsShowHistory==='function'){ window.fsShowHistory(); showView('view-history'); } else { if(typeof window.showToast==='function') window.showToast('Match history needs Supabase configured.',4000); }">
+              <span class="lobby-choice-icon"><img src="/img/history.png" class="lobby-choice-img" alt=""></span>
+              <span class="lobby-choice-text">
+                <strong data-i18n="btnHist">Match History</strong>
+                <small data-i18n="subHist">YOUR RECENT MATCHES</small>
+              </span>
+            </button>
+          </div>
         </div>
 
         <!-- ─────────────── SCREEN 2: HOST (CREATE) ─────────────── -->
@@ -1107,7 +1280,7 @@
         <div class="dc-window">
           <div class="dc-title">⚠️ Opponent Disconnected</div>
           <div class="dc-sub" id="dc-msg">Waiting for them to reconnect…</div>
-          <div class="dc-timer" id="dc-timer">30</div>
+          <div class="dc-timer" id="dc-timer">20</div>
           <button class="menu-btn" id="dc-back-btn"
             style="margin-top:24px; width:220px; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px;"
             onclick="clearDcCountdown(); leaveRoom();">
@@ -1116,21 +1289,7 @@
         </div>
       </div>
 
-      <div id="game-sync-controls"
-        style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none;">
-        <div id="match-round-status"
-          style="background:rgba(0,0,0,0.8); color:#ffd700; padding:6px 12px; border-radius:12px; font-size:14px; font-weight:bold; border:1px solid rgba(255,215,0,0.3); backdrop-filter:blur(10px); display:none; text-shadow: 0 0 10px rgba(255,215,0,0.5);">
-          Round 1</div>
-        <div id="match-jarya-status"
-          style="background:rgba(255,255,255,0.1); color:white; padding:4px 10px; border-radius:10px; font-size:12px; font-weight:500; border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(8px); display:none;">
-          Jarya 1 / 6</div>
-        <button class="nav-btn"
-          style="background:rgba(255,255,255,0.15); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.2); color:white; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:bold; cursor:pointer; pointer-events:auto; display:none; transition: all 0.2s;"
-          id="btn-sync-game" onclick="requestSync()" onmouseover="this.style.background='rgba(255,255,255,0.25)'"
-          onmouseout="this.style.background='rgba(255,255,255,0.15)'">🔄 SYNC</button>
-
-       
-      </div>
+      
 
       <div class="lobby-toast" id="lobby-toast"></div>
     </div>
@@ -1143,43 +1302,44 @@
     <script>
       const socket = io();
 
+      window.chkobbaRankedQueueFlow = false;
+      window.chkobbaRankedStartEmitted = false;
+
+      window.showQueueMatchmakingView = function () {
+        const back = (localStorage.getItem('chkobba_back') || 'back.png').replace(/[^a-z0-9._-]/gi, '') || 'back.png';
+        const cardBackFront = document.getElementById('queue-spin-card-back');
+        if (cardBackFront) {
+          cardBackFront.style.backgroundImage = `url('/cards/${back}')`;
+        }
+        const st = document.getElementById('queue-matchmaking-status');
+        if (st) st.textContent = 'Searching for an opponent…';
+        showView('view-matchmaking-queue');
+      };
+
+      window.updateQueueMatchmakingStatus = function (msg) {
+        const st = document.getElementById('queue-matchmaking-status');
+        if (st && msg) st.textContent = msg;
+      };
+
+      window.cancelRankedQueue = async function () {
+        window.chkobbaRankedQueueFlow = false;
+        window.chkobbaRankedStartEmitted = false;
+        if (typeof window.chkobbaCancelRankedMatchmaking === 'function') {
+          try { await window.chkobbaCancelRankedMatchmaking(); } catch (_) { /* ignore */ }
+        }
+        if (socket.connected) socket.emit('leave-room');
+        clearSessionState();
+        partyCode = null;
+        isHost = false;
+        isGameStarted = false;
+        window.hasReceivedInitialState = false;
+        showScreen('screen-choice');
+        showView('view-lobby');
+      };
+
       socket.on('connect', () => {
          socket.emit('get-user-count');
       });
-function toggleSfxFromNav() {
-    const realCheckbox = document.getElementById('menu-sfx');
-    const sideIcon = document.getElementById('side-sfx-icon');
-
-    if (realCheckbox) {
-        // 1. Manually flip the checkmark
-        realCheckbox.checked = !realCheckbox.checked;
-        // Add this inside the 'if (realCheckbox)' block if the above fails
-        realCheckbox.click();
-
-        // 2. FORCE the game to recognize the change
-        // This triggers any 'change' or 'input' listeners attached to the checkbox
-        realCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-        realCheckbox.dispatchEvent(new Event('input', { bubbles: true }));
-
-        // 3. Update the side-nav icon to match
-        if (sideIcon) {
-            sideIcon.src = realCheckbox.checked ? '/img/volumeup.png' : '/img/volumedown.png';
-        }
-        
-        // 4. Debugging (Optional: Remove this once it works)
-        console.log("SFX Checkbox is now:", realCheckbox.checked);
-    } else {
-        console.error("Could not find the 'menu-sfx' checkbox!");
-    }
-}
-
-// 4. Sync the side-nav icon if the user clicks the ACTUAL checkbox in settings
-document.getElementById('menu-sfx')?.addEventListener('change', function() {
-    const sideIcon = document.getElementById('side-sfx-icon');
-    if (sideIcon) {
-        sideIcon.src = this.checked ? '/img/volumeup.png' : '/img/volumedown.png';
-    }
-});
 
       // Real-time Online Player Counter Listener
       socket.on('userCountUpdate', (count) => {
@@ -1194,11 +1354,21 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
       localStorage.setItem('chkobba_session_token', mySessionToken);
       let partyCode = '';
       let isHost = false;
+      let isGameStarted = false;
+      window.hasReceivedInitialState = false;
       let currentSettings = { mode: '1v1', score: 21 };
       let dcCountdown = null;
       let knownPlayerCount = 1;
       let lastPlayers = [];
       let lastTeams = { 1: [null, null], 2: [null, null] };
+      window.chkobbaSessionContext = {
+        getName: () => myName,
+        setName: (v) => { myName = (v || 'Player').trim() || 'Player'; localStorage.setItem('chkobba_username', myName); },
+        getAvatar: () => myAvatar,
+        setAvatar: (v) => { myAvatar = v || '/img/pfp.jpg'; localStorage.setItem('chkobba_user_pfp', myAvatar); },
+        getToken: () => mySessionToken,
+        getSocket: () => socket
+      };
 
       function saveSessionState(code, token) {
         if (code) {
@@ -1266,6 +1436,16 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         // Table theme init
         applyTableTheme(localStorage.getItem('chkobba_table_theme') || 'classic', { persist: false });
 
+        // SFX preference persistence across SPA navigation states
+        const savedSfx = localStorage.getItem('chkobba_sfx_enabled');
+        const sfxToggleEl = document.getElementById('menu-sfx');
+        if (sfxToggleEl) {
+          sfxToggleEl.checked = savedSfx !== '0';
+          sfxToggleEl.addEventListener('change', () => {
+            localStorage.setItem('chkobba_sfx_enabled', sfxToggleEl.checked ? '1' : '0');
+          });
+        }
+
         // Lobby Auto-join from URL
         const params = new URLSearchParams(window.location.search);
         if (params.has('code')) {
@@ -1290,7 +1470,7 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         sessionStorage.setItem('chkobba_room_code', persistedCode);
 
         // Boot online mode immediately, then room-data will rebuild state.
-        startGame('online', myName, true, localStorage.getItem('chkobba_back') || 'back.png', 21, 'medium', '1v1');
+        startGame('online', myName, localStorage.getItem('chkobba_sfx_enabled') !== '0', localStorage.getItem('chkobba_back') || 'back.png', 21, 'medium', '1v1');
         showView('view-game');
       };
 
@@ -1361,7 +1541,36 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         }
       }
 
+      // --- BROWSER HISTORY ROUTING ---
+      let _isPopStateNav = false;
+
+      // Establish base state on absolute load
+      history.replaceState({ page: 'view-menu' }, 'Menu', '#menu');
+
+      window.onpopstate = function(event) {
+        _isPopStateNav = true; // Prevent infinite pushState loop
+        
+        if (event.state && event.state.page) {
+          // If the user tries to back out of an active game, safely invoke the game teardown
+          if (window.gameActive && event.state.page !== 'view-game') {
+            showMenu(); // Properly forfeit/cleanup
+          } else {
+            showView(event.state.page);
+          }
+        } else {
+          // Fallback
+          showView('view-menu');
+        }
+        
+        _isPopStateNav = false;
+      };
+
       function showView(id) {
+        if (!_isPopStateNav) {
+          const hashId = id.replace('view-', '');
+          history.pushState({ page: id }, '', '#' + hashId);
+        }
+
         const incoming = document.getElementById(id);
         if (!incoming) return;
         const outgoing = document.querySelector('.spa-view.active');
@@ -1378,6 +1587,9 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         } else if (id === 'view-single-settings') {
           document.body.classList.remove('multiplayer-mode');
           if (typeof updateBotPreview === 'function') updateBotPreview();
+        } else if (id === 'view-matchmaking-queue') {
+          document.body.classList.add('multiplayer-mode');
+          document.body.classList.remove('expert-mode');
         } else if (id === 'view-game') {
           if (window.currentGameMode === 'multi' || window.mode === 'online') {
             document.body.classList.add('multiplayer-mode');
@@ -1412,6 +1624,14 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
       function goCreate() {
         isHost = true;
         socket.emit('create-party', { name: myName, avatar: myAvatar, sessionToken: mySessionToken });
+      }
+
+      function queueForGlobalMatch() {
+        if (typeof window.chkobbaQueueForMatch === 'function') {
+          window.chkobbaQueueForMatch();
+        } else {
+          showToast('Find a match needs Supabase in .env. Friends can still use Create / Join party.', 5000);
+        }
       }
 
       function goJoin() { showScreen('screen-join-input'); }
@@ -1634,9 +1854,17 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
       }
 
       function navigateToGame(data) {
+        window.chkobbaRankedQueueFlow = false;
+        window.chkobbaRankedStartEmitted = false;
         saveSessionState(data.code, mySessionToken);
         const gameMode = (data.settings && data.settings.mode) || '1v1';
-        startGame('online', myName, true, localStorage.getItem('chkobba_back') || 'back.png', data.settings.score, 'medium', gameMode);
+        const sfxOn = localStorage.getItem('chkobba_sfx_enabled') !== '0';
+        
+        // Ensure matchmaking overlay is hidden before starting
+        const rankedOverlay = document.getElementById('ranked-matchmaking-overlay');
+        if (rankedOverlay) rankedOverlay.style.display = 'none';
+
+        startGame('online', myName, sfxOn, localStorage.getItem('chkobba_back') || 'back.png', data.settings.score, 'medium', gameMode, data.code, mySessionToken, data);
 
         // Show Sync UI
         const syncBox = document.getElementById('game-sync-controls');
@@ -1672,12 +1900,15 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           socket.emit('leave-room');
         }
         clearSessionState();
-        cleanupGame();
+        cleanupGame(false); // don't repeat the emit inside cleanup
 
         // Reset lobby global state
         partyCode = null;
         isHost = false;
         isGameStarted = false;
+        window.hasReceivedInitialState = false;
+        window.chkobbaRankedQueueFlow = false;
+        window.chkobbaRankedStartEmitted = false;
 
         // Reset lobby UI to Choice screen
         showScreen('screen-choice');
@@ -1695,7 +1926,7 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
       }
 
       function showDisconnectOverlay(name) {
-        let secs = 30;
+        let secs = 20;
         const dcMsg = document.getElementById('dc-msg');
         const dcTimer = document.getElementById('dc-timer');
         const dcOverlay = document.getElementById('dc-overlay');
@@ -1710,7 +1941,9 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           if (secs <= 0) {
             clearInterval(dcCountdown);
             dcCountdown = null;
-            window.location.href = '/';
+            clearDisconnectOverlay();
+            showToast(`${name} failed to reconnect. Leaving room...`, 3000);
+            leaveRoom();
           }
         }, 1000);
       }
@@ -1733,6 +1966,10 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
 
         console.log("[LOBBY] Created:", code, players);
         renderPlayerList(players, teams);
+        if (window.chkobbaRankedQueueFlow) {
+          checkMatchFound(players);
+          return;
+        }
         showScreen('screen-host');
         showToast('Party Created! 🃏');
       });
@@ -1740,6 +1977,9 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
       socket.on('players-updated', ({ players, teams }) => {
         knownPlayerCount = players.length;
         renderPlayerList(players, teams);
+        if (window.chkobbaRankedQueueFlow) {
+          checkMatchFound(players);
+        }
       });
 
       socket.on('settings-updated', (settings) => {
@@ -1755,6 +1995,10 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         document.getElementById('guest-code-display').textContent = `Code: ${code}`;
         applyGuestSettings(settings);
         renderPlayerList(players, teams);
+        if (window.chkobbaRankedQueueFlow) {
+          checkMatchFound(players);
+          return;
+        }
         showScreen('screen-guest-wait');
       });
 
@@ -1768,16 +2012,140 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         if (myPlayer && players.indexOf(myPlayer) === 0) {
           isHost = true;
           document.getElementById('host-code').textContent = code;
-          showScreen('screen-host');
+          if (!window.chkobbaRankedQueueFlow) showScreen('screen-host');
         } else {
           isHost = false;
           document.getElementById('guest-code-display').textContent = `Code: ${code}`;
           applyGuestSettings(settings);
-          showScreen('screen-guest-wait');
+          if (!window.chkobbaRankedQueueFlow) showScreen('screen-guest-wait');
         }
         renderPlayerList(players, teams);
       });
 
+      // ── GLOBAL ROOM LISTENERS ──────────────────────────────────
+      // These persist across multiple games once the socket is connected.
+
+      socket.on('player-accepted', ({ playerId, name }) => {
+        if (!window.chkobbaRankedQueueFlow) return;
+        if (playerId !== socket.id) {
+          const status = document.getElementById('mf-status-msg');
+          if (status) {
+            status.textContent = `${name} has accepted! Waiting for you...`;
+            status.classList.add('ready');
+          }
+        }
+      });
+
+      let mfTimerInterval = null;
+      function checkMatchFound(players) {
+        const req = (currentSettings && currentSettings.mode === '2v2') ? 4 : 2;
+        if (players.length < req) return;
+
+        // If we are already on the match found screen, don't re-trigger
+        if (document.querySelector('.spa-view.active')?.id === 'view-match-found') return;
+
+        // Populate Match Found UI
+        const me = players.find(p => p.sessionToken === mySessionToken);
+        const opp = players.find(p => p.sessionToken !== mySessionToken);
+
+        if (me) {
+          document.getElementById('mf-name-me').textContent = me.name;
+          document.getElementById('mf-pfp-me').src = me.avatar || '/img/pfp.jpg';
+        }
+        if (opp) {
+          document.getElementById('mf-name-opp').textContent = opp.name;
+          document.getElementById('mf-pfp-opp').src = opp.avatar || '/img/pfp.jpg';
+        }
+
+        // Reset UI state
+        const btn = document.getElementById('mf-accept-btn');
+        const status = document.getElementById('mf-status-msg');
+        if (btn) { btn.disabled = false; btn.textContent = 'ACCEPT MATCH'; }
+        if (status) { status.textContent = 'Waiting for you to accept...'; status.classList.remove('ready'); }
+
+        showView('view-match-found');
+
+        // Start Countdown
+        let timeLeft = 15;
+        const timerText = document.getElementById('mf-timer-text');
+        const timerPath = document.getElementById('mf-timer-path');
+        
+        if (mfTimerInterval) clearInterval(mfTimerInterval);
+        mfTimerInterval = setInterval(() => {
+          timeLeft--;
+          if (timerText) timerText.textContent = timeLeft;
+          if (timerPath) {
+            const percent = (timeLeft / 15) * 100;
+            timerPath.style.strokeDasharray = `${percent}, 100`;
+          }
+
+          if (timeLeft <= 0) {
+            clearInterval(mfTimerInterval);
+            if (!btn || !btn.disabled) {
+               window.cancelRankedQueue();
+               showToast('Match skipped or timed out.', 4000);
+            }
+          }
+        }, 1000);
+      }
+
+      window.acceptRankedMatch = function() {
+        socket.emit('match-accept');
+        const btn = document.getElementById('mf-accept-btn');
+        const status = document.getElementById('mf-status-msg');
+        if (btn) { btn.disabled = true; btn.textContent = 'ACCEPTED'; }
+        if (status) { status.textContent = 'Waiting for opponent...'; }
+        if (sfxEnabled) sfxPlay.play().catch(e => e);
+      };
+
+      socket.on('room-closed', (data) => {
+        const reason = (data && data.reason === 'host-left') ? 'Host left the room.' : 'The room was closed.';
+        console.log(`[SOCKET] room-closed: ${reason}`);
+        
+        if (window.chkobbaRankedQueueFlow) {
+           if (window.updateQueueMatchmakingStatus) window.updateQueueMatchmakingStatus('Room closed by host.');
+        }
+        
+        leaveRoom(reason);
+      });
+
+      socket.on('player-left', (data) => {
+        // Only react here if NOT in an active game handler (which has its own logic)
+        if (!window.gameActive) {
+          showToast(`${data.name} left the room.`, 3000);
+        }
+      });
+
+      socket.on('player-disconnected', (data) => {
+        // Global handler for overlay should only show if NOT us.
+        // Server emits socket.data.name, but also use socket ID comparison if we have it globally
+        if (data.name === myName) return; 
+        showDisconnectOverlay(data.name);
+      });
+
+      socket.on('player-reconnected', (data) => {
+        if (data.name === myName) return; 
+        clearDisconnectOverlay();
+        showToast(`${data.name} reconnected!`, 3000);
+      });
+
+      socket.on('opponent-forfeited', (data) => {
+        const { loserName, reason } = data;
+        console.log(`[SOCKET] opponent-forfeited: ${loserName} (${reason})`);
+        
+        if (window.turnTimerInterval) clearInterval(window.turnTimerInterval);
+        if (window.endScreenTimer) clearInterval(endScreenTimer);
+        
+        const msg = `Victory! ${loserName} has forfeited (${reason === 'leave-room' ? 'left the game' : 'timeout'}). You WIN!`;
+        showToast(msg, 5000);
+        
+        const statusEl = document.getElementById('status');
+        if (statusEl) statusEl.textContent = msg;
+
+        setTimeout(() => {
+          leaveRoom(`Match ended. Result: Win by Forfeit.`);
+        }, 5000);
+      });
       socket.on('new-msg', ({ text, senderId }) => {
         const idx = getSeatIndex(senderId);
         if (idx !== -1) {
@@ -1791,16 +2159,8 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
       });
 
       socket.on('game-init', (data) => {
+        console.log('[GAME-INIT] Received:', data);
         navigateToGame(data);
-      });
-
-      socket.on('player-disconnected', ({ name }) => {
-        if (name !== myName) showDisconnectOverlay(name);
-      });
-
-      socket.on('player-reconnected', ({ name }) => {
-        clearDisconnectOverlay();
-        showToast(`${name} reconnected!`);
       });
 
       socket.on('player-left', ({ name }) => {
@@ -1847,6 +2207,180 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
 
 
 
+    <div id="view-matchmaking-queue" class="spa-view">
+      <div class="queue-matchmaking-inner">
+        <div class="queue-spin-card-wrap" aria-hidden="true">
+          <div class="queue-spin-card-inner">
+            <div class="queue-spin-card-front"></div>
+            <div class="queue-spin-card-back" id="queue-spin-card-back"></div>
+          </div>
+        </div>
+        <p class="queue-status" id="queue-matchmaking-status">Searching for an opponent…</p>
+        <button type="button" class="queue-cancel-btn" id="queue-matchmaking-cancel"
+          onclick="window.cancelRankedQueue && window.cancelRankedQueue()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ══ MATCH FOUND SCREEN ══ -->
+    <div id="view-match-found" class="spa-view">
+      <div class="match-found-container">
+        <div class="match-found-title">MATCH FOUND!</div>
+        <div style="background: rgba(201,168,76,0.15); border: 1px solid var(--gold); border-radius: 6px; padding: 6px 12px; margin: 10px auto; font-family: 'Cinzel', serif; color: var(--gold); font-size: 13px; letter-spacing: 1px; display: inline-block;">
+           <span data-i18n="targetScore">TARGET SCORE</span>: 21
+        </div>
+        <div class="match-found-players">
+          <div class="match-found-player" id="mf-player-me">
+             <div class="mf-pfp-wrap"><img id="mf-pfp-me" src="/img/pfp.jpg"></div>
+             <div class="mf-name" id="mf-name-me">You</div>
+          </div>
+          <div class="match-found-vs">VS</div>
+          <div class="match-found-player" id="mf-player-opp">
+             <div class="mf-pfp-wrap"><img id="mf-pfp-opp" src="/img/pfp.jpg"></div>
+             <div class="mf-name" id="mf-name-opp">Opponent</div>
+          </div>
+        </div>
+        
+        <div class="mf-timer-circle">
+          <svg viewBox="0 0 36 36" class="mf-timer-svg">
+            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path id="mf-timer-path" class="circle" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          </svg>
+          <div class="mf-timer-text" id="mf-timer-text">15</div>
+        </div>
+
+        <button type="button" class="mf-accept-btn" id="mf-accept-btn" onclick="window.acceptRankedMatch()">ACCEPT MATCH</button>
+        <div class="mf-status-msg" id="mf-status-msg">Waiting for you to accept...</div>
+      </div>
+
+      <style>
+        .match-found-container {
+          width: 100%;
+          max-width: 450px;
+          margin: auto;
+          background: rgba(15, 12, 10, 0.95);
+          border: 1px solid rgba(201, 168, 76, 0.4);
+          border-radius: 24px;
+          padding: 40px;
+          text-align: center;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(201, 168, 76, 0.15);
+          backdrop-filter: blur(10px);
+          animation: mf-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes mf-pop { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        
+        .match-found-title {
+          font-family: 'Cinzel', serif;
+          font-size: 32px;
+          color: var(--gold);
+          letter-spacing: 4px;
+          margin-bottom: 30px;
+          text-shadow: 0 0 15px rgba(201,168,76,0.5);
+        }
+        
+        .match-found-players {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          margin-bottom: 30px;
+        }
+        
+        .match-found-player {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        .mf-pfp-wrap {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          border: 2px solid var(--gold);
+          padding: 3px;
+          background: rgba(0,0,0,0.5);
+          box-shadow: 0 0 20px rgba(201,168,76,0.2);
+        }
+        
+        .mf-pfp-wrap img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        .mf-name {
+          font-family: 'Cinzel', serif;
+          font-size: 14px;
+          color: #f5e6c8;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        
+        .match-found-vs {
+          font-family: 'Cinzel', serif;
+          font-size: 24px;
+          color: rgba(201,168,76,0.5);
+          font-weight: 900;
+          padding: 0 20px;
+        }
+        
+        .mf-timer-circle {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          margin: 0 auto 30px auto;
+        }
+        
+        .mf-timer-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 2.8; }
+        .circle { fill: none; stroke: var(--gold); stroke-width: 2.8; stroke-linecap: round; transition: stroke-dasharray 1s linear; }
+        
+        .mf-timer-text {
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          display: flex; align-items: center; justify-content: center;
+          font-family: 'Cinzel', serif; font-size: 24px; color: var(--gold);
+        }
+        
+        .mf-accept-btn {
+          width: 100%;
+          background: linear-gradient(135deg, #c9a84c, #8b6b1d);
+          color: #000;
+          border: none;
+          border-radius: 12px;
+          padding: 16px;
+          font-family: 'Cinzel', serif;
+          font-size: 18px;
+          font-weight: 700;
+          letter-spacing: 2px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .mf-accept-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(201,168,76,0.4);
+          filter: brightness(1.1);
+        }
+        
+        .mf-accept-btn:active:not(:disabled) { transform: translateY(0); }
+        
+        .mf-accept-btn:disabled {
+          background: rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.3);
+          cursor: not-allowed;
+          border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .mf-status-msg {
+          margin-top: 15px;
+          font-family: 'Crimson Pro', serif;
+          font-size: 14px;
+          color: rgba(201,168,76,0.7);
+          font-style: italic;
+        }
+        
+        .mf-status-msg.ready { color: #6ee7b7; font-weight: 700; }
+      </style>
+    </div>
+
     <div id="view-game" class="spa-view">
 
 
@@ -1886,10 +2420,6 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
                 class="btn-icon"> <span data-i18n="fullscreen">Fullscreen</span></button>
             <button class="side-nav-link" onclick="handleNavAction('menu')"><img src="/img/menu.png" class="btn-icon">
               <span data-i18n="mainMenu">Main Menu</span></button>
-            <button class="side-nav-link" onclick="toggleSfxFromNav()">
-              <img id="side-sfx-icon" src="/img/volumeup.png" class="btn-icon">
-              <span data-i18n="sfxLabel">Sound Effects</span>
-            </button>
           </div>
         </div>
         <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
@@ -1951,22 +2481,12 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
             <div class="streak-badge" id="streak-player">🔥0</div>
             <!-- Quick Chat Menu (Moved here to anchor correctly) -->
             <div class="chat-menu" id="chatMenu">
-              <!-- Emoji Section (Now First Row) -->
-              <div class="chat-emoji-container">
-                <button class="chat-emoji-btn" onclick="sendChat('/img/queenlauthing.png')">
-                  <img src="/img/queenlauthing.png" class="chat-emoji-img" alt="Laughing">
-                </button>
-                <button class="chat-emoji-btn" onclick="sendChat('/img/kingmad.png')">
-                  <img src="/img/kingmad.png" class="chat-emoji-img" alt="Mad">
-                </button>
-                <button class="chat-emoji-btn" onclick="sendChat('/img/valletff.png')">
-                  <img src="/img/valletff.png" class="chat-emoji-img" alt="Surrender">
-                </button>
-                 <button class="chat-emoji-btn" onclick="sendChat('/img/kingaura.png')">
-                  <img src="/img/kingaura.png" class="chat-emoji-img" alt="kingaura">
-                </button>
+              <div class="chat-emoji-row">
+                <button class="chat-emoji-btn" onclick="sendEmojiChat('kingaura')"><img src="/img/kingaura.png" alt="kingaura"></button>
+                <button class="chat-emoji-btn" onclick="sendEmojiChat('queenlauthing')"><img src="/img/queenlauthing.png" alt="queenlauthing"></button>
+                <button class="chat-emoji-btn" onclick="sendEmojiChat('kingmad')"><img src="/img/kingmad.png" alt="kingmad"></button>
+                <button class="chat-emoji-btn" onclick="sendEmojiChat('valletff')"><img src="/img/valletff.png" alt="valletff"></button>
               </div>
-
               <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
               <div class="chat-phrase" onclick="sendChat('c2')" data-i18n="c2">CHKOBTEK!</div>
               <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya 3andek?</div>
@@ -2422,23 +2942,20 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
         let botThinkTimeout = null;
         let lastTurnForTimer = null; // avoid resetting timer on every UI render (online)
 
+        // ── IN-GAME SOCKET HANDLERS ──────────────────────────────────
+        // Store references to handlers so they can be detached specifically
+        // without affecting the global lobby/room listeners.
+        let activeGameHandlers = {};
+
         function detachOnlineGameSocketListeners() {
-          if (typeof socket === 'undefined' || !socket) return;
-          [
-            'room-data',
-            'move-played',
-            'deal-cards',
-            'jarya-started',
-            'jarya-ended',
-            'player-ready',
-            'player-disconnected',
-            'player-reconnected',
-            'player-left',
-            'room-closed'
-          ].forEach((ev) => socket.off(ev));
+          if (typeof socket === 'undefined' || !socket || !activeGameHandlers) return;
+          for (const ev in activeGameHandlers) {
+            socket.off(ev, activeGameHandlers[ev]);
+          }
+          activeGameHandlers = {};
         }
 
-        function cleanupGame() {
+        function cleanupGame(shouldEmitLeave = true) {
           if (turnTimerInterval) clearInterval(turnTimerInterval);
           if (turnTimerCountdown) clearTimeout(turnTimerCountdown);
           if (endScreenTimer) clearInterval(endScreenTimer);
@@ -2448,25 +2965,28 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           endScreenTimer = null;
           botThinkTimeout = null;
           window.gameActive = false;
+          
+          // Guarantee background sounds halt on any game exit (e.g. opponent disconnect)
+          if (typeof stopAmbience === 'function') stopAmbience();
+
           detachOnlineGameSocketListeners();
           engine = null;
           bot = null;
-          if (mode === 'online' && typeof socket !== 'undefined') socket.emit('leave-match');
+          if (shouldEmitLeave && mode === 'online' && typeof socket !== 'undefined' && socket.connected) {
+            socket.emit('leave-room'); // Corrected from leave-match to notify server immediately
+          }
         }
 
         function showMenu() {
           if (engine && !engine.roundOver) {
             showConfirm("Are you sure you want to quit the game?", () => {
               triggerTableFlip(() => {
-                stopAmbience(); // Ensure audio stops on quit
                 cleanupGame();
                 showView('view-menu');
               });
             });
             return;
-          }
-          stopAmbience();
-          cleanupGame();
+          }          cleanupGame();
           showView('view-menu');
         }
 
@@ -2732,7 +3252,12 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
 
         let winScore = 21;
 
-        function startGame(m, customName = '', sfx = true, back = 'back.png', targetScore = 21, difficulty = 'medium', gameMode = '1v1') {
+        function startGame(m, customName = '', sfx = true, back = 'back.png', targetScore = 21, difficulty = 'medium', gameMode = '1v1', explicitCode = null, explicitToken = null, initData = null) {
+          // 1. CLEAN UP PREVIOUS SESSION
+          cleanupGame(false);
+          detachOnlineGameSocketListeners();
+          activeGameHandlers = {}; 
+
           if (sfx) {
             sfxNewGame.currentTime = 0;
             sfxNewGame.play().catch(e => e);
@@ -2841,224 +3366,138 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
             window.gameInstanceId = (window.gameInstanceId || 0) + 1;
             const thisGameInstanceId = window.gameInstanceId;
 
-            const roomCode = sessionStorage.getItem('chkobba_room_code') || localStorage.getItem('chkobba_room_code') || urlParams.get('room');
-            // Prefer tab-specific sessionStorage token to prevent collisions when testing in multiple tabs
-            const token = sessionStorage.getItem('chkobba_session_token') || localStorage.getItem('chkobba_session_token') || urlParams.get('token');
-            // In SPA, socket is already global
+            const roomCode = explicitCode || sessionStorage.getItem('chkobba_room_code') || localStorage.getItem('chkobba_room_code') || urlParams.get('room');
+            const token = explicitToken || mySessionToken; // Use global mySessionToken for reliability
             window.activeSocket = socket;
-            saveSessionState(roomCode, token);
+            if (roomCode) saveSessionState(roomCode, token);
 
-            // Prevent duplicate handlers across multiple online games
-            detachOnlineGameSocketListeners();
+            console.log(`[SYNC] Starting online game. Room: ${roomCode}, Token: ${token}`);
 
-            socket.emit('join-room', roomCode, token);
-
-            socket.on('room-data', (data) => {
+            // 2. DEFINE HANDLERS (don't emit yet)
+            activeGameHandlers['room-data'] = (data) => {
+              console.log("[SYNC] Received room-data:", data);
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              console.log("[DEBUG] room-data received:", data.gameState);
-              // Some server sync payloads are state-only and don't include players/settings.
-              if (!data.players) {
-                const gs = data.gameState || data;
-                if (gs) {
-                  if (gs.table !== undefined) engine.table = gs.table || [];
-                  if (gs.myHand !== undefined) engine.players[0].hand = gs.myHand || [];
-                  if (gs.currentTurn !== undefined) engine.currentPlayer = gs.currentTurn;
-                  if (gs.deckRemaining !== undefined) engine.deck.length = gs.deckRemaining;
-                  if (Array.isArray(gs.totalScores)) gs.totalScores.forEach((v, i) => { totalScores[i] = v; });
-                  updateUI(false);
-                  setStatus(window.getTurnStatusMsg(engine.currentPlayer));
-                }
-                return;
+
+              // ── UI TRANSITION ──
+              showView('view-game');
+              showScreen('screen-game');
+              window.hasReceivedInitialState = true;
+              
+              if (window.chkobbaRankedQueueFlow) {
+                if (window.updateQueueMatchmakingStatus) window.updateQueueMatchmakingStatus('Game Starting…');
+                setTimeout(() => {
+                  const rankedOverlay = document.getElementById('ranked-matchmaking-overlay');
+                  if (rankedOverlay) rankedOverlay.style.display = 'none';
+                }, 400);
               }
 
-              const players = data.players;
-              const idx = players.findIndex(p => p.sessionToken === token);
-              if (idx !== -1) {
-                myPlayerSlot = idx;
-
-                // ── Sync Game Mode from Server ──────────────────────
-                const serverMode = (data.settings && data.settings.mode) || '1v1';
-
-                // CRITICAL FIX: If local engine was initialized for 1v1 but room is 2v2, reset it
-                if (engine && serverMode === '2v2' && engine.players.length < 4) {
-                  console.log("[DEBUG] Mode mismatch! Upgrading engine to 2v2.");
-                  engine.playerLayout = '2v2';
-                  engine.reset();
-                }
-
-                window.currentGameMode = serverMode;
-                const _gameScreen = document.getElementById('screen-game');
-                if (serverMode === '2v2') {
-                  _gameScreen.classList.add('mode-2v2');
-                } else {
-                  _gameScreen.classList.remove('mode-2v2');
-                }
-                // ───────────────────────────────────────────────────
-
-                // topSlot: player directly across from me
-                const topSlot = (window.currentGameMode === '2v2' && players.length === 4)
-                  ? (myPlayerSlot + 2) % 4
-                  : (myPlayerSlot ^ 1);
-                window.game2v2TopSlot = topSlot;
-
-                // Live mapping of playerId -> visual seat index for chat bubbles
-                window.playerSeatsById = {};
-                players.forEach((p, serverSlotIdx) => {
-                  if (!p || !p.id) return;
-                  let seat = -1;
-                  if (serverSlotIdx === myPlayerSlot) seat = 0;
-                  else if (window.currentGameMode === '2v2') {
-                    if (serverSlotIdx === topSlot) seat = 1;
-                    else if (serverSlotIdx === window.game2v2LeftSlot) seat = 2;
-                    else if (serverSlotIdx === window.game2v2RightSlot) seat = 3;
-                  } else {
-                    seat = 1; // 1v1 opponent always top
+              if (data.players) {
+                const players = data.players;
+                const idx = players.findIndex(p => p.sessionToken === token);
+                if (idx !== -1) {
+                  myPlayerSlot = idx;
+                  const serverMode = (data.settings && data.settings.mode) || '1v1';
+                  
+                  if (engine && serverMode === '2v2' && engine.players.length < 4) {
+                    engine.playerLayout = '2v2';
+                    engine.reset();
                   }
-                  if (seat !== -1) window.playerSeatsById[p.id] = seat;
-                });
+                  window.currentGameMode = serverMode;
+                  const _gameScreen = document.getElementById('screen-game');
+                  if (serverMode === '2v2') _gameScreen.classList.add('mode-2v2');
+                  else _gameScreen.classList.remove('mode-2v2');
 
-                // ── Update bottom / top info panels ──────────────────
-                const me = players[myPlayerSlot];
-                const top = players[topSlot];
-                if (me) {
-                  document.getElementById('name-player').textContent = me.name;
-                  document.getElementById('th-p1').textContent = me.name;
-                  if (me.avatar) document.getElementById('pfp-player').src = me.avatar;
-                }
-                if (top) {
-                  document.getElementById('name-bot').textContent = top.name;
-                  document.getElementById('th-p2').textContent = top.name;
-                  if (top.avatar) document.getElementById('pfp-bot').src = top.avatar;
-                }
+                  const topSlot = (serverMode === '2v2' && players.length === 4)
+                    ? (myPlayerSlot + 2) % 4
+                    : (myPlayerSlot ^ 1);
+                  window.game2v2TopSlot = topSlot;
 
-                // ── 2v2: populate left / right panels ────────────────
-                if (window.currentGameMode === '2v2' && players.length === 4) {
-                  // Left opponent is the next turn (+1) clockwise
-                  const leftSlot = (myPlayerSlot + 1) % 4;
-                  window.game2v2LeftSlot = leftSlot;
-                  // Right opponent is the previous turn (+3)
-                  const rightSlot = (myPlayerSlot + 3) % 4;
-                  window.game2v2RightSlot = rightSlot;
+                  window.playerSeatsById = {};
+                  players.forEach((p, serverSlotIdx) => {
+                    if (!p || !p.id) return;
+                    let seat = -1;
+                    if (serverSlotIdx === myPlayerSlot) seat = 0;
+                    else if (serverMode === '2v2') {
+                      if (serverSlotIdx === topSlot) seat = 1;
+                      else if (serverSlotIdx === window.game2v2LeftSlot) seat = 2; 
+                      else seat = 3;
+                    } else { seat = 1; }
+                    if (seat !== -1) window.playerSeatsById[p.id] = seat;
+                  });
 
-                  const leftSlotP = players[leftSlot];
-                  const rightSlotP = players[rightSlot];
-
-                  if (leftSlotP) {
-                    document.getElementById('name-p2').textContent = leftSlotP.name;
-                    if (leftSlotP.avatar) document.getElementById('pfp-p2').src = leftSlotP.avatar;
+                  // Populate names
+                  const me = players[myPlayerSlot];
+                  const top = players[topSlot];
+                  if (me) {
+                    document.getElementById('name-player').textContent = me.name;
+                    if (me.avatar) document.getElementById('pfp-player').src = me.avatar;
+                    engine.players[0].name = me.name;
                   }
-                  if (rightSlotP) {
-                    document.getElementById('name-p3').textContent = rightSlotP.name;
-                    if (rightSlotP.avatar) document.getElementById('pfp-p3').src = rightSlotP.avatar;
-                  }
-                }
-
-                // ── Configure engine with authoritative server state ─
-                // engine mapped linearly to geometric seats for animation:
-                // engine[0] = me, engine[1] = top, engine[2] = left, engine[3] = right
-                engine.players[0].name = me ? me.name : 'You';
-                engine.players[1].name = top ? top.name : 'Opponent';
-                if (engine && window.currentGameMode === '2v2' && engine.players.length === 4) {
-                  engine.players[2].name = players[window.game2v2LeftSlot]?.name || 'Player L';
-                  engine.players[3].name = players[window.game2v2RightSlot]?.name || 'Player R';
-                }
-
-                if (data.gameState) {
-                  engine.table = data.gameState.table || [];
-                  engine.players[0].hand = data.gameState.myHand || [];
-                  // Ensure opponent hands visually possess their starting dummies (default 3 at start)
-                  const dummyCards = [{ id: 'd1' }, { id: 'd2' }, { id: 'd3' }];
-                  engine.players[1].hand = [...dummyCards];
-                  if (engine.players.length === 4) {
-                    engine.players[2].hand = [...dummyCards];
-                    engine.players[3].hand = [...dummyCards];
+                  if (top) {
+                    document.getElementById('name-bot').textContent = top.name;
+                    if (top.avatar) document.getElementById('pfp-bot').src = top.avatar;
+                    engine.players[1].name = top.name;
                   }
 
-                  engine.currentPlayer = data.gameState.currentTurn;
-                  engine.deck.length = data.gameState.deckRemaining !== undefined ? data.gameState.deckRemaining : 40;
-                  if (Array.isArray(data.gameState.totalScores)) {
-                    data.gameState.totalScores.forEach((v, i) => { totalScores[i] = v; });
+                  if (serverMode === '2v2' && players.length === 4) {
+                    const lSlot = (myPlayerSlot + 1) % 4;
+                    window.game2v2LeftSlot = lSlot;
+                    const rSlot = (myPlayerSlot + 3) % 4;
+                    window.game2v2RightSlot = rSlot;
+                    const lp = players[lSlot];
+                    const rp = players[rSlot];
+                    if (lp) {
+                      document.getElementById('name-p2').textContent = lp.name;
+                      if (lp.avatar) document.getElementById('pfp-p2').src = lp.avatar;
+                      if (engine.players[2]) engine.players[2].name = lp.name;
+                    }
+                    if (rp) {
+                      document.getElementById('name-p3').textContent = rp.name;
+                      if (rp.avatar) document.getElementById('pfp-p3').src = rp.avatar;
+                      if (engine.players[3]) engine.players[3].name = rp.name;
+                    }
                   }
-
-                  if (engine.table.length > 0 && engine.players[0].hand.length > 0) {
-                    updateUI(true); // Animate the initial deal if cards are present
-                  } else {
-                    updateUI(false);
-                  }
-
-                  // Start Ambience for online match
-                  if (sfxEnabled && !isFocusMode) {
-                    sfxAmbience.play().catch(e => e);
-                  }
-                  setStatus(`${window.getPlayerNameByServerSlot(engine.currentPlayer)}'s turn`);
                 }
-
-                addLog(`Connected as ${me ? me.name : 'Player'} (Room: ${roomCode})`, 'online-info');
               }
-            });
 
-            socket.on('move-played', (data) => {
+              // Apply Game State if present
+              const gs = data.gameState || (data.players ? null : data);
+              if (gs) {
+                handleStateSync(gs);
+              }
+            };
+
+            activeGameHandlers['move-played'] = (data) => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              console.log("[DEBUG] Server move played:", data);
-              const { playerIdx, cardId, capturedIds, newTurn, newCardsDealt, deckRemaining, jaryaCount, maxJaryas } = data;
-
-              if (jaryaCount && maxJaryas) {
-                console.log(`[GAME] State: Jarya ${jaryaCount}/${maxJaryas}, Deck: ${deckRemaining}`);
-              }
-
               const processMove = () => {
                 if (isAnimating) { setTimeout(processMove, 100); return; }
-
-                let card = null;
+                const { playerIdx, cardId, capturedIds, newTurn, deckRemaining } = data;
                 let engineIdx = 0;
-
-                if (playerIdx === myPlayerSlot) {
-                  // My own move
-                  card = engine.players[0].hand.find(c => c.id === cardId);
-                  engineIdx = 0;
-                } else {
-                  // Construct a card object from the ID
-                  const val = parseInt(cardId);
-                  const suit = cardId.replace(val.toString(), '') || 'carreau';
-                  card = { id: cardId, suit, value: val, is7ayya: (val === 7 && suit === 'carreau') };
-
-                  // Determine correct engine array index mapped to layout (1=Top, 2=Left, 3=Right)
+                if (playerIdx === myPlayerSlot) engineIdx = 0;
+                else {
                   if (playerIdx === window.game2v2TopSlot) engineIdx = 1;
                   else if (playerIdx === window.game2v2LeftSlot) engineIdx = 2;
                   else if (playerIdx === window.game2v2RightSlot) engineIdx = 3;
-                  else engineIdx = 1; // fallback
+                  else engineIdx = 1;
 
-                  // Pop one dummy card so their hand visually shrinks
                   if (engine.players[engineIdx].hand.length > 0) engine.players[engineIdx].hand.pop();
-                  // Push the played card to the hand array briefly so executeMove finds it
-                  engine.players[engineIdx].hand.push(card);
+                  const val = parseInt(cardId);
+                  const suit = cardId.replace(val.toString(), '') || 'carreau';
+                  engine.players[engineIdx].hand.push({ id: cardId, suit, value: val });
                 }
-
                 const captured = engine.table.filter(t => capturedIds.includes(t.id));
-
-                if (card) {
-                  const pName = window.getPlayerNameByServerSlot(playerIdx);
-                  let logMsg = `${pName} plays ${window.getCardShortName(card)}`;
-                  if (captured && captured.length > 0) {
-                    logMsg += ` and captures ${captured.map(c => window.getCardShortName(c)).join(', ')}`;
-                  }
-                  addLog(logMsg);
-
-                  window.pendingServerTurn = newTurn;
-                  executeMove(engineIdx, card, captured);
-                  engine.currentPlayer = newTurn;
-                  setStatus(window.getTurnStatusMsg(newTurn));
-                  updateTurnIndicator(newTurn);
-                }
-
+                const playedCard = engine.players[engineIdx].hand.find(c => c.id === cardId) || engine.players[engineIdx].hand[engine.players[engineIdx].hand.length - 1];
+                executeMove(engineIdx, playedCard, captured);
+                engine.currentPlayer = newTurn;
+                setStatus(window.getTurnStatusMsg(newTurn));
+                updateTurnIndicator(newTurn);
                 engine.deck.length = deckRemaining;
-                const deckPileEl = document.querySelector('.deck-pile');
-                if (deckPileEl) deckPileEl.style.display = deckRemaining === 0 ? 'none' : 'flex';
               };
               processMove();
-            });
+            };
 
-            const handleStateSync = (data) => {
+            function handleStateSync(data) {
+              console.log("[SYNC] Applying state sync:", data);
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount, isNewRound } = data;
               const sync = () => {
@@ -3066,12 +3505,11 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
 
                 const screenEndEl = document.getElementById('screen-end');
                 const isEndVisible = screenEndEl && screenEndEl.style.display !== 'none';
-                const looksLikeFreshRound =
-                  Array.isArray(myHand) && myHand.length > 0 &&
-                  Array.isArray(table) && table.length === 4 &&
-                  typeof deckRemaining === 'number' && deckRemaining > 0;
+                const looksLikeFreshRound = 
+                  Array.isArray(myHand) && myHand.length > 0 && 
+                  Array.isArray(table) && table.length === 4 && 
+                  typeof deckRemaining === 'number' && deckRemaining > 10;
 
-                // Coming back from end screen into a new round (explicit flag or inferred payload)
                 if (isNewRound || (isEndVisible && looksLikeFreshRound)) {
                   if (endScreenTimer) { clearInterval(endScreenTimer); endScreenTimer = null; }
                   document.getElementById('screen-end').style.display = 'none';
@@ -3079,17 +3517,16 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
                   hasShownEkherJarya = false;
                   lastTurnForTimer = null;
 
-                  // Reset local visual piles/chkobbas since server starts a fresh round
                   if (engine && engine.players) {
-                    engine.players.forEach(p => {
-                      if (!p) return;
-                      p.chkobbas = [];
-                      p.pile = [];
-                      p.currentRoundChkobbas = 0;
+                    engine.players.forEach(p => { 
+                      if (p) {
+                         p.chkobbas = []; 
+                         p.pile = []; 
+                         p.currentRoundChkobbas = 0; 
+                      }
                     });
                     updateStreakBadges();
                   }
-
                   const nBtn = document.getElementById('btn-next-action');
                   if (nBtn) nBtn.disabled = false;
                 }
@@ -3107,215 +3544,209 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
                 if (jaryaCount && maxJaryas) {
                   const statusEl = document.getElementById('match-jarya-status');
                   if (statusEl) statusEl.textContent = `Jarya ${jaryaCount} / ${maxJaryas}`;
-                  console.log(`[SYNC] Jarya ${jaryaCount}/${maxJaryas}, Deck: ${deckRemaining}`);
                 }
 
-                const dummyCards = [{ id: 'd1' }, { id: 'd2' }, { id: 'd3' }];
-                engine.players[1].hand = [...dummyCards];
+                const dummy = [{id:'d1'},{id:'d2'},{id:'d3'}];
+                engine.players[1].hand = [...dummy];
                 if (window.currentGameMode === '2v2') {
-                  if (engine.players[2]) engine.players[2].hand = [...dummyCards];
-                  if (engine.players[3]) engine.players[3].hand = [...dummyCards];
-                } else {
-                  if (engine.players[2]) engine.players[2].hand = [];
-                  if (engine.players[3]) engine.players[3].hand = [];
+                  if (engine.players[2]) engine.players[2].hand = [...dummy];
+                  if (engine.players[3]) engine.players[3].hand = [...dummy];
                 }
 
                 hasShownEkherJarya = (deckRemaining === 0);
                 updateUI(true);
                 updateTurnIndicator(engine.currentPlayer);
                 setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+                console.log("[SYNC] UI Updated. Hand size:", engine.players[0].hand.length);
               };
               sync();
+            }
+
+            activeGameHandlers['deal-cards'] = (data) => {
+              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
+              handleStateSync(data);
             };
 
-            socket.on('deal-cards', handleStateSync);
-            socket.on('jarya-started', handleStateSync);
-
-            socket.on('jarya-ended', (data) => {
+            activeGameHandlers['jarya-ended'] = (data) => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               if (endScreenTimer) clearInterval(endScreenTimer);
               const { results, totals, winScore } = data;
 
-              // Synchronize the 2 Team Totals
               totals.forEach((v, i) => { totalScores[i] = v; });
 
-              // Give time for any last table-capture animations to finish
               setTimeout(() => {
                 document.getElementById('screen-game').style.display = 'none';
                 document.getElementById('screen-end').style.display = 'flex';
-              }, 1000);
+                
+                const myTeamIdx = myPlayerSlot % 2;
+                const oppTeamIdx = (myPlayerSlot + 1) % 2;
+                const s0 = totals[myTeamIdx] ?? 0;
+                const s1 = totals[oppTeamIdx] ?? 0;
 
-              const myTeamIdx = window.currentGameMode === '2v2' ? (myPlayerSlot % 2) : 0;
-              const oppTeamIdx = window.currentGameMode === '2v2' ? ((myPlayerSlot + 1) % 2) : 1;
-              const s0 = totals[myTeamIdx] ?? 0;
-              const s1 = totals[oppTeamIdx] ?? 0;
-
-              let title = 'Round Over', isGameOver = false;
-
-              if (s0 >= winScore || s1 >= winScore) {
-                if (Math.abs(s0 - s1) >= 2) {
-                  isGameOver = true;
-                  title = s0 > s1 ? `Your Team Wins!` : `Opponent Team Wins!`;
-                } else {
-                  title = 'Overtime! Win by 2';
+                let title = 'Round Over', isGameOver = false;
+                if (s0 >= winScore || s1 >= winScore) {
+                  if (Math.abs(s0 - s1) >= 2) {
+                    isGameOver = true;
+                    title = s0 > s1 ? `Your Team Wins!` : `Opponent Team Wins!`;
+                  } else { title = 'Overtime! Win by 2'; }
                 }
-              }
+                document.getElementById('endTitle').textContent = title;
 
-              document.getElementById('endTitle').textContent = title;
-
-              const myTeamName = window.currentGameMode === '2v2' ? 'Our Team' : engine.players[0].name;
-              const oppTeamName = window.currentGameMode === '2v2' ? 'Opponent Team' : engine.players[1].name;
-
-              document.getElementById('endWinner').textContent =
-                `Total: ${myTeamName} ${s0}  ·  ${oppTeamName} ${s1}`;
-
-              // Match Status Line
-              const matchStatus = document.getElementById('matchStatus') || document.createElement('div');
-              matchStatus.id = 'matchStatus';
-              matchStatus.className = 'match-status-text';
-              const remaining = winScore - Math.max(s0, s1);
-              if (isGameOver) {
-                const winnerGroup = s0 > s1 ? myTeamName : oppTeamName;
-                let txt = window.translations?.[window.currentLang]?.sultan || '{name} has become the WINNER!';
-                matchStatus.textContent = txt.replace('{name}', winnerGroup);
-              } else {
-                let txt = window.translations?.[window.currentLang]?.matchStatus || ` {points} points left to WIN!`;
-                matchStatus.textContent = txt.replace('{points}', remaining);
-              }
-              const endTable = document.querySelector('.end-table');
-              if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
-
-              const tbody = document.getElementById('scoreTbody');
-              tbody.innerHTML = '';
-              // Note: 'results' properties are mapped to p0 (Host) and p1 (Guest)
-              const renderForMyPerspective = (p0val, p1val, p0win, p1win) => {
-                return {
-                  my: myPlayerSlot === 0 ? p0val : p1val,
-                  opp: myPlayerSlot === 0 ? p1val : p0val,
-                  myWin: myPlayerSlot === 0 ? p0win : p1win,
-                  oppWin: myPlayerSlot === 0 ? p1win : p0win
-                };
-              };
-
-              const rowsData = [
-                { key: 'Cards', img: 'img/icon_carta.png', ...renderForMyPerspective(results.s0.cards, results.s1.cards, results.carta === 0, results.carta === 1) },
-                { key: 'Dineri', img: 'img/icon_dineri.png', ...renderForMyPerspective(results.s0.dineri, results.s1.dineri, results.dineri === 0, results.dineri === 1) },
-                { key: '7ayya', img: 'img/icon_7ayya.png', ...renderForMyPerspective(results.s0.sab3a ? '✓' : '✗', results.s1.sab3a ? '✓' : '✗', results.sab3a === 0, results.sab3a === 1) },
-                { key: 'Barmila', img: 'img/icon_barmila.png', ...renderForMyPerspective(`${results.s0.sevens}x7, ${results.s0.sixes}x6`, `${results.s1.sevens}x7, ${results.s1.sixes}x6`, results.barmila === 0, results.barmila === 1) },
-                { key: 'Chkobbas', img: 'img/icon_chkobba.png', ...renderForMyPerspective(results.chkobba0, results.chkobba1, results.chkobba0 > results.chkobba1, results.chkobba1 > results.chkobba0) }
-              ];
-
-              rowsData.forEach(r => {
-                const tr = document.createElement('tr');
-                const myClass = r.myWin ? 'winner' : (r.oppWin ? 'loser' : '');
-                const oppClass = r.oppWin ? 'winner' : (r.myWin ? 'loser' : '');
-                const isTie = !r.myWin && !r.oppWin;
-
-                let myVal = r.my, oppVal = r.opp;
-                if ((r.key === 'Cards' || r.key === 'Dineri' || r.key === 'Barmila') && isTie) {
-                  myVal = 'baji';
-                  oppVal = 'baji';
-                } else {
-                  if (r.myWin) myVal = `<span style="color:var(--gold); font-weight:900; text-shadow:0 0 8px rgba(201,168,76,0.5)">${myVal}</span>`;
-                  if (r.oppWin) oppVal = `<span style="color:var(--gold); font-weight:900; text-shadow:0 0 8px rgba(201,168,76,0.5)">${oppVal}</span>`;
-                }
-
-                const arrowLeft = r.myWin && !r.oppWin ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; opacity:0.85">◀</span>' : '';
-                const arrowRight = r.oppWin && !r.myWin ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; opacity:0.85">▶</span>' : '';
-
-                tr.innerHTML = `
-                  <td class="${myClass}" style="text-align:left; font-weight:700;">${myVal}</td>
-                  <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
-                    ${arrowLeft}
-                    <img src="/${r.img}" class="scoreboard-icon" title="${r.key}">
-                    ${arrowRight}
-                  </td>
-                  <td class="${oppClass}" style="text-align:right; font-weight:700;">${oppVal}</td>
-                `;
-                tbody.appendChild(tr);
-              });
-
-
-              const nBtn = document.getElementById('btn-next-action');
-              nBtn.disabled = false;
-              if (isGameOver) {
-                nBtn.textContent = 'Main Menu';
-                nBtn.onclick = () => {
-                  if (endScreenTimer) clearInterval(endScreenTimer);
-                  leaveRoom();
-                }
-              } else {
-                let timeLeftEnd = 30;
-                nBtn.textContent = `Next Round (30)`;
-                nBtn.onclick = () => {
-                  if (endScreenTimer) clearInterval(endScreenTimer);
-                  nBtn.textContent = 'Waiting for other player...';
-                  nBtn.disabled = true;
-                  socket.emit('next-round');
-                };
-
-                endScreenTimer = setInterval(() => {
-                  timeLeftEnd--;
-                  if (timeLeftEnd <= 0) {
-                    clearInterval(endScreenTimer);
-                    if (!nBtn.disabled) nBtn.click();
-                  } else {
-                    nBtn.textContent = `Next Round (${timeLeftEnd})`;
+                const nBtn = document.getElementById('btn-next-action');
+                nBtn.disabled = false;
+                if (isGameOver) {
+                  nBtn.textContent = 'Main Menu';
+                  nBtn.onclick = () => {
+                    if (endScreenTimer) clearInterval(endScreenTimer);
+                    leaveRoom();
                   }
-                }, 1000);
-              }
-            });
+                } else {
+                  let timeLeftEnd = 30;
+                  nBtn.textContent = `Next Round (30)`;
+                  nBtn.onclick = () => {
+                    if (endScreenTimer) clearInterval(endScreenTimer);
+                    nBtn.textContent = 'Waiting for other player...';
+                    nBtn.disabled = true;
+                    socket.emit('next-round');
+                  };
+                  endScreenTimer = setInterval(() => {
+                    timeLeftEnd--;
+                    if (timeLeftEnd <= 0) {
+                      clearInterval(endScreenTimer);
+                      if (!nBtn.disabled) nBtn.click();
+                    } else { nBtn.textContent = `Next Round (${timeLeftEnd})`; }
+                  }, 1000);
+                }
 
-            socket.on('player-ready', (data) => {
+                // ── POPULATE SCOREBOARD TABLE ──
+                const tbody = document.getElementById('scoreTbody');
+                if (tbody && results) {
+                  tbody.innerHTML = '';
+                  
+                  // Map server slots to local columns: v0 is You, v1 is Opponent
+                  const myR = myTeamIdx === 0 ? results.s0 : results.s1;
+                  const oppR = oppTeamIdx === 0 ? results.s0 : results.s1;
+                  const myChk = myTeamIdx === 0 ? results.chkobba0 : results.chkobba1;
+                  const oppChk = oppTeamIdx === 0 ? results.chkobba0 : results.chkobba1;
+                  // results.barmila indicates the server slot that won barmila (0, 1, or -1)
+                  let myBarmila = 0, oppBarmila = 0;
+                  if (results.barmila === myTeamIdx) myBarmila = 1;
+                  else if (results.barmila === oppTeamIdx) oppBarmila = 1;
+
+                  const rows = [
+                    { img: 'img/icon_carta.png', v0: myR.cards, v1: oppR.cards, label: 'Carta' },
+                    { img: 'img/icon_dineri.png', v0: myR.dineri, v1: oppR.dineri, label: 'Dineri' },
+                    { img: 'img/icon_7ayya.png', v0: myR.sab3a ? 1 : 0, v1: oppR.sab3a ? 1 : 0, label: 'Sab3a', isBoolean: true },
+                    { img: 'img/icon_barmila.png', v0: myBarmila, v1: oppBarmila, label: 'Barmila' },
+                    { img: 'img/icon_chkobba.png', v0: myChk, v1: oppChk, label: 'Chkobba', isChkobba: true },
+                  ];
+
+                  for (const row of rows) {
+                    const tr = document.createElement('tr');
+                    if (row.isChkobba && (row.v0 > 0 || row.v1 > 0)) tr.classList.add('pulse-win');
+
+                    const leftWins = row.v0 > row.v1;
+                    const rightWins = row.v1 > row.v0;
+                    const isTie = !leftWins && !rightWins;
+                    const tieToBaji = row.label === 'Carta' || row.label === 'Dineri' || row.label === 'Barmila';
+                    let leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
+                    let rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
+
+                    if (row.isBoolean) {
+                      leftVal = row.v0 ? '✓' : '✗';
+                      rightVal = row.v1 ? '✓' : '✗';
+                    }
+
+                    const arrowLeft = leftWins ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
+                    const arrowRight = rightWins ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
+
+                    tr.innerHTML = `
+                      <td style="text-align:left; font-weight:${leftWins ? 900 : 700}; color:${leftWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${leftWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${leftVal}</td>
+                      <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
+                        ${arrowLeft}
+                        <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
+                        ${arrowRight}
+                      </td>
+                      <td style="text-align:right; font-weight:${rightWins ? 900 : 700}; color:${rightWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${rightWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${rightVal}</td>
+                    `;
+                    tbody.appendChild(tr);
+                  }
+
+                  // Totals row
+                  const trTotal = document.createElement('tr');
+                  trTotal.className = 'total-row';
+                  const myPts = results.pts[myTeamIdx];
+                  const oppPts = results.pts[oppTeamIdx];
+                  const arrowLeftTotal = myPts > oppPts ? '<span style="color:var(--gold); margin-right:6px; font-size:12px;">◀</span>' : '';
+                  const arrowRightTotal = oppPts > myPts ? '<span style="color:var(--gold); margin-left:6px; font-size:12px;">▶</span>' : '';
+
+                  trTotal.innerHTML = `
+                    <td style="text-align:left; font-weight:900; color:${myPts > oppPts ? 'var(--gold)' : 'var(--parchment)'}">+${myPts}</td>
+                    <td style="display:flex; justify-content:center; align-items:center;">
+                      ${arrowLeftTotal}
+                      <span class="rachma-label" style="font-size:32px">Rachma</span>
+                      ${arrowRightTotal}
+                    </td>
+                    <td style="text-align:right; font-weight:900; color:${oppPts > myPts ? 'var(--gold)' : 'var(--parchment)'}">+${oppPts}</td>
+                  `;
+                  tbody.appendChild(trTotal);
+                }
+
+              }, 1000);
+            };
+
+            activeGameHandlers['player-ready'] = (data) => {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               if (data.playerIdx !== myPlayerSlot) {
                 showToast(`${engine.players[data.playerIdx].name} is ready!`);
               }
-            });
+            };
 
-            socket.on('jarya-started', (data) => {
-              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              const startJarya = () => {
-                if (isAnimating) { setTimeout(startJarya, 100); return; }
 
-                engine.table = data.table;
-                engine.currentPlayer = data.currentTurn;
-                engine.deck.length = 40; // fake reset for UI
-                engine.players[0].chkobbas = [];
-                engine.players[1].chkobbas = [];
-                engine.players[0].pile = [];
-                engine.players[1].pile = [];
-                hasShownEkherJarya = false;
+            for (const ev in activeGameHandlers) {
+              socket.on(ev, activeGameHandlers[ev]);
+            }
 
-                document.getElementById('screen-end').style.display = 'none';
-                document.getElementById('screen-game').style.display = 'flex';
+            // If the server bundled game state directly in game-init, apply it NOW
+            // without waiting for the join-room → room-data roundtrip.
+            if (initData && initData.myHand && initData.table) {
+              console.log('[GAME-INIT] Applying bundled game state directly.');
 
-                const nBtn = document.getElementById('btn-next-action');
-                if (nBtn) nBtn.disabled = false;
+              // Set slot from server
+              if (initData.mySlot !== undefined) myPlayerSlot = initData.mySlot;
 
-                updateUI(true);
-                setStatus(window.getTurnStatusMsg(engine.currentPlayer));
-                isAnimating = false;
-              };
-              startJarya();
-            });
-
-            socket.on('player-disconnected', ({ name }) => {
-              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              if (name && name !== myName) {
-                showDisconnectOverlay(name);
-                showToast(`${name} disconnected. Waiting for reconnect...`, 3000);
+              // Apply player names
+              if (initData.players) {
+                const me = initData.players[myPlayerSlot];
+                const opp = initData.players[myPlayerSlot ^ 1];
+                if (me) { engine.players[0].name = me.name; document.getElementById('name-player').textContent = me.name; if (me.avatar) document.getElementById('pfp-player').src = me.avatar; }
+                if (opp) { engine.players[1].name = opp.name; document.getElementById('name-bot').textContent = opp.name; if (opp.avatar) document.getElementById('pfp-bot').src = opp.avatar; }
               }
-            });
-            socket.on('room-closed', () => {
-              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              leaveRoom("Mool el ghorfa khraj! (Host closed the room)");
-            });
 
-            socket.on('player-left', (data) => {
-              if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              showToast(`${data.name} khraj mel ghorfa.`, 3000);
-            });
+              // Apply game state
+              engine.players[0].hand = initData.myHand;
+              engine.table = initData.table;
+              if (initData.currentTurn !== undefined) engine.currentPlayer = initData.currentTurn;
+              engine.deck.length = initData.deckRemaining || 30;
+
+              window.hasReceivedInitialState = true;
+              showView('view-game');
+              showScreen('screen-game');
+
+              // Hide match-found overlay if still showing
+              const mfView = document.getElementById('view-match-found');
+              if (mfView) mfView.style.display = 'none';
+              const rankedOverlay = document.getElementById('ranked-matchmaking-overlay');
+              if (rankedOverlay) rankedOverlay.style.display = 'none';
+
+              updateUI(true);
+              updateTurnIndicator(engine.currentPlayer);
+              setStatus(window.getTurnStatusMsg(engine.currentPlayer));
+              console.log(`[GAME-INIT] Applied. Slot: ${myPlayerSlot}, Hand: ${engine.players[0].hand.length}, Table: ${engine.table.length}`);
+            }
+
+            // JOIN ROOM (registers socket in room for server-side tracking + fallback sync)
+            socket.emit('join-room', roomCode, token);
           }
         }
 
@@ -3368,7 +3799,7 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           }
 
           // AUTO-SYNC: If it's my turn and hand is empty (and matches are not over), request state
-          if (mode === 'online' && isMyTurn && engine.players[0].hand.length === 0 && engine.deck.length > 0 && !isAnimating) {
+          if (mode === 'online' && isMyTurn && engine.players[0].hand.length === 0 && engine.deck.length > 0 && !isAnimating && window.hasReceivedInitialState) {
             console.warn("[AUTO-SYNC] Turn with empty hand! Requesting restore...");
             window.requestSync();
           }
@@ -3394,9 +3825,9 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           // Update turn compass
           updateTurnIndicator(engine.currentPlayer);
 
-          // Perspective scores: use Team Indices
-          const myTeamIdx = window.currentGameMode === '2v2' ? (myPlayerSlot % 2) : 0;
-          const oppTeamIdx = window.currentGameMode === '2v2' ? ((myPlayerSlot + 1) % 2) : 1;
+          // Perspective scores: teamIdx = slotIdx % 2 for both 1v1 and 2v2
+          const myTeamIdx = myPlayerSlot % 2;
+          const oppTeamIdx = (myPlayerSlot + 1) % 2;
 
           const myTeamScore = totalScores[myTeamIdx] ?? 0;
           const oppTeamScore = totalScores[oppTeamIdx] ?? 0;
@@ -3459,14 +3890,14 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           if (myTeamHasPile) {
             const bg = document.createElement('div');
             bg.className = 'pile-bg'; bg.style.zIndex = '10';
-            bg.style.backgroundImage = `url('/cards/${selectedBack}')`;
+            bg.style.backgroundImage = `url('/assets/cards/${selectedBack}')`;
             bg.style.backgroundSize = 'contain'; bg.style.backgroundRepeat = 'no-repeat'; bg.style.backgroundPosition = 'center';
             cPlayer.appendChild(bg);
           }
           if (oppTeamHasPile) {
             const bg = document.createElement('div');
             bg.className = 'pile-bg'; bg.style.zIndex = '10';
-            bg.style.backgroundImage = `url('/cards/${selectedBack}')`;
+            bg.style.backgroundImage = `url('/assets/cards/${selectedBack}')`;
             bg.style.backgroundSize = 'contain'; bg.style.backgroundRepeat = 'no-repeat'; bg.style.backgroundPosition = 'center';
             cBot.appendChild(bg);
           }
@@ -3489,7 +3920,7 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
               ghost.className = 'card card-deal'; ghost.style.border = 'none'; ghost.style.background = 'transparent'; ghost.style.boxShadow = 'none';
               ghost.style.position = 'fixed'; ghost.style.top = deckRect.top + 'px'; ghost.style.left = deckRect.left + 'px';
               ghost.style.zIndex = '1000'; ghost.style.margin = '0';
-              ghost.innerHTML = `<img src="/cards/${selectedBack}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
+              ghost.innerHTML = `<img src="/assets/cards/${selectedBack}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
               document.body.appendChild(ghost);
 
               const targetRect = el.getBoundingClientRect();
@@ -3540,6 +3971,15 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           toggleChatMenu();
         }
 
+        window.sendEmojiChat = function(emojiKey) {
+          if (mode === 'online') {
+            socket.emit('player-msg', { text: `EMOJI:${emojiKey}` });
+          } else {
+            showSpeechBubble(0, `EMOJI:${emojiKey}`);
+          }
+          toggleChatMenu();
+        };
+
         function showSpeechBubble(seatIdx, text) {
           const zones = {
             0: '.info-bottom',
@@ -3556,11 +3996,16 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
 
           const bubble = document.createElement('div');
           bubble.className = 'bubble';
-          
-          if (text.startsWith('/img/')) {
+
+          if (text.startsWith('EMOJI:')) {
+            const emojiKey = text.substring(6);
             const img = document.createElement('img');
-            img.src = text;
+            img.src = `/img/${emojiKey}.png`;
+            img.style.width = '42px';
+            img.style.height = '42px';
+            img.style.display = 'block';
             bubble.appendChild(img);
+            bubble.style.padding = '6px'; // smaller padding for images
           } else {
             // Try to translate the key, fallback to the text itself (for backward compatibility)
             let localized = text;
@@ -3569,7 +4014,7 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
             }
             bubble.textContent = localized;
           }
-          
+
           target.prepend(bubble);
 
           // Auto-remove after animation
@@ -3613,7 +4058,7 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
             if (!div) { div = makeCardEl(card, faceDown); el.appendChild(div); }
             else {
               const img = div.querySelector('img');
-              const targetSrc = faceDown ? `/cards/${selectedBack}` : `/cards/${card.id}.png`;
+              const targetSrc = faceDown ? `/assets/cards/${selectedBack}` : `/assets/cards/${card.id}.png`;
               if (img && !img.src.includes(targetSrc)) img.src = targetSrc;
             }
             div.onclick = (interactive && isCurrentTurn) ? () => selectCard(card, div) : null;
@@ -3789,9 +4234,9 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
           if (card && card.id) div.dataset.id = card.id;
           // REMOVED manual transparency overrides that made cards invisible while loading images
           if (faceDown || !card) {
-            div.innerHTML = `<img src="/cards/${selectedBack}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
+            div.innerHTML = `<img src="/assets/cards/${selectedBack}" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
           } else {
-            div.innerHTML = `<img src="/cards/${card.id}.png" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
+            div.innerHTML = `<img src="/assets/cards/${card.id}.png" style="width:100%; height:100%; object-fit:contain; border-radius:4px; pointer-events:none; display:block; filter:drop-shadow(2px 3px 5px rgba(0,0,0,0.4));">`;
           }
 
           div.onmouseenter = () => {
@@ -4031,7 +4476,8 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
             else { title = 'Overtime! Win by 2'; }
           }
           document.getElementById('endTitle').textContent = title;
-          document.getElementById('endWinner').textContent = `Total: ${engine.players[0].name} ${s0}  ·  ${engine.players[1].name} ${s1}`;
+          document.getElementById('endWinner').innerHTML = 
+            `<span style="color:var(--parchment);opacity:0.8;font-size:0.85em;text-transform:uppercase;letter-spacing:2px;">Total Scores</span><br><span style="font-size:1.1em">${engine.players[0].name}</span> <strong style="color:var(--gold);font-size:1.4em;text-shadow:0 0 10px rgba(201,168,76,0.5);">${s0}</strong> &nbsp;&nbsp;—&nbsp;&nbsp; <span style="font-size:1.1em">${engine.players[1].name}</span> <strong style="color:var(--gold);font-size:1.4em;text-shadow:0 0 10px rgba(201,168,76,0.5);">${s1}</strong>`;
           document.getElementById('th-p1').textContent = engine.players[0].name;
           document.getElementById('th-p2').textContent = engine.players[1].name;
 
@@ -4411,6 +4857,8 @@ document.getElementById('menu-sfx')?.addEventListener('change', function() {
   </footer>
 
   <script>document.getElementById('year').innerHTML = new Date().getFullYear();</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/fullstack.js"></script>
 </body>
 
 </html>

@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
@@ -11,15 +13,61 @@ const io = new Server(server, {
     }
 });
 
+// Utility for game logic
+function generateDeck() {
+  const suits = ['carreau', 'coeur', 'trefel', 'pique'];
+  const deck = [];
+  for (const suit of suits) {
+    for (let v = 1; v <= 10; v++) {
+      deck.push({ suit, value: v, id: `${v}${suit}` });
+    }
+  }
+  shuffle(deck);
+  return deck;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
 // ----- Static assets -----
 // Serve pages folder at root, and root folder for css/js/img etc.
 app.use(express.static(path.join(__dirname, 'pages')));
 app.use('/css',    express.static(path.join(__dirname, 'css')));
 app.use('/js',     express.static(path.join(__dirname, 'js')));
 app.use('/img',    express.static(path.join(__dirname, 'img')));
-app.use('/cards',  express.static(path.join(__dirname, 'cards')));
-app.use('/sound',  express.static(path.join(__dirname, 'sound')));
+app.use('/cards',         express.static(path.join(__dirname, 'cards')));
+app.use('/assets/cards',  express.static(path.join(__dirname, 'cards')));
+app.use('/sound',         express.static(path.join(__dirname, 'sound')));
 app.use('/pfp',    express.static(path.join(__dirname, 'pfp')));
+app.use(express.json());
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAdmin = (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } })
+  : null;
+
+function mapSupabaseSetupError(err) {
+  const m = err?.message || String(err);
+  if (/schema cache|relation .* does not exist|Could not find the table/i.test(m)) {
+    return 'Database tables are missing. In Supabase open SQL Editor, paste the contents of supabase-schema.sql from this project, then click Run.';
+  }
+  return m;
+}
+
+/** Internal auth id only (Supabase requires an email field in auth.users — never shown to players). */
+function usernameToGameEmail(username) {
+  const slug = (username || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+  if (slug.length < 3 || slug.length > 32) {
+    throw new Error('Username must be 3–32 characters (letters, numbers, underscore).');
+  }
+  return `${slug}@chkobba.game`;
+}
 
 // SPA Routes
 app.get(['/', '/menu.html', '/lobby.html', '/chkobba.html'], (req, res) => {
@@ -28,6 +76,87 @@ app.get(['/', '/menu.html', '/lobby.html', '/chkobba.html'], (req, res) => {
 
 // ----- In-memory room store -----
 const rooms = {};
+const rankedRoomByCode = {};
+const ELO_WIN_DELTA = 20;
+const ELO_LOSS_DELTA = 15;
+
+async function authRequired(req, res, next) {
+  if (!supabaseAdmin) return res.status(500).json({ error: 'Supabase is not configured on server.' });
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Missing bearer token.' });
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data?.user) return res.status(401).json({ error: 'Invalid or expired token.' });
+  req.user = data.user;
+  next();
+}
+
+async function applyMatchResult({ winnerId, loserId, gameSessionId, endedReason, winnerScore, loserScore, winnerChkobbas, loserChkobbas }) {
+  if (!supabaseAdmin || !winnerId || !loserId || winnerId === loserId) return;
+
+  const { data: profiles, error: profErr } = await supabaseAdmin
+    .from('profiles')
+    .select('id,total_elo')
+    .in('id', [winnerId, loserId]);
+  if (profErr || !profiles || profiles.length < 2) return;
+
+  const winP = profiles.find((p) => p.id === winnerId);
+  const loseP = profiles.find((p) => p.id === loserId);
+  if (!winP || !loseP) return;
+
+  const winnerElo = (winP.total_elo || 1000) + ELO_WIN_DELTA;
+  const loserElo = Math.max(100, (loseP.total_elo || 1000) - ELO_LOSS_DELTA);
+
+  await supabaseAdmin.from('profiles').update({ total_elo: winnerElo, updated_at: new Date().toISOString() }).eq('id', winnerId);
+  await supabaseAdmin.from('profiles').update({ total_elo: loserElo, updated_at: new Date().toISOString() }).eq('id', loserId);
+
+  await supabaseAdmin.from('game_sessions').update({
+    status: 'finished',
+    winner_id: winnerId,
+    loser_id: loserId,
+    ended_reason: endedReason || 'normal',
+    ended_at: new Date().toISOString()
+  }).eq('id', gameSessionId).neq('status', 'finished');
+
+  const { data: playerNames } = await supabaseAdmin.from('profiles').select('id').in('id', [winnerId, loserId]);
+  if (!playerNames || playerNames.length < 2) return;
+
+  await supabaseAdmin.from('match_history').insert([
+    {
+      game_session_id: gameSessionId || null,
+      player_id: winnerId,
+      opponent_id: loserId,
+      player_score: winnerScore,
+      opponent_score: loserScore,
+      chkobba_count: winnerChkobbas || 0,
+      match_result: 'win'
+    },
+    {
+      game_session_id: gameSessionId || null,
+      player_id: loserId,
+      opponent_id: winnerId,
+      player_score: loserScore,
+      opponent_score: winnerScore,
+      chkobba_count: loserChkobbas || 0,
+      match_result: 'loss'
+    }
+  ]);
+
+  // Cleanup old games beyond the 20 limits
+  async function trimHistory(pid) {
+    if (!pid) return;
+    const { data: records } = await supabaseAdmin.from('match_history')
+      .select('match_id')
+      .eq('player_id', pid)
+      .order('created_at', { ascending: false });
+    if (records && records.length > 20) {
+      const toDelete = records.slice(20).map(r => r.match_id);
+      await supabaseAdmin.from('match_history').delete().in('match_id', toDelete);
+    }
+  }
+  await trimHistory(winnerId);
+  await trimHistory(loserId);
+}
 
 function generateCode() {
   const n = Math.floor(1000 + Math.random() * 9000);
@@ -102,6 +231,227 @@ function calculateRoundPoints(state) {
   };
 }
 
+app.get('/api/config', (req, res) => {
+  const missingEnv = [
+    !SUPABASE_URL && 'SUPABASE_URL',
+    !SUPABASE_ANON_KEY && 'SUPABASE_ANON_KEY',
+    !SUPABASE_SERVICE_ROLE_KEY && 'SUPABASE_SERVICE_ROLE_KEY'
+  ].filter(Boolean);
+  res.json({
+    supabaseUrl: SUPABASE_URL || '',
+    supabaseAnonKey: SUPABASE_ANON_KEY || '',
+    enabled: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY),
+    missingEnv
+  });
+});
+
+/** Sign-up without client-side auth.signUp — no confirmation emails, no email rate limits. */
+app.post('/api/auth/register', async (req, res) => {
+  if (!supabaseAdmin) return res.status(500).json({ error: 'Server not configured.' });
+  const usernameRaw = (req.body?.username || '').trim();
+  const password = req.body?.password || '';
+  const avatarUrl = (req.body?.avatar_url || '').trim();
+  if (!usernameRaw || password.length < 6) {
+    return res.status(400).json({ error: 'Username and password (6+ characters) required.' });
+  }
+  let email;
+  try {
+    email = usernameToGameEmail(usernameRaw);
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
+  }
+  const { data: created, error: cErr } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { username: usernameRaw }
+  });
+  if (cErr) {
+    const msg = cErr.message || '';
+    if (/already|exists|registered|duplicate/i.test(msg)) {
+      return res.status(400).json({ error: 'That username is already taken.' });
+    }
+    return res.status(400).json({ error: mapSupabaseSetupError(cErr) });
+  }
+  const uid = created.user.id;
+  const { error: pErr } = await supabaseAdmin.from('profiles').upsert({
+    id: uid,
+    username: usernameRaw,
+    email,
+    avatar_url: avatarUrl,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'id' });
+  if (pErr) return res.status(400).json({ error: mapSupabaseSetupError(pErr) });
+  res.json({ ok: true });
+});
+
+app.get('/api/profile', authRequired, async (req, res) => {
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .select('id,username,email,avatar_url,total_elo,created_at,updated_at')
+    .eq('id', req.user.id)
+    .maybeSingle();
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  if (!data) return res.status(404).json({ error: 'Profile not found.' });
+  res.json(data);
+});
+
+app.post('/api/profile', authRequired, async (req, res) => {
+  const username = (req.body?.username || '').trim();
+  const avatarUrl = (req.body?.avatar_url || '').trim();
+  if (!username) return res.status(400).json({ error: 'username is required.' });
+  const payload = {
+    id: req.user.id,
+    username,
+    email: req.user.email || '',
+    avatar_url: avatarUrl,
+    updated_at: new Date().toISOString()
+  };
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .upsert(payload, { onConflict: 'id' })
+    .select('id,username,email,avatar_url,total_elo,updated_at')
+    .single();
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  res.json(data);
+});
+
+app.post('/api/matchmaking/find', authRequired, async (req, res) => {
+  const me = req.user.id;
+  const nowIso = new Date().toISOString();
+  await supabaseAdmin.from('waiting_players').update({ status: 'expired', updated_at: nowIso })
+    .eq('status', 'waiting').lt('created_at', new Date(Date.now() - 60000).toISOString());
+
+  const { data: existingMatch } = await supabaseAdmin.from('game_sessions')
+    .select('id,player1_id,player2_id,status,room_code,created_at')
+    .or(`player1_id.eq.${me},player2_id.eq.${me}`)
+    .in('status', ['matched', 'in_progress'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (existingMatch) return res.json({ state: 'matched', game_session: existingMatch, amHost: existingMatch.player1_id === me });
+
+  const { data: candidate } = await supabaseAdmin.from('waiting_players')
+    .select('id,player_id,created_at')
+    .eq('status', 'waiting')
+    .neq('player_id', me)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (!candidate) {
+    const { data: existingWait } = await supabaseAdmin.from('waiting_players')
+      .select('id')
+      .eq('player_id', me)
+      .eq('status', 'waiting')
+      .limit(1)
+      .maybeSingle();
+    if (!existingWait) {
+      await supabaseAdmin.from('waiting_players').insert({ player_id: me, status: 'waiting' });
+    }
+    return res.json({ state: 'waiting' });
+  }
+
+  const { data: session, error: sessionErr } = await supabaseAdmin.from('game_sessions')
+    .insert({ player1_id: candidate.player_id, player2_id: me, status: 'matched' })
+    .select('id,player1_id,player2_id,status,room_code,created_at')
+    .single();
+  if (sessionErr) return res.status(400).json({ error: mapSupabaseSetupError(sessionErr) });
+
+  await supabaseAdmin.from('waiting_players').update({ status: 'matched', game_session_id: session.id, updated_at: nowIso }).in('id', [candidate.id]);
+  await supabaseAdmin.from('waiting_players').update({ status: 'matched', game_session_id: session.id, updated_at: nowIso }).eq('player_id', me).eq('status', 'waiting');
+  return res.json({ state: 'matched', game_session: session, amHost: false });
+});
+
+app.post('/api/matchmaking/cancel', authRequired, async (req, res) => {
+  await supabaseAdmin.from('waiting_players').update({ status: 'cancelled', updated_at: new Date().toISOString() })
+    .eq('player_id', req.user.id).eq('status', 'waiting');
+  res.json({ ok: true });
+});
+
+app.get('/api/matchmaking/status', authRequired, async (req, res) => {
+  const me = req.user.id;
+  const { data: match } = await supabaseAdmin.from('game_sessions')
+    .select('id,player1_id,player2_id,status,room_code,created_at')
+    .or(`player1_id.eq.${me},player2_id.eq.${me}`)
+    .in('status', ['matched', 'in_progress'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (match) return res.json({ state: 'matched', game_session: match, amHost: match.player1_id === me });
+  const { data: waiting } = await supabaseAdmin.from('waiting_players')
+    .select('id,status,created_at')
+    .eq('player_id', me)
+    .eq('status', 'waiting')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (waiting) return res.json({ state: 'waiting' });
+  return res.json({ state: 'idle' });
+});
+
+app.get('/api/leaderboard', async (req, res) => {
+  if (!supabaseAdmin) return res.json([]);
+  const { data, error } = await supabaseAdmin.from('profiles')
+    .select('id,username,avatar_url,total_elo')
+    .order('total_elo', { ascending: false })
+    .limit(20);
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  res.json(data || []);
+});
+
+app.get('/api/history', authRequired, async (req, res) => {
+  const { data: rows, error } = await supabaseAdmin.from('match_history')
+    .select('match_id,player_id,opponent_id,player_score,opponent_score,chkobba_count,match_result,created_at')
+    .eq('player_id', req.user.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  const ids = [...new Set((rows || []).map((r) => r.opponent_id))];
+  const names = {};
+  if (ids.length) {
+    const { data: profs } = await supabaseAdmin.from('profiles').select('id,username').in('id', ids);
+    (profs || []).forEach((p) => { names[p.id] = p.username; });
+  }
+  res.json((rows || []).map((r) => ({ ...r, opponent_username: names[r.opponent_id] || 'Unknown' })));
+});
+
+app.post('/api/game-session/:id/attach-room', authRequired, async (req, res) => {
+  const sessionId = req.params.id;
+  const roomCode = (req.body?.room_code || '').trim();
+  if (!roomCode) return res.status(400).json({ error: 'room_code is required.' });
+  const { data: session, error } = await supabaseAdmin.from('game_sessions')
+    .select('id,player1_id,player2_id,status')
+    .eq('id', sessionId)
+    .single();
+  if (error || !session) return res.status(404).json({ error: 'session not found.' });
+  if (session.player1_id !== req.user.id) return res.status(403).json({ error: 'Only host can attach room.' });
+  await supabaseAdmin.from('game_sessions').update({ room_code: roomCode, status: 'in_progress' }).eq('id', sessionId);
+  rankedRoomByCode[roomCode] = { sessionId, player1Id: session.player1_id, player2Id: session.player2_id, finished: false };
+  res.json({ ok: true });
+});
+
+app.post('/api/match/finish', authRequired, async (req, res) => {
+  const { game_session_id, opponent_id, player_score, opponent_score, chkobba_count } = req.body || {};
+  if (!game_session_id || !opponent_id) return res.status(400).json({ error: 'game_session_id and opponent_id are required.' });
+  const pScore = Number.isInteger(player_score) ? player_score : -1;
+  const oScore = Number.isInteger(opponent_score) ? opponent_score : -1;
+  if (pScore < 0 || oScore < 0 || pScore === oScore) return res.status(400).json({ error: 'Invalid scores.' });
+  const winnerId = pScore > oScore ? req.user.id : opponent_id;
+  const loserId = pScore > oScore ? opponent_id : req.user.id;
+  await applyMatchResult({
+    winnerId,
+    loserId,
+    gameSessionId: game_session_id,
+    endedReason: 'normal',
+    winnerScore: Math.max(pScore, oScore),
+    loserScore: Math.min(pScore, oScore),
+    winnerChkobbas: pScore > oScore ? (chkobba_count || 0) : 0,
+    loserChkobbas: pScore > oScore ? 0 : (chkobba_count || 0)
+  });
+  res.json({ ok: true });
+});
+
 io.on('connection', (socket) => {
   // Use built-in clientsCount for real-time accuracy (with tiny delay to ensure sync)
   setTimeout(() => {
@@ -115,15 +465,24 @@ io.on('connection', (socket) => {
   });
 
   // ── CREATE PARTY ──────────────────────────────────────────────
-  socket.on('create-party', ({ name, avatar, sessionToken }) => {
+  socket.on('create-party', ({ name, avatar, sessionToken, userId }) => {
     let code;
     do { code = generateCode(); } while (rooms[code]);
 
     rooms[code] = {
       code,
       host: socket.id,
+      players: [{ 
+        id: socket.id, 
+        name: name, 
+        avatar: avatar, 
+        sessionToken: sessionToken,
+        matchAccepted: false 
+      }],
       settings: { mode: '1v1', score: 21 },
-      players: [{ id: socket.id, name: name || 'Host', avatar: avatar || '', sessionToken: sessionToken || '', role: 'host' }],
+      gameState: null,
+      roundCount: 1,
+      matchFoundTimeout: null,
       teams: { 1: [socket.id, null], 2: [null, null] },
       reconnectTimers: {},
       gameStarted: false,
@@ -144,7 +503,7 @@ io.on('connection', (socket) => {
   });
 
   // ── JOIN PARTY ────────────────────────────────────────────────
-  socket.on('join-party', ({ code, name, avatar, sessionToken }) => {
+  socket.on('join-party', ({ code, name, avatar, sessionToken, userId }) => {
     const room = rooms[code];
     if (!room) {
       socket.emit('join-error', { msg: 'Tawla mouch mawjouda' });
@@ -194,7 +553,14 @@ io.on('connection', (socket) => {
       return;
     }
 
-    room.players.push({ id: socket.id, name: name || 'Guest', avatar: avatar || '', sessionToken: sessionToken || '' });
+    room.players.push({ 
+        id: socket.id, 
+        name: name || 'Guest', 
+        avatar: avatar || '', 
+        sessionToken: sessionToken || '', 
+        userId: userId || '',
+        matchAccepted: false 
+    });
     socket.join(code);
     socket.data.code = code;
     socket.data.name = name;
@@ -237,7 +603,6 @@ io.on('connection', (socket) => {
     io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
   });
 
-  // ── UPDATE SETTINGS (host only) ───────────────────────────────
   socket.on('update-settings', ({ mode, score }) => {
     const code = socket.data.code;
     const room = rooms[code];
@@ -247,55 +612,52 @@ io.on('connection', (socket) => {
     io.to(code).emit('settings-updated', room.settings);
   });
 
-  // ── START GAME (host only) ────────────────────────────────────
-  socket.on('start-game', () => {
-    const code = socket.data.code;
-    const room = rooms[code];
-    if (!room || room.host !== socket.id) return;
-    const required = room.settings.mode === '2v2' ? 4 : 2;
-    if (room.players.length < required) return;
+  const emitRoomData = (room, playerIdx) => {
+    const p = room.players[playerIdx];
+    if (!p || !p.id) return;
     
-    // For 2v2, ensure teams are full
+    const clientResponse = { players: room.players, settings: room.settings };
+    if (room.gameState) {
+        clientResponse.gameState = {
+            table: room.gameState.table,
+            myHand: room.gameState.hands[playerIdx] || [],
+            currentTurn: room.gameState.currentTurn,
+            numPlayers: room.gameState.numPlayers || 2,
+            deckRemaining: room.gameState.deck.length,
+            totalScores: room.gameState.totalScores || [0, 0],
+            jaryaCount: room.gameState.jaryaCount || 1,
+            maxJaryas: room.gameState.maxJaryas || 6
+        };
+    }
+    console.log(`[SYNC] Emitting room-data to ${p.id} (Slot ${playerIdx})`);
+    io.to(p.id).emit('room-data', clientResponse);
+  };
+
+  function startGameServer(room) {
+    if (!room) return;
+    
+    // Ensure 2v2 layout is canonical if needed
     if (room.settings.mode === '2v2') {
-      const allFilled = room.teams[1].every(s => s !== null) && room.teams[2].every(s => s !== null);
-      if (!allFilled) return;
-      
-      // Reorder room.players to Match Seating: 
-      // [T1S0, T2S0, T1S1, T2S1]
-      const canonicalOrder = [
-        room.teams[1][0],
-        room.teams[2][0],
-        room.teams[1][1],
-        room.teams[2][1]
-      ];
+      const canonicalOrder = [room.teams[1][0], room.teams[2][0], room.teams[1][1], room.teams[2][1]];
       room.players = canonicalOrder.map(sid => room.players.find(p => p.id === sid));
     }
     
     room.gameStarted = true;
-    
-    // ── INITIAL DEAL (Start of Jarya) ──────────────────────────
-    const deck = generateDeck(); // Shuffle happens only here
+    const deck = generateDeck();
     const table = [];
     const numPlayers = room.settings.mode === '2v2' ? 4 : 2;
     const hands = Array.from({ length: numPlayers }, () => []);
     
-    // 1. Put 4 cards on the table (Only at start of 40-card cycle)
-    for (let i = 0; i < 4; i++) {
-        table.push(deck.pop());
-    }
-    // 2. Deal 3 to each player
+    for (let i = 0; i < 4; i++) table.push(deck.pop());
     for (let p = 0; p < numPlayers; p++) {
-        for (let i = 0; i < 3; i++) {
-            hands[p].push(deck.pop());
-        }
+        for (let i = 0; i < 3; i++) hands[p].push(deck.pop());
     }
 
     room.roundCount = (room.roundCount || 0) + 1;
-
     room.gameState = {
-        deck: deck,
-        table: table,
-        hands: hands,
+        deck:               deck,
+        table:              table,
+        hands:              hands,
         piles:              [[], []], // 2 Teams (Slot 0/2 vs Slot 1/3)
         chkobbas:           [[], []],
         lastCaptor: -1,
@@ -307,85 +669,86 @@ io.on('connection', (socket) => {
         numPlayers: numPlayers,
     };
 
-    const roomDataBase = {
-      table: table,
-      currentTurn: room.gameState.currentTurn,
-      numPlayers: numPlayers,
-      deckRemaining: deck.length,
-      jaryaCount: 1,
-      maxJaryas: room.gameState.maxJaryas
-    };
-
-    io.to(code).emit('game-init', {
-      code,
-      settings: room.settings,
-      players: room.players,
-      hostId: room.host
+    // Send game-init individually to each player so they get their own hand
+    room.players.forEach((p, idx) => {
+      if (!p || !p.id) return;
+      io.to(p.id).emit('game-init', {
+        code: room.code,
+        settings: room.settings,
+        players: room.players,
+        hostId: room.host,
+        myHand: hands[idx],
+        table: table,
+        currentTurn: room.gameState.currentTurn,
+        deckRemaining: room.gameState.deck.length,
+        mySlot: idx
+      });
+      console.log(`[GAME-INIT] Sent to slot ${idx} (${p.id}): hand=${hands[idx].length}, table=${table.length}`);
     });
 
-    for (let i = 0; i < numPlayers; i++) {
-        const p = room.players[i];
-        if (p && p.id) {
-            io.to(p.id).emit('room-data', {
-                ...roomDataBase,
-                myHand: hands[i]
-            });
-        }
+    // Clear any match found timeout
+    if (room.matchFoundTimeout) {
+      clearTimeout(room.matchFoundTimeout);
+      room.matchFoundTimeout = null;
     }
-    console.log(`[ROOM] Game started in ${code} (${numPlayers}P). Initial data pushed.`);
+
+    console.log(`[ROOM] Game started in ${room.code}. Cards dealt and sent.`);
+  }
+
+  socket.on('start-game', () => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    if (!room || room.host !== socket.id) return;
+    
+    const required = room.settings.mode === '2v2' ? 4 : 2;
+    if (room.players.length < required) return;
+    
+    startGameServer(room);
+  });
+
+  socket.on('match-accept', () => {
+    const code = socket.data.code;
+    const room = rooms[code];
+    if (!room) return;
+
+    const player = room.players.find(p => p.id === socket.id);
+    if (!player) return;
+
+    player.matchAccepted = true;
+    console.log(`[MATCH] Player ${player.name} accepted in ${code}`);
+
+    // Notify others in the room
+    io.to(code).emit('player-accepted', { playerId: socket.id, name: player.name });
+
+    // Check if everyone accepted
+    const required = room.settings.mode === '2v2' ? 4 : 2;
+    const readyCount = room.players.filter(p => p.matchAccepted).length;
+
+    if (readyCount >= required && !room.gameStarted) {
+      console.log(`[MATCH] All players accepted in ${code}. Auto-starting...`);
+      startGameServer(room);
+    }
   });
 
   // ── GAME ROOM HANDLERS ───────────────────────────────────────
   socket.on('join-room', (code, token) => {
     const room = rooms[code];
     if (room) {
-      // Update the player's socket ID in the room based on their token
       const playerIdx = room.players.findIndex(p => p.sessionToken === token);
       if (playerIdx !== -1) {
           const player = room.players[playerIdx];
           player.id = socket.id;
-          if (player.role === 'host') room.host = socket.id;
           
           socket.join(code);
           socket.data.code = code;
-          socket.data.slotIdx = playerIdx; // 0, 1, 2, or 3
+          socket.data.slotIdx = playerIdx; 
           
-          const response = {
-              players: room.players,
-              settings: room.settings
-          };
+          console.log(`[SYNC] Player joined room: ${code}, token: ${token}, slot: ${playerIdx}, socket: ${socket.id}`);
           
-          if (room.gameState) {
-              response.gameState = {
-                  table: room.gameState.table,
-                  myHand: room.gameState.hands[playerIdx],
-                  currentTurn: room.gameState.currentTurn,
-                  numPlayers: room.gameState.numPlayers || 2,
-                  deckRemaining: room.gameState.deck.length,
-                  totalScores: room.gameState.totalScores || [0, 0],
-                  jaryaCount: room.gameState.jaryaCount,
-                  maxJaryas: room.gameState.maxJaryas
-              };
-          }
-          
-          room.players.forEach((p, idx) => {
-              if (p.id) {
-                  const clientResponse = { players: room.players, settings: room.settings };
-                  if (room.gameState) {
-                      clientResponse.gameState = {
-                          table: room.gameState.table,
-                          myHand: room.gameState.hands[idx],
-                          currentTurn: room.gameState.currentTurn,
-                          numPlayers: room.gameState.numPlayers || 2,
-                          deckRemaining: room.gameState.deck.length,
-                          totalScores: room.gameState.totalScores || [0, 0],
-                          jaryaCount: room.gameState.jaryaCount,
-                          maxJaryas: room.gameState.maxJaryas
-                      };
-                  }
-                  io.to(p.id).emit('room-data', clientResponse);
-              }
-          });
+          // Sync ONLY the player who just joined
+          emitRoomData(room, playerIdx);
+      } else {
+          console.warn(`[SYNC] Player with token ${token} NOT found in room ${code}`);
       }
       
       // Clear any pending cleanup for this room
@@ -393,6 +756,8 @@ io.on('connection', (socket) => {
           clearTimeout(room.cleanupTimeout);
           delete room.cleanupTimeout;
       }
+    } else {
+      console.warn(`[SYNC] join-room: Room ${code} not found.`);
     }
   });
 
@@ -663,42 +1028,45 @@ io.on('connection', (socket) => {
   socket.on('sync-state', () => {
     const code = socket.data.code;
     const room = rooms[code];
-    if (!room || !room.gameState) return;
-    
-    const pIdx = room.players.findIndex(p => p.id === socket.id);
-    if (pIdx === -1) return;
-
-    socket.emit('room-data', {
-        table: room.gameState.table,
-        myHand: room.gameState.hands[pIdx],
-        currentTurn: room.gameState.currentTurn,
-        numPlayers: room.gameState.numPlayers || 2,
-        deckRemaining: room.gameState.deck.length,
-        jaryaCount: room.gameState.jaryaCount,
-        maxJaryas: room.gameState.maxJaryas
-    });
+    if (room) {
+      const playerIdx = room.players.findIndex(p => p.id === socket.id);
+      if (playerIdx !== -1) {
+        console.log(`[SYNC] Manual sync requested by ${socket.id} (Slot ${playerIdx})`);
+        emitRoomData(room, playerIdx);
+      }
+    }
   });
-
   socket.on('leave-room', () => {
     const code = socket.data.code;
     const room = rooms[code];
-    if (!room) return;
+    console.log(`[LEAVE-ROOM] Socket ${socket.id} (${socket.data.name}) leaving code: ${code}`);
 
-    // Graceful leave: allow 30s to come back (refresh/back-to-menu)
+    if (!room) {
+      console.log(`[LEAVE-ROOM] No room found for code ${code}`);
+      return;
+    }
+
     const oldId = socket.id;
     const pIdx = room.players.findIndex(p => p.id === oldId);
     if (pIdx === -1) {
+      console.log(`[LEAVE-ROOM] Player not in room list, removing socket from code ${code}`);
       socket.leave(code);
       delete socket.data.code;
       return;
     }
 
     const name = room.players[pIdx].name || 'Player';
-    io.to(code).emit('player-disconnected', { name });
 
-    if (room.reconnectTimers[oldId]) {
+    if (room.reconnectTimers && room.reconnectTimers[oldId]) {
       clearTimeout(room.reconnectTimers[oldId]);
       delete room.reconnectTimers[oldId];
+    }
+
+    // Always check for ranked forfeit first, even if gameStarted is false
+    const rankedMeta = rankedRoomByCode[code];
+    if (rankedMeta && !rankedMeta.finished) {
+      console.log(`[LEAVE-ROOM] Ranked match detected. Finalizing forfeit for ${name}`);
+      finalizeForfeit(code, oldId, 'leave-room');
     }
 
     if (!room.gameStarted) {
@@ -718,32 +1086,22 @@ io.on('connection', (socket) => {
         console.log(`[ROOM] Player ${name} left lobby: ${code}`);
       }
     } else {
-      // In-game cleanup: For deliberate leave-room, we can close immediately if host
       if (room.host === oldId) {
         console.log(`[ROOM] Host left game gracefully. Closing room: ${code}`);
         io.to(code).emit('room-closed', { reason: 'host-left' });
         delete rooms[code];
       } else {
-        // Guest left: 30s grace period for reconnect
-        room.reconnectTimers[oldId] = setTimeout(() => {
-          const r = rooms[code];
-          if (!r) return;
-          const stillSameSocket = r.players.some(p => p && p.id === oldId);
-          if (!stillSameSocket) {
-            delete r.reconnectTimers[oldId];
-            return;
-          }
-          const idx2 = r.players.findIndex(p => p && p.id === oldId);
-          const pname = idx2 !== -1 ? (r.players[idx2].name || name) : name;
-          if (idx2 !== -1) r.players.splice(idx2, 1);
-          for (let t in r.teams) {
-            r.teams[t] = r.teams[t].map(sid => (sid === oldId ? null : sid));
-          }
-          io.to(code).emit('players-updated', { players: r.players, teams: r.teams });
-          io.to(code).emit('player-left', { name: pname });
-          delete r.reconnectTimers[oldId];
-          console.log(`[ROOM] Player ${pname} removed after 30s: ${code}`);
-        }, 30000);
+        const idx = room.players.findIndex(p => p && p.id === oldId);
+        if (idx !== -1) {
+          room.players.splice(idx, 1);
+        }
+        for (let t in room.teams) {
+          room.teams[t] = room.teams[t].map(sid => (sid === oldId ? null : sid));
+        }
+        io.to(code).emit('players-updated', { players: room.players, teams: room.teams });
+        io.to(code).emit('player-left', { name });
+        if (room.players.length === 0) delete rooms[code];
+        console.log(`[ROOM] Player ${name} left game gracefully: ${code}`);
       }
     }
 
@@ -752,6 +1110,58 @@ io.on('connection', (socket) => {
     delete socket.data.slotIdx;
   });
 
+  function finalizeForfeit(code, loserSocketId, reason = 'forfeit') {
+    const room = rooms[code];
+    const rankedMeta = rankedRoomByCode[code];
+    console.log(`[FINALIZE-FORFEIT] Room: ${code}, Reason: ${reason}`);
+
+    if (!room) {
+      console.log(`[FINALIZE-FORFEIT] No room found for code: ${code}`);
+      return;
+    }
+    if (!rankedMeta) {
+      console.log(`[FINALIZE-FORFEIT] No ranked metadata found for code: ${code}`);
+      return;
+    }
+    if (rankedMeta.finished) {
+      console.log(`[FINALIZE-FORFEIT] Ranked match already finished for code: ${code}`);
+      return;
+    }
+
+    const loser = room.players.find(p => p && p.id === loserSocketId);
+    if (!loser) {
+      console.log(`[FINALIZE-FORFEIT] Loser socket ${loserSocketId} not found in room.players`);
+    }
+
+    const loserId = loser?.userId;
+    if (!loserId) {
+      console.log(`[FINALIZE-FORFEIT] Cannot proceed, loserId is missing for ${loserSocketId}`);
+      return;
+    }
+
+    const winnerId = (rankedMeta.player1Id === loserId) ? rankedMeta.player2Id : rankedMeta.player1Id;
+    rankedMeta.finished = true;
+
+    console.log(`[RANKED] Forfeit in room ${code}. Winner: ${winnerId}, Loser: ${loserId} (Reason: ${reason})`);
+
+    applyMatchResult({
+      winnerId,
+      loserId,
+      gameSessionId: rankedMeta.sessionId,
+      endedReason: reason,
+      winnerScore: 1,
+      loserScore: 0,
+      winnerChkobbas: 0,
+      loserChkobbas: 0
+    });
+
+    console.log(`[FINALIZE-FORFEIT] Result applied to DB. Emitting opponent-forfeited to room.`);
+    io.to(code).emit('opponent-forfeited', { 
+      loserName: loser?.name || 'Opponent',
+      reason
+    });
+  }
+
   socket.on('disconnect', () => {
     io.emit('userCountUpdate', io.engine.clientsCount);
     const code = socket.data.code;
@@ -759,9 +1169,21 @@ io.on('connection', (socket) => {
     if (room) {
       io.to(code).emit('player-disconnected', { name: socket.data.name });
       
-      // Delay room cleanup for active games to allow for reconnects
-      // BUT if it's a lobby and nobody is left, delete it faster
-      const cleanupTime = room.gameStarted ? 30000 : 5000;
+      if (room.gameStarted) {
+          const rankedMeta = rankedRoomByCode[code];
+          if (rankedMeta && !rankedMeta.finished) {
+              // Set a 20s grace period for ranked disconnects
+              if (room.reconnectTimers) {
+                  const socketId = socket.id;
+                  room.reconnectTimers[socketId] = setTimeout(() => {
+                      finalizeForfeit(code, socketId, 'disconnect-timeout');
+                  }, 20000);
+              }
+          }
+      }
+
+      // Delay room cleanup
+      const cleanupTime = room.gameStarted ? 20000 : 5000;
 
       if (!room.cleanupTimeout) {
           room.cleanupTimeout = setTimeout(() => {
