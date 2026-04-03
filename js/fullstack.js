@@ -266,40 +266,48 @@
       return out(e.message || 'Invalid username.');
     }
 
-    if (signUp) {
-      const regRes = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: usernameRaw,
-          password,
-          avatar_url: ctx.getAvatar() || ''
-        })
-      });
-      const regJson = await regRes.json().catch(() => ({}));
-      if (!regRes.ok) return out(regJson.error || 'Sign up failed.');
-      const signed = await state.supabase.auth.signInWithPassword({ email, password });
-      if (signed.error) return out(authErrorMessage(signed.error) || 'Signed up but could not log in — try Sign in.');
-      state.session = signed.data.session;
-    } else {
-      const result = await state.supabase.auth.signInWithPassword({ email, password });
-      if (result.error) return out(authErrorMessage(result.error));
-      state.session = result.data.session;
-      await api('/api/profile', {
-        method: 'POST',
-        body: JSON.stringify({ username: usernameRaw, avatar_url: ctx.getAvatar() || '' })
-      });
-    }
+    if (window.showGlobalLoader) window.showGlobalLoader(signUp ? "Creating Account..." : "Signing In...");
 
-    await refreshProfile();
+    try {
+      if (signUp) {
+        const regRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: usernameRaw,
+            password,
+            avatar_url: ctx.getAvatar() || ''
+          })
+        });
+        const regJson = await regRes.json().catch(() => ({}));
+        if (!regRes.ok) throw new Error(regJson.error || 'Sign up failed.');
+        const signed = await state.supabase.auth.signInWithPassword({ email, password });
+        if (signed.error) throw new Error(authErrorMessage(signed.error) || 'Signed up but could not log in — try Sign in.');
+        state.session = signed.data.session;
+      } else {
+        const result = await state.supabase.auth.signInWithPassword({ email, password });
+        if (result.error) throw new Error(authErrorMessage(result.error));
+        state.session = result.data.session;
+        await api('/api/profile', {
+          method: 'POST',
+          body: JSON.stringify({ username: usernameRaw, avatar_url: ctx.getAvatar() || '' })
+        });
+      }
+
+      await refreshProfile();
+    } catch (e) {
+      out(e.message || 'Authentication failed.');
+    } finally {
+      if (window.hideGlobalLoader) window.hideGlobalLoader();
+    }
   }
 
   async function doUpdateProfile() {
     const newUsername = document.getElementById('fs-edit-user')?.value?.trim() || '';
     if (newUsername.length < 3 || newUsername.length > 32) return out('Use 3–32 characters.');
     
+    if (window.showGlobalLoader) window.showGlobalLoader("Saving Profile...");
     try {
-      out('Updating profile...');
       await api('/api/profile', {
         method: 'POST',
         body: JSON.stringify({ 
@@ -312,6 +320,8 @@
       notify('Profile updated successfully!');
     } catch (e) {
       out(e.message || 'Update failed.');
+    } finally {
+      if (window.hideGlobalLoader) window.hideGlobalLoader();
     }
   }
 
@@ -319,8 +329,8 @@
     const newPass = document.getElementById('fs-new-pass')?.value || '';
     if (newPass.length < 6) return out('Password must be 6+ chars.');
 
+    if (window.showGlobalLoader) window.showGlobalLoader("Updating Password...");
     try {
-      out('Updating password...');
       const { error } = await state.supabase.auth.updateUser({ password: newPass });
       if (error) throw error;
       state.isChangingPassword = false;
@@ -328,6 +338,8 @@
       notify('Password updated success!');
     } catch (e) {
       out(e.message || 'Security update failed.');
+    } finally {
+      if (window.hideGlobalLoader) window.hideGlobalLoader();
     }
   }
 
@@ -365,6 +377,7 @@
   }
 
   async function showLeaderboard() {
+    if (window.showGlobalLoader) window.showGlobalLoader("Fetching Leaders...");
     try {
       const players = await api('/api/leaderboard', { headers: {} });
       lbOut('<b data-i18n="lbTitle" style="color:var(--gold,#c9a84c);letter-spacing:2px;display:block;margin-bottom:12px;">🏆 TOP PLAYERS</b>');
@@ -399,6 +412,8 @@
       if (window.changeLanguage && window.currentLang) window.changeLanguage(window.currentLang);
     } catch (e) {
       lbOut(e.message || 'Failed to load leaderboard.');
+    } finally {
+      if (window.hideGlobalLoader) window.hideGlobalLoader();
     }
   }
 
@@ -407,6 +422,7 @@
       histOut('Sign in to view history.');
       return;
     }
+    if (window.showGlobalLoader) window.showGlobalLoader("Loading History...");
     try {
       const history = await api('/api/history');
       if (!history.length) {
@@ -462,6 +478,8 @@
       if (window.changeLanguage && window.currentLang) window.changeLanguage(window.currentLang);
     } catch (e) {
       histOut(e.message || 'Failed to load history.');
+    } finally {
+      if (window.hideGlobalLoader) window.hideGlobalLoader();
     }
   }
 
