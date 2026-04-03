@@ -732,20 +732,23 @@
 </head>
 
 <body>
-  <div class="dev-banner">
+  <!--<div class="dev-banner">
     <span class="pulp-dot"></span>
     <p><strong data-i18n="betaBannerTitle">Beta Version:</strong> <span data-i18n="betaBannerBody">Chkobba is currently
         in active development, this is a beta version for testing, please report any bugs or issues you find, thank you
         for your help.</span>
     </p>
-  </div>
-  <!-- ── DEBUG PANEL ──
+  </div>-->
+  <!-- ── DEBUG PANEL ──-->
   <div class="debug-panel">
     <div class="debug-title">DEBUG TOOLS</div>
     <button class="debug-btn" onclick="testScoreboard()">Scoreboard</button>
     <button class="debug-btn" onclick="testVictory()">Win Screen</button>
     <button class="debug-btn" onclick="testDefeat()">Loss Screen</button>
-  </div> -->
+    <button class="debug-btn" onclick="testKamyoun()">Kamyoun</button>
+    <button class="debug-btn" onclick="testChkobba()">Chkobba</button>
+    <button class="debug-btn" onclick="test7ayya()">7ayya</button>
+  </div> 
   <div class="bg-logo"></div>
 
   <!-- Tunisian Café Radio Widget (FAB) - Moved for Global Persistence -->
@@ -2569,6 +2572,18 @@
           <button class="menu-btn end-action-btn" id="btn-next-action" data-i18n="playAgain">Play Again</button>
         </div>
       </div> <!-- End of view-game -->
+      <div id="kamyoun-overlay" class="kamyoun-overlay">
+        <div class="kamyoun-content">
+          <h1 class="kamyoun-text">KAMYOUN!</h1>
+          <img src="/img/truck.png" class="kamyoun-truck" alt="Truck">
+          <div class="kamyoun-msg" id="kamyoun-msg"></div>
+          <div class="smoke-container">
+            <div class="smoke"></div>
+            <div class="smoke"></div>
+            <div class="smoke"></div>
+          </div>
+        </div>
+      </div>
 
 
       <script>
@@ -2612,6 +2627,7 @@
         const sfxFire = new Audio('/sound/fire.mp3'); // NEW FIRE SFX
         const sfxCheer = new Audio('/sound/cheer.mp3');
         const sfxLoser = new Audio('/sound/loser.mp3');
+        const sfxTruck = new Audio('/sound/truck.mp3');
         const sfxMenuHover = new Audio('/sound/menuhover.mp3');
         const sfxNewGame = new Audio('/sound/newgame.mp3');
 
@@ -2791,6 +2807,12 @@
           calculateRoundPoints() {
             const s0 = this.calculateScore(this.players[0].pile);
             const s1 = this.calculateScore(this.players[1].pile);
+
+            // --- KAMYOUN CHECK ---
+            const isKamyoun0 = s0.dineri === 10;
+            const isKamyoun1 = s1.dineri === 10;
+            const isKamyoun = isKamyoun0 || isKamyoun1;
+
             const pts = [0, 0];
 
             if (s0.cards > s1.cards) pts[0]++;
@@ -2817,6 +2839,8 @@
               barmila,
               chkobba0: this.players[0].chkobbas.length,
               chkobba1: this.players[1].chkobbas.length,
+              isKamyoun,
+              kamyounWinner: isKamyoun0 ? 0 : (isKamyoun1 ? 1 : -1)
             };
           }
 
@@ -2846,7 +2870,11 @@
               const result = this.engine.checkCapture(card, table);
               if (result.type !== 'none') {
                 for (const captureSet of result.captures) {
-                  allPossibleMoves.push({ card, captured: captureSet, score: this._evalCapture(card, captureSet, table, pile, oppPile, playerIdx) });
+                  allPossibleMoves.push({ 
+                    card, 
+                    captured: captureSet, 
+                    score: this._evalCapture(card, captureSet, table, pile, oppPile, playerIdx) 
+                  });
                 }
               }
             }
@@ -2871,41 +2899,65 @@
           }
 
           _evalCapture(card, captureSet, table, pile, oppPile, playerIdx) {
-            let score = 10;
-            const allCaptured = [card, ...captureSet];
-            if (allCaptured.some(c => c.suit === 'carreau' && c.value === 7)) score += 100;
-            const sevens = allCaptured.filter(c => c.value === 7).length;
-            score += sevens * 40;
-            const sixes = allCaptured.filter(c => c.value === 6).length;
-            score += sixes * 15;
-            const aces = allCaptured.filter(c => c.value === 1).length;
-            score += aces * 8;
-            const dineri = allCaptured.filter(c => c.suit === 'carreau').length;
-            score += dineri * 5;
-            score += captureSet.length * 2;
+            // "Harrag" Bot - expert level scoring
+            let score = 0;
+            const allHandled = [card, ...captureSet];
+
+            // +100 Points: Capture the 7 of Carreau (7 d'Or).
+            if (allHandled.some(c => c.suit === 'carreau' && c.value === 7)) {
+              score += 100;
+            }
+
+            // +50 Points: Capture any other 7 (to win 'Sbe3i').
+            const otherSevens = allHandled.filter(c => c.value === 7 && c.suit !== 'carreau').length;
+            score += (otherSevens * 50);
+
+            // +30 Points: Capture any Carreau (Dinari) card (to win 'Dinari').
+            const carreauCards = allHandled.filter(c => c.suit === 'carreau' && c.value !== 7).length;
+            score += (carreauCards * 30);
+
+            // +10 Points: Per extra card captured (to win 'Bourda').
+            if (captureSet.length > 1) {
+              score += (captureSet.length - 1) * 10;
+            }
+
+            // Base incentive to capture something
+            score += 5;
+
+            // Chkobba bonus
             const tableAfter = table.filter(t => !captureSet.find(c => c.id === t.id));
-            if (tableAfter.length === 0) score += 25;
-            const botSevens = pile.filter(c => c.value === 7).length;
-            const oppSevens = oppPile.filter(c => c.value === 7).length;
-            if (botSevens >= 2 && oppSevens >= 2) score += sixes * 20;
+            if (tableAfter.length === 0) score += 40;
+
             return score;
           }
 
           _chooseBestDiscard(hand, table, playerIdx) {
+            const tableSum = table.reduce((sum, c) => sum + c.value, 0);
+            
             const scored = hand.map(card => {
               let s = 0;
-              if (card.value === 7 && card.suit === 'carreau') s -= 80;
-              if (card.value === 7) s -= 50;
-              if (card.value === 6) s -= 20;
-              if (card.value === 1) s -= 10;
+              // Penalty for high value cards
+              if (card.value === 7 && card.suit === 'carreau') s -= 200;
+              else if (card.value === 7) s -= 100;
+              else if (card.suit === 'carreau') s -= 40;
+              else if (card.value === 6) s -= 20;
+
+              // Defensive rule: prefer making table sum > 10
+              if (this.difficulty === 'expert' || this.difficulty === 'hard') {
+                if (tableSum + card.value < 10) {
+                  s -= 30; // Risky discard
+                }
+              }
+
               const wouldMatchTable = table.some(t => t.value === card.value);
-              if (wouldMatchTable) s -= 15;
-              s += card.value * 0.5;
+              if (wouldMatchTable) s -= 25;
+
+              s += card.value * 1;
               return { card, s };
             });
+
             scored.sort((a, b) => b.s - a.s);
 
-            // Difficulty adjustment for discards
             let chanceOfRandom = 0;
             if (this.difficulty === 'easy') chanceOfRandom = 0.5;
             if (this.difficulty === 'medium') chanceOfRandom = 0.2;
@@ -3121,6 +3173,89 @@
             overlay.style.backdropFilter = 'none';
             overlay.style.background = 'transparent';
           }, 8000);
+        }
+
+        function showKamyounOverlay(winnerIdx) {
+          const overlay = document.getElementById('kamyoun-overlay');
+          const msg = document.getElementById('kamyoun-msg');
+          
+          if (winnerIdx === 0) {
+            msg.textContent = "Automatic Match Victory!";
+          } else {
+            msg.textContent = "Automatic Match Defeat!";
+          }
+
+          overlay.classList.add('show');
+          
+          if (window.sfxEnabled !== false) {
+            sfxTruck.volume = 1.0;
+            sfxTruck.currentTime = 0;
+            sfxTruck.play().catch(e => console.error("Truck SFX error:", e));
+          }
+
+          // Force suppress standard cheer/loss
+          sfxCheer.pause();
+          sfxCheer.currentTime = 0;
+          sfxLoser.pause();
+          sfxLoser.currentTime = 0;
+
+          // Auto-hide after 6 seconds
+          setTimeout(() => {
+            resetFromKamyoun();
+          }, 6000);
+        }
+
+        function resetFromKamyoun() {
+          const overlay = document.getElementById('kamyoun-overlay');
+          if (overlay) overlay.classList.remove('show');
+          sfxTruck.pause();
+          sfxTruck.currentTime = 0;
+        }
+
+        function testKamyoun() {
+          if (!engine) {
+             engine = new GameEngine();
+             engine.players[0].name = "You";
+             engine.players[1].name = "L'Harrag (Bot)";
+          }
+          
+          // Realistic heap: Give Bot (p1) all 10 Dinari cards
+          const allCards = engine._buildDeck();
+          const dineriCards = allCards.filter(c => c.suit === 'carreau');
+          const otherCards = allCards.filter(c => c.suit !== 'carreau').slice(0, 10);
+          
+          engine.players[0].pile = [...otherCards];
+          engine.players[1].pile = [...dineriCards];
+          
+          // Trigger scoreboard
+          showEndScreen();
+          
+          // Force overlay immediately for debug responsiveness (1 = opponent win)
+          setTimeout(() => {
+             showKamyounOverlay(1);
+          }, 100);
+        }
+
+        function testChkobba() {
+          if (window.sfxEnabled !== false) {
+             sfxChkobba.currentTime = 0;
+             sfxChkobba.play().catch(e => console.error("Chkobba sound error:", e));
+          }
+          // Mock toast or badge if applicable
+          if (typeof showGameToast === 'function') {
+             showGameToast("CHKOBBA!", true);
+          }
+        }
+
+        function test7ayya() {
+          if (window.sfxEnabled !== false) {
+             sfx7ayya.currentTime = 0;
+             sfx7ayya.play().catch(e => console.error("7ayya sound error:", e));
+          }
+          // Mock 7ayya toast
+          if (typeof show7ayyaToast === 'function') {
+             show7ayyaToast("Me");
+          }
         }
 
         function showDefeatOverlay() {
@@ -3574,16 +3709,21 @@
 
               totals.forEach((v, i) => { totalScores[i] = v; });
 
+              const isKamyoun = results.isKamyoun;
+              const kamyounWinner = results.kamyounWinner;
+              const myTeamIdx = myPlayerSlot % 2;
+              const isKamyounWinner = isKamyoun && (kamyounWinner === myTeamIdx);
+
               setTimeout(() => {
                 document.getElementById('screen-game').style.display = 'none';
                 document.getElementById('screen-end').style.display = 'flex';
                 
                 const myTeamIdx = myPlayerSlot % 2;
-                const oppTeamIdx = (myPlayerSlot + 1) % 2;
+                const oppTeamIdx = 1 - myTeamIdx;
                 const s0 = totals[myTeamIdx] ?? 0;
                 const s1 = totals[oppTeamIdx] ?? 0;
 
-                let title = 'Round Over', isGameOver = false;
+                let title = isKamyoun ? 'KAMYOUN!' : 'Round Over', isGameOver = false;
                 if (s0 >= winScore || s1 >= winScore) {
                   if (Math.abs(s0 - s1) >= 2) {
                     isGameOver = true;
@@ -3592,12 +3732,19 @@
                 }
                 document.getElementById('endTitle').textContent = title;
 
+                if (isKamyoun) {
+                   setTimeout(() => {
+                     showKamyounOverlay(isKamyounWinner ? 0 : 1);
+                   }, 500);
+                }
+
                 const nBtn = document.getElementById('btn-next-action');
                 nBtn.disabled = false;
-                if (isGameOver) {
+                if (isGameOver || isKamyoun) {
                   nBtn.textContent = 'Main Menu';
                   nBtn.onclick = () => {
                     if (endScreenTimer) clearInterval(endScreenTimer);
+                    resetFromKamyoun();
                     leaveRoom();
                   }
                 } else {
@@ -4488,11 +4635,15 @@
           const leaderIdx = s0 >= s1 ? 0 : 1;
           const gap = Math.abs(s0 - s1);
           const remaining = winScore - s0;
-          if (isGameOver) {
-            matchStatus.textContent = `${engine.players[leaderIdx].name} is the WINNER!`;
-            // Trigger Victory Overlay
+          const isKamyoun = result.isKamyoun;
+          const kamyounWinner = result.kamyounWinner;
+
+          if (isGameOver || isKamyoun) {
+            matchStatus.textContent = isKamyoun ? 'KAMYOUN!' : `${engine.players[leaderIdx].name} is the WINNER!`;
+            // Trigger Victory / Kamyoun Overlay
             setTimeout(() => {
-              if (leaderIdx === 0) showVictoryOverlay(leaderIdx);
+              if (isKamyoun) showKamyounOverlay(kamyounWinner);
+              else if (leaderIdx === 0) showVictoryOverlay(leaderIdx);
               else showDefeatOverlay();
             }, 500);
           } else {
@@ -4502,37 +4653,8 @@
           if (endTable && !document.getElementById('matchStatus')) endTable.after(matchStatus);
 
           const tbody = document.getElementById('scoreTbody'); tbody.innerHTML = '';
-
           const btnNextAction = document.getElementById('btn-next-action');
-          if (isGameOver) {
-            btnNextAction.textContent = 'Main Menu';
-            btnNextAction.onclick = () => {
-              if (endScreenTimer) clearInterval(endScreenTimer);
-              leaveRoom();
-            };
-          } else {
-            // Auto-Timer Logic for single player / pass n play
-            let timeLeftEnd = 60;
-            btnNextAction.textContent = `Next Round (60)`;
-            btnNextAction.onclick = () => {
-              if (endScreenTimer) clearInterval(endScreenTimer);
-              document.getElementById('screen-end').style.display = 'none';
-              document.getElementById('screen-game').style.display = 'flex';
-              engine.reset();
-              updateUI(true);
-              setStatus(`${engine.players[engine.currentPlayer].name}'s turn`);
-            };
-
-            endScreenTimer = setInterval(() => {
-              timeLeftEnd--;
-              if (timeLeftEnd <= 0) {
-                clearInterval(endScreenTimer);
-                btnNextAction.click();
-              } else {
-                btnNextAction.textContent = `Next Round (${timeLeftEnd})`;
-              }
-            }, 1000);
-          }
+          if (endScreenTimer) clearInterval(endScreenTimer);
 
           const rows = [
             { img: 'img/icon_carta.png', v0: result.s0.cards, v1: result.s1.cards, label: 'Carta' },
@@ -4541,69 +4663,123 @@
             { img: 'img/icon_barmila.png', v0: result.barmila === 0 ? 1 : 0, v1: result.barmila === 1 ? 1 : 0, label: 'Barmila' },
             { img: 'img/icon_chkobba.png', v0: result.chkobba0, v1: result.chkobba1, label: 'Chkobba', isChkobba: true },
           ];
-          for (const row of rows) {
+
+          if (isKamyoun) {
+            // In Kamyoun, only show Dineri row with 10/10
+            tbody.innerHTML = '';
             const tr = document.createElement('tr');
-            if (row.isChkobba && (row.v0 > 0 || row.v1 > 0)) tr.classList.add('pulse-win');
-
-            const leftWins = row.v0 > row.v1;
-            const rightWins = row.v1 > row.v0;
-            const isTie = !leftWins && !rightWins;
-            const tieToBaji = row.label === 'Carta' || row.label === 'Dineri' || row.label === 'Barmila';
-            let leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
-            let rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
-
-            if (row.isBoolean) {
-              leftVal = row.v0 ? '✓' : '✗';
-              rightVal = row.v1 ? '✓' : '✗';
-            }
-            // Winner Indicators
-            const arrowLeft = leftWins ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
-            const arrowRight = rightWins ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
-
-            // 3-Column: P1 Score | Icon (with Indicators) | P2 Score
+            tr.className = 'pulse-win';
+            tr.style.background = 'rgba(201, 168, 76, 0.2)';
+            
+            const v0 = kamyounWinner === 0 ? '10' : result.s0.dineri;
+            const v1 = kamyounWinner === 1 ? '10' : result.s1.dineri;
+            
             tr.innerHTML = `
-              <td style="text-align:left; font-weight:${leftWins ? 900 : 700}; color:${leftWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${leftWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${leftVal}</td>
-              <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
-                ${arrowLeft}
-                <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
-                ${arrowRight}
-              </td>
-              <td style="text-align:right; font-weight:${rightWins ? 900 : 700}; color:${rightWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${rightWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${rightVal}</td>
+               <td style="text-align:left; font-weight:900; color:var(--gold)">${v0}</td>
+               <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
+                 <img src="/img/icon_dineri.png" class="scoreboard-icon" style="filter: drop-shadow(0 0 10px var(--gold))">
+               </td>
+               <td style="text-align:right; font-weight:900; color:var(--gold)">${v1}</td>
             `;
             tbody.appendChild(tr);
-          }
-          const trTotal = document.createElement('tr');
-          trTotal.className = 'total-row';
-          const arrowLeftTotal = result.pts[0] > result.pts[1] ? '<span style="color:var(--gold); margin-right:6px; font-size:12px;">◀</span>' : '';
-          const arrowRightTotal = result.pts[1] > result.pts[0] ? '<span style="color:var(--gold); margin-left:6px; font-size:12px;">▶</span>' : '';
+          } else {
+            for (const row of rows) {
+              const tr = document.createElement('tr');
+              if (row.isChkobba && (row.v0 > 0 || row.v1 > 0)) tr.classList.add('pulse-win');
 
-          trTotal.innerHTML = `
-            <td style="text-align:left; font-weight:900; color:${result.pts[0] > result.pts[1] ? 'var(--gold)' : 'var(--parchment)'}">+${result.pts[0]}</td>
-            <td style="display:flex; justify-content:center; align-items:center;">
-              ${arrowLeftTotal}
-              <span class="rachma-label" style="font-size:32px">Rachma</span>
-              ${arrowRightTotal}
-            </td>
-            <td style="text-align:right; font-weight:900; color:${result.pts[1] > result.pts[0] ? 'var(--gold)' : 'var(--parchment)'}">+${result.pts[1]}</td>
-          `;
-          tbody.appendChild(trTotal);
+              const leftWins = row.v0 > row.v1;
+              const rightWins = row.v1 > row.v0;
+              const isTie = !leftWins && !rightWins;
+              const tieToBaji = row.label === 'Carta' || row.label === 'Dineri' || row.label === 'Barmila';
+              let leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
+              let rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
+
+              if (row.isBoolean) {
+                leftVal = row.v0 ? '✓' : '✗';
+                rightVal = row.v1 ? '✓' : '✗';
+              }
+              // Winner Indicators
+              const arrowLeft = leftWins ? '<span style="color:var(--gold); margin-right:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">◀</span>' : '';
+              const arrowRight = rightWins ? '<span style="color:var(--gold); margin-left:8px; font-size:12px; filter:drop-shadow(0 0 3px rgba(201,168,76,0.5)); opacity:0.8">▶</span>' : '';
+
+              // 3-Column: P1 Score | Icon (with Indicators) | P2 Score
+              tr.innerHTML = `
+                <td style="text-align:left; font-weight:${leftWins ? 900 : 700}; color:${leftWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${leftWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${leftVal}</td>
+                <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
+                  ${arrowLeft}
+                  <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
+                  ${arrowRight}
+                </td>
+                <td style="text-align:right; font-weight:${rightWins ? 900 : 700}; color:${rightWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${rightWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${rightVal}</td>
+              `;
+              tbody.appendChild(tr);
+            }
+            const trTotal = document.createElement('tr');
+            trTotal.className = 'total-row';
+            const arrowLeftTotal = result.pts[0] > result.pts[1] ? '<span style="color:var(--gold); margin-right:6px; font-size:12px;">◀</span>' : '';
+            const arrowRightTotal = result.pts[1] > result.pts[0] ? '<span style="color:var(--gold); margin-left:6px; font-size:12px;">▶</span>' : '';
+
+            trTotal.innerHTML = `
+              <td style="text-align:left; font-weight:900; color:${result.pts[0] > result.pts[1] ? 'var(--gold)' : 'var(--parchment)'}">+${result.pts[0]}</td>
+              <td style="display:flex; justify-content:center; align-items:center;">
+                ${arrowLeftTotal}
+                <span class="rachma-label" style="font-size:32px">Rachma</span>
+                ${arrowRightTotal}
+              </td>
+              <td style="text-align:right; font-weight:900; color:${result.pts[1] > result.pts[0] ? 'var(--gold)' : 'var(--parchment)'}">+${result.pts[1]}</td>
+            `;
+            tbody.appendChild(trTotal);
+          }
 
           // Match Status Line
           const mStatus = document.getElementById('matchStatus');
-          const leadingIdx = s0 >= s1 ? 0 : 1;
-          const pointsLeft = winScore - s0;
-          if (isGameOver) {
-            mStatus.innerHTML = `🏁 <span style="color:var(--gold)">${engine.players[leadingIdx].name}</span> is the WINNER!`;
-          } else {
-            mStatus.textContent = ` ${pointsLeft} points left to WIN!`;
+          if (mStatus) {
+            const leadingIdx = (isKamyoun ? kamyounWinner : (s0 >= s1 ? 0 : 1));
+            const pointsLeft = winScore - s0;
+            if (isGameOver || isKamyoun) {
+              mStatus.innerHTML = isKamyoun 
+                 ? `<img src="/img/truck.png" style="height:24px; vertical-align:middle; margin-right:8px; filter: drop-shadow(0 0 5px var(--gold))"> <span style="color:var(--gold)">AUTOMATIC MATCH VICTORY!</span>`
+                 : `🏁 <span style="color:var(--gold)">${engine.players[leadingIdx].name}</span> is the WINNER!`;
+            } else {
+              mStatus.textContent = ` ${pointsLeft} points left to WIN!`;
+            }
           }
 
           const btnGame = document.getElementById('btn-next-action');
           btnGame.classList.add('gold-glow-btn'); // Add glow
-          if (isGameOver) {
-            btnGame.textContent = 'Main Menu'; btnGame.onclick = () => showMenu();
+          btnGame.disabled = false;
+
+          if (isGameOver || isKamyoun) {
+            btnGame.textContent = 'Main Menu'; 
+            btnGame.onclick = () => { 
+                resetFromKamyoun(); 
+                if (mode === 'online') leaveRoom();
+                else showMenu(); 
+            };
           } else {
-            btnGame.textContent = 'Next Round'; btnGame.onclick = () => { btnGame.classList.remove('gold-glow-btn'); startNextRound(); };
+            // Auto-Timer for non-victory rounds
+            let timeLeftEnd = 60;
+            btnGame.textContent = `Next Round (60)`;
+            btnGame.onclick = () => {
+              if (endScreenTimer) clearInterval(endScreenTimer);
+              btnGame.classList.remove('gold-glow-btn'); 
+              if (mode === 'online') {
+                  btnGame.textContent = 'Waiting...';
+                  btnGame.disabled = true;
+                  socket.emit('next-round');
+              } else {
+                  startNextRound();
+              }
+            };
+            endScreenTimer = setInterval(() => {
+               timeLeftEnd--;
+               if (timeLeftEnd <= 0) {
+                 clearInterval(endScreenTimer);
+                 if (!btnGame.disabled) btnGame.click();
+               } else { 
+                 btnGame.textContent = `Next Round (${timeLeftEnd})`; 
+               }
+            }, 1000);
           }
         }
 

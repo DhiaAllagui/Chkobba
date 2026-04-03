@@ -202,6 +202,12 @@ function _calcBarmila(s0, s1) {
 function calculateRoundPoints(state) {
   const s0 = calculateScore(state.piles[0]);
   const s1 = calculateScore(state.piles[1]);
+
+  // --- KAMYOUN CHECK ---
+  const isKamyoun0 = s0.dineri === 10;
+  const isKamyoun1 = s1.dineri === 10;
+  const isKamyoun = isKamyoun0 || isKamyoun1;
+
   const pts = [0, 0];
 
   if (s0.cards > s1.cards) pts[0]++;
@@ -228,6 +234,8 @@ function calculateRoundPoints(state) {
     barmila,
     chkobba0: state.chkobbas[0].length,
     chkobba1: state.chkobbas[1].length,
+    isKamyoun,
+    kamyounWinner: isKamyoun0 ? 0 : (isKamyoun1 ? 1 : -1)
   };
 }
 
