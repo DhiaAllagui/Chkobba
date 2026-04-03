@@ -122,6 +122,19 @@
       'font-family:\'Crimson Pro\',serif', 'font-size:14px', 'box-sizing:border-box'
     ].join(';');
 
+    if (!state.supabase) {
+      const missing = state.configError ? state.configError.join(', ') : 'SUPABASE_URL';
+      node.innerHTML = `
+        <div style="padding:15px; background:rgba(127,29,29,0.2); border:1px solid rgba(239,68,68,0.3); border-radius:8px; color:#fca5a5; font-family:'Crimson Pro',serif; font-size:13px; text-align:center;">
+          <div style="font-weight:bold; margin-bottom:6px; color:#ef4444;">⚠️ CONFIGURATION MISSING</div>
+          The following environment variables are missing on Render: <br>
+          <code style="display:block; background:#000; padding:4px; margin-top:8px; border-radius:4px; color:#fff; font-size:10px;">${missing}</h2>
+          <p style="font-size:11px; margin-top:10px; opacity:0.8;">Make sure to add them in your Render Dashboard settings.</p>
+        </div>
+      `;
+      return;
+    }
+
     if (state.profile) {
       const avatarUrl = state.profile.avatar_url || ctx.getAvatar() || 'img/avatar1.png';
       
@@ -568,20 +581,49 @@
 
   try {
     const cfg = await (await fetch('/api/config')).json();
-    if (!cfg.enabled || !window.supabase?.createClient) return;
-    state.supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-    state.supabase.auth.onAuthStateChange((_event, sess) => {
-      state.session = sess;
-      if (!sess) {
-        state.profile = null;
-        renderAuth();
+    
+    // Always assign these so the UI buttons don't crash or show generic errors
+    window.fsShowLeaderboard = async () => {
+      if (!cfg.enabled) {
+        window.showToast("Leaderboard is unavailable: Server is missing " + (cfg.missingEnv || []).join(', '), 5000);
+        return;
       }
-    });
-    const current = await state.supabase.auth.getSession();
-    state.session = current.data.session;
-    window.chkobbaQueueForMatch = findMatch;
-    window.fsShowLeaderboard = showLeaderboard;
-    window.fsShowHistory = showHistory;
+      await showLeaderboard();
+    };
+
+    window.fsShowHistory = async () => {
+      if (!cfg.enabled) {
+        window.showToast("Match History is unavailable: Server is missing " + (cfg.missingEnv || []).join(', '), 5000);
+        return;
+      }
+      await showHistory();
+    };
+
+    window.chkobbaQueueForMatch = async () => {
+      if (!cfg.enabled) {
+        window.showToast("Ranked Queue is unavailable: Server is missing " + (cfg.missingEnv || []).join(', '), 5000);
+        return;
+      }
+      await findMatch();
+    };
+
+    if (cfg.enabled && window.supabase?.createClient) {
+      state.supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+      state.supabase.auth.onAuthStateChange((_event, sess) => {
+        state.session = sess;
+        if (!sess) {
+          state.profile = null;
+          renderAuth();
+        }
+      });
+      const current = await state.supabase.auth.getSession();
+      state.session = current.data.session;
+      if (state.session) await refreshProfile();
+    } else {
+      console.warn("[CHKOBBA] Supabase features disabled. Missing:", cfg.missingEnv);
+      state.configError = cfg.missingEnv;
+    }
+
     window.chkobbaCancelRankedMatchmaking = async function () {
       try {
         await api('/api/matchmaking/cancel', { method: 'POST' });
@@ -589,7 +631,6 @@
     };
     mountPanel();
     renderAuth();
-    if (state.session) await refreshProfile();
   } catch (e) {
     // Keep legacy frontend running even if Supabase is not configured.
   }
