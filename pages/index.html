@@ -859,157 +859,185 @@
     <div id="view-settings" class="spa-view">
       <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
 
-      <div class="lobby-wrap">
-        <div class="lobby-screen active">
-          <h1 class="lobby-title" data-i18n="settings">SETTINGS</h1>
-          <p class="lobby-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
+      <div class="settings-wrap">
+        <div class="settings-content">
+          <h1 class="settings-title" data-i18n="settings">SETTINGS</h1>
+          <p class="settings-subtitle" data-i18n="gameSubtitle">TUNISIAN CARD GAME</p>
 
-          <div class="lobby-settings" style="width:100%; max-width:520px; margin: 20px 0;">
-            <div class="menu-settings settings-lang" style="width:100%; margin-bottom: 16px;">
-              <div class="lang-selector vertical-list">
-                <label class="lang-option list-item">
-                  <input type="radio" name="lang" value="en" onclick="changeLanguage('en')">
-                  <img src="/img/usa.png" alt="EN">
-                  <span class="lang-name">English</span>
-                </label>
-                <label class="lang-option list-item">
-                  <input type="radio" name="lang" value="fr" onclick="changeLanguage('fr')">
-                  <img src="/img/fr.png" alt="FR">
-                  <span class="lang-name">Français</span>
-                </label>
-                <label class="lang-option list-item">
-                  <input type="radio" name="lang" value="ar" onclick="changeLanguage('ar')">
-                  <img src="/img/tu.png" alt="AR">
-                  <span class="lang-name">العربية</span>
-                </label>
-              </div>
+          <!-- LANGUAGE SECTION -->
+          <div class="settings-section">
+            <h3 class="settings-section-label" data-i18n="language">LANGUAGE</h3>
+            <div class="language-grid">
+              <button class="language-card" onclick="changeLanguage('en')">
+                <img src="/img/usa.png" alt="English" class="lang-flag">
+                <span class="lang-name" data-i18n="english">ENGLISH</span>
+              </button>
+              <button class="language-card" onclick="changeLanguage('fr')">
+                <img src="/img/fr.png" alt="Français" class="lang-flag">
+                <span class="lang-name" data-i18n="french">FRANÇAIS</span>
+              </button>
+              <button class="language-card" onclick="changeLanguage('ar')">
+                <img src="/img/tu.png" alt="العربية" class="lang-flag">
+                <span class="lang-name" data-i18n="arabic">العربية</span>
+              </button>
             </div>
+          </div>
 
-            <div class="settings-row" style="align-items:flex-start;">
-              <span class="settings-label" data-i18n="tableThemeLabel">TABLE THEME</span>
-              <div class="table-theme-grid" id="table-theme-grid">
-                <button type="button" class="table-theme-option" data-theme="classic"
-                  onclick="applyTableTheme('classic')">
-                  <span class="table-theme-swatch theme-classic"></span>
-                  <span class="table-theme-name" data-i18n="themeClassic">Classic</span>
-                </button>
-                <button type="button" class="table-theme-option" data-theme="midnight"
-                  onclick="applyTableTheme('midnight')">
-                  <span class="table-theme-swatch theme-midnight"></span>
-                  <span class="table-theme-name" data-i18n="themeMidnight">Midnight</span>
-                </button>
-                <button type="button" class="table-theme-option" data-theme="desert"
-                  onclick="applyTableTheme('desert')">
-                  <span class="table-theme-swatch theme-desert"></span>
-                  <span class="table-theme-name" data-i18n="themeDesert">Desert</span>
-                </button>
-                <button type="button" class="table-theme-option" data-theme="royal" onclick="applyTableTheme('royal')">
-                  <span class="table-theme-swatch theme-royal"></span>
-                  <span class="table-theme-name" data-i18n="themeRoyal">Royal</span>
-                </button>
-                <button type="button" class="table-theme-option" data-theme="pink" onclick="applyTableTheme('pink')">
-                  <span class="table-theme-swatch theme-pink"></span>
-                  <span class="table-theme-name" data-i18n="themePink">Pink</span>
-                </button>
-                <button type="button" class="table-theme-option" data-theme="sunset"
-                  onclick="applyTableTheme('sunset')">
-                  <span class="table-theme-swatch theme-sunset"></span>
-                  <span class="table-theme-name" data-i18n="themeSunset">Sunset</span>
-                </button>
-              </div>
+          <!-- TABLE THEME SECTION -->
+          <div class="settings-section">
+            <h3 class="settings-section-label" data-i18n="tableThemeLabel">TABLE THEME</h3>
+            <div class="theme-grid" id="table-theme-grid">
+              <button type="button" class="theme-card" data-theme="classic" onclick="applyTableTheme('classic')">
+                <span class="theme-swatch theme-classic"></span>
+                <span class="theme-name" data-i18n="themeClassic">CLASSIC</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="midnight" onclick="applyTableTheme('midnight')">
+                <span class="theme-swatch theme-midnight"></span>
+                <span class="theme-name" data-i18n="themeMidnight">MIDNIGHT</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="desert" onclick="applyTableTheme('desert')">
+                <span class="theme-swatch theme-desert"></span>
+                <span class="theme-name" data-i18n="themeDesert">DESERT</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="royal" onclick="applyTableTheme('royal')">
+                <span class="theme-swatch theme-royal"></span>
+                <span class="theme-name" data-i18n="themeRoyal">ROYAL</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="pink" onclick="applyTableTheme('pink')">
+                <span class="theme-swatch theme-pink"></span>
+                <span class="theme-name" data-i18n="themePink">PINK</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="sunset" onclick="applyTableTheme('sunset')">
+                <span class="theme-swatch theme-sunset"></span>
+                <span class="theme-name" data-i18n="themeSunset">SUNSET</span>
+              </button>
             </div>
+          </div>
 
-            <div class="settings-row">
-              <span class="settings-label" data-i18n="cardBackLabel">CARD BACK</span>
-              <div class="back-carousel-container">
-                <button class="carousel-arrow" id="prev-back" onclick="moveCarousel(-1)">&#8249;</button>
-                <div class="carousel-viewport">
-                  <div class="back-picker" id="back-picker">
-                    <img class="back-option selected" src="/cards/back.png" data-back="back.png" title="Default">
-                    <img class="back-option" src="/cards/back1.png" data-back="back1.png" title="Blue">
-                    <img class="back-option" src="/cards/back2.png" data-back="back2.png" title="Majestic">
-                    <img class="back-option" src="/cards/back3.png" data-back="back3.png" title="Vintage">
-                    <img class="back-option" src="/cards/back4.png" data-back="back4.png" title="Modern">
-                    <img class="back-option" src="/cards/back5.png" data-back="back5.png" title="Golden">
-                    <img class="back-option" src="/cards/back6.png" data-back="back6.png" title="Tunisia">
-                    <img class="back-option" src="/cards/back8.png" data-back="back8.png" title="Palestine">
-                  </div>
+          <!-- CARD BACK SECTION -->
+          <div class="settings-section">
+            <h3 class="settings-section-label" data-i18n="cardBackLabel">CARD BACK</h3>
+            <div class="back-carousel-container">
+              <button class="carousel-arrow" id="prev-back" onclick="moveCarousel(-1)">&#8249;</button>
+              <div class="carousel-viewport">
+                <div class="back-picker" id="back-picker">
+                  <img class="back-option selected" src="/cards/back.png" data-back="back.png" title="Default">
+                  <img class="back-option" src="/cards/back1.png" data-back="back1.png" title="Blue">
+                  <img class="back-option" src="/cards/back2.png" data-back="back2.png" title="Majestic">
+                  <img class="back-option" src="/cards/back3.png" data-back="back3.png" title="Vintage">
+                  <img class="back-option" src="/cards/back4.png" data-back="back4.png" title="Modern">
+                  <img class="back-option" src="/cards/back5.png" data-back="back5.png" title="Golden">
+                  <img class="back-option" src="/cards/back6.png" data-back="back6.png" title="Tunisia">
+                  <img class="back-option" src="/cards/back8.png" data-back="back8.png" title="Palestine">
                 </div>
-                <button class="carousel-arrow" id="next-back" onclick="moveCarousel(1)">&#8250;</button>
               </div>
+              <button class="carousel-arrow" id="next-back" onclick="moveCarousel(1)">&#8250;</button>
             </div>
+          </div>
 
-            <div class="settings-row">
-              <label class="settings-check-label">
-                <input type="checkbox" id="menu-sfx" checked>
-                <span class="settings-check-custom"></span>
-                <span class="sound-label">
-                  <img class="icon-vol" src="/img/volumeup.png" alt="Vol">
-                  <span data-i18n="sfxLabel">Enable Sound Effects</span>
-                </span>
-              </label>
-            </div>
+          <!-- AUDIO & DISPLAY SECTION -->
+          <div class="settings-section">
+            <h3 class="settings-section-label" data-i18n="audioDisplay">AUDIO & DISPLAY</h3>
+            <div class="settings-controls">
+              <div class="settings-option">
+                <label class="settings-check-label">
+                  <input type="checkbox" id="menu-sfx" checked>
+                  <span class="settings-check-custom"></span>
+                  <img src="/img/volumeup.png" alt="Sound" class="option-icon">
+                  <span data-i18n="sfxLabel">ENABLE SOUND EFFECTS</span>
+                </label>
+              </div>
 
-            <div class="side-nav-links" style="margin-top: 10px;">
-              <button class="side-nav-link" onclick="handleNavAction('fullscreen')">
-                <img src="/img/fullscreen.png" class="btn-icon">
-                <span data-i18n="fullscreen">Fullscreen</span>
+              <button class="settings-button" onclick="handleNavAction('fullscreen')">
+                <img src="/img/fullscreen.png" alt="Fullscreen" class="option-icon">
+                <span data-i18n="fullscreen">FULLSCREEN</span>
               </button>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
     <!-- ══ SINGLE PLAYER SETTINGS SCREEN ══ -->
     <div id="view-single-settings" class="spa-view">
       <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
 
-      <div class="lobby-wrap">
+      <div class="lobby-wrap single-player-wrap">
         <div class="lobby-screen active">
           <h1 class="lobby-title" data-i18n="singleTitle">Solo</h1>
-          <p class="lobby-subtitle" data-i18n="singleSub">Game Settings</p>
+          <p class="lobby-subtitle" data-i18n="singleSub">Choose Your Opponent</p>
 
-          <div class="lobby-settings" style="width:100%; max-width:400px; margin: 20px 0;">
-            <div style="margin-bottom: 24px;">
-              <div class="lobby-settings-label" data-i18n="botDiff">BOT DIFFICULTY</div>
-
-              <!-- Bot Identity Preview -->
-              <div id="bot-identity-preview"
-                style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(201,168, 76, 0.15);">
-                <img id="preview-bot-img" src="/img/medium.png"
-                  style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;">
-                <div style="display: flex; flex-direction: column;">
-                  <span id="preview-bot-name"
-                    style="color: var(--gold); font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;">Hamdi
-                    (Medium)</span>
-                  <span
-                    style="color: var(--gold-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Opponent</span>
-                </div>
+          <!-- BOT DIFFICULTY CARDS GRID -->
+          <div class="bot-cards-grid">
+            <!-- Sami (Easy) -->
+            <div class="bot-card" data-difficulty="easy" onclick="selectBotDifficulty('easy')">
+              <div class="bot-card-avatar">
+                <img src="/img/easy.png" alt="Sami" class="bot-avatar-img">
               </div>
-
-              <select class="settings-input" id="single-difficulty" onchange="updateBotPreview()"
-                style="width:100%; background: rgba(255,255,255,0.05); border: 1px solid var(--gold-dim); color: var(--gold); padding: 12px; border-radius: 8px;">
-                <option value="easy">Sami(Easy)</option>
-                <option value="medium" selected>Hamdi(Medium)</option>
-                <option value="hard">M3allem(Hard)</option>
-                <option value="expert">Lpatron(Expert)</option>
-              </select>
+              <div class="bot-card-content">
+                <h3 class="bot-card-name">Youssef</h3>
+                <p class="bot-card-level"><span class="difficulty-badge easy">EASY</span></p>
+                <p class="bot-card-desc">Basic. Good for warm-up.</p>
+              </div>
+              <div class="bot-card-selector"></div>
             </div>
 
-            <div style="margin-bottom: 32px;">
-              <div class="lobby-settings-label" data-i18n="targetScore">TARGET SCORE</div>
-              <select class="settings-input" id="single-target-score"
-                style="width:100%; background: rgba(255,255,255,0.05); border: 1px solid var(--gold-dim); color: var(--gold); padding: 12px; border-radius: 8px;">
-                <option value="21" selected>21 Points (Classic)</option>
-                <option value="11">11 Points (Blitz)</option>
-              </select>
+            <!-- Hamdi (Medium) -->
+            <div class="bot-card selected" data-difficulty="medium" onclick="selectBotDifficulty('medium')">
+              <div class="bot-card-avatar">
+                <img src="/img/medium.png" alt="Hamdi" class="bot-avatar-img">
+              </div>
+              <div class="bot-card-content">
+                <h3 class="bot-card-name">Morad</h3>
+                <p class="bot-card-level"><span class="difficulty-badge medium">MEDIUM</span></p>
+                <p class="bot-card-desc">Plays smart. Knows most rules.</p>
+              </div>
+              <div class="bot-card-selector"></div>
             </div>
 
-            <button class="menu-btn" onclick="launch('single')"
-              style="width:100%; margin:0; height: 56px; font-size: 18px;">
-              <img src="/img/singleplayer.png" class="btn-icon"> <span data-i18n="playBtn">PLAY CHKOBBA</span>
+            <!-- M3allem (Hard) -->
+            <div class="bot-card" data-difficulty="hard" onclick="selectBotDifficulty('hard')">
+              <div class="bot-card-avatar">
+                <img src="/img/hard.png" alt="M3allem" class="bot-avatar-img">
+              </div>
+              <div class="bot-card-content">
+                <h3 class="bot-card-name">M3allem</h3>
+                <p class="bot-card-level"><span class="difficulty-badge hard">HARD</span></p>
+                <p class="bot-card-desc">Defensive & aggressive. Card memory-tracked.</p>
+              </div>
+              <div class="bot-card-selector"></div>
+            </div>
+
+            <!-- Patron (Expert) -->
+            <div class="bot-card" data-difficulty="expert" onclick="selectBotDifficulty('expert')">
+              <div class="bot-card-avatar">
+                <img src="/img/expert.png" alt="Patron" class="bot-avatar-img">
+              </div>
+              <div class="bot-card-content">
+                <h3 class="bot-card-name">Patron</h3>
+                <p class="bot-card-level"><span class="difficulty-badge expert">EXPERT</span></p>
+                <p class="bot-card-desc">The ultimate. Chkobba royalty. Plays perfect.</p>
+              </div>
+              <div class="bot-card-selector"></div>
+            </div>
+          </div>
+
+          <!-- SCORE SELECTOR BUTTONS -->
+          <div class="score-selector-container">
+            <button class="score-btn" data-score="11" onclick="selectTargetScore(11)">
+              <span class="score-value">11</span>
+              <span class="score-label">POINTS (SHORT)</span>
+            </button>
+            <button class="score-btn selected" data-score="21" onclick="selectTargetScore(21)">
+              <span class="score-value">21</span>
+              <span class="score-label">POINTS (CLASSIC)</span>
             </button>
           </div>
+
+          <!-- PLAY BUTTON -->
+          <button class="menu-btn single-play-btn" onclick="launch('single')" style="width: 90%; max-width: 360px; margin: 0 auto; height: 56px; font-size: 18px; margin-top: 20px;">
+            <img src="/img/singleplayer.png" class="btn-icon"> <span data-i18n="playBtn">PLAY CHKOBBA</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1051,71 +1079,91 @@
     <!-- VIEW LOBBY -->
     <div id="view-lobby" class="spa-view">
 
-
       <!-- Back arrow -->
       <button class="lobby-back-btn" onclick="leaveRoom()" title="Back to Menu">←</button>
 
-      <div class="lobby-wrap">
+      <div class="lobby-wrap multiplayer-wrap">
         <!-- ─────────────── SCREEN 1: CHOICE ─────────────── -->
         <div class="lobby-screen active" id="screen-choice">
           <h1 class="lobby-title" data-i18n="multiTitle">MULTIPLAYER</h1>
           <p class="lobby-subtitle" data-i18n="multiSub">Play with your friend</p>
 
-          <div class="lobby-category">
-            <h3 class="category-title" data-i18n="catProfile">PROFILE</h3>
-            <button class="lobby-choice-btn" onclick="showView('view-account')">
-              <span class="lobby-choice-icon"><img src="/img/account.png" class="lobby-choice-img" alt=""></span>
-              <span class="lobby-choice-text">
-                <strong data-i18n="btnMyAcc">My Account</strong>
-                <small data-i18n="subMyAcc">SIGN IN & PROFILE</small>
-              </span>
-            </button>
-          </div>
-          <div class="lobby-category">
-            <h3 class="category-title" data-i18n="catMatchmaking">MATCHMAKING</h3>
-            <button class="lobby-choice-btn" onclick="goCreate()">
-              <span class="lobby-choice-icon"><img src="/img/create.png" class="lobby-choice-img" alt=""></span>
-              <span class="lobby-choice-text">
-                <strong data-i18n="createParty">Create a Party</strong>
-                <small data-i18n="createPartySub">GENERATE A CODE — INVITE YOUR FRIEND</small>
-              </span>
-            </button>
-
-            <button class="lobby-choice-btn" onclick="goJoin()">
-              <span class="lobby-choice-icon"><img src="/img/join.png" class="lobby-choice-img" alt=""></span>
-              <span class="lobby-choice-text">
-                <strong data-i18n="joinParty">Join a Party</strong>
-                <small data-i18n="joinPartySub">ENTER YOUR FRIEND'S CODE</small>
-              </span>
-            </button>
-
-            <button type="button" class="lobby-choice-btn lobby-choice-btn--queue" onclick="queueForGlobalMatch()">
-              <span class="lobby-choice-icon"><img src="/img/findmatch.png" class="lobby-choice-img" alt=""></span>
-              <span class="lobby-choice-text">
-                <strong data-i18n="findMatchBtn">Find a match</strong>
-                <small data-i18n="findMatchSub">QUEUE FOR A RANDOM OPPONENT (Classic: 21 Pts)</small>
-              </span>
-            </button>
+          <!-- PROFILE SECTION -->
+          <div class="multiplayer-section">
+            <h3 class="section-label" data-i18n="catProfile">PROFILE</h3>
+            <div class="multiplayer-cards-grid">
+              <button class="multiplayer-card" onclick="showView('view-account')">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/account.png" alt="My Account" class="card-icon-img">
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="btnMyAcc">MY ACCOUNT</h4>
+                  <p class="multiplayer-card-desc" data-i18n="subMyAcc">Sign in & Profile</p>
+                </div>
+              </button>
+            </div>
           </div>
 
+          <!-- MATCHMAKING SECTION -->
+          <div class="multiplayer-section">
+            <h3 class="section-label" data-i18n="catMatchmaking">MATCHMAKING</h3>
+            <div class="multiplayer-cards-grid three-columns">
+              <button class="multiplayer-card" onclick="goCreate()">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/create.png" alt="Create Party" class="card-icon-img">
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="createParty">CREATE A PARTY</h4>
+                  <p class="multiplayer-card-desc" data-i18n="createPartySub">Generate code — Invite friend</p>
+                </div>
+              </button>
 
-          <div class="lobby-category">
-            <h3 class="category-title" data-i18n="catAnalytics">ANALYTICS</h3>
-            <button class="lobby-choice-btn" onclick="if(typeof window.fsShowLeaderboard==='function'){ window.fsShowLeaderboard(); showView('view-leaderboard'); } else { if(typeof window.showToast==='function') window.showToast('Leaderboard needs Supabase configured.',4000); }">
-              <span class="lobby-choice-icon"><img src="/img/topplayers.png" class="lobby-choice-img" alt=""></span>
-              <span class="lobby-choice-text">
-                <strong data-i18n="btnTop">Top Players</strong>
-                <small data-i18n="subTop">GLOBAL LEADERBOARD</small>
-              </span>
-            </button>
+              <button class="multiplayer-card" onclick="goJoin()">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/join.png" alt="Join Party" class="card-icon-img">
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="joinParty">JOIN A PARTY</h4>
+                  <p class="multiplayer-card-desc" data-i18n="joinPartySub">Enter friend's code</p>
+                </div>
+              </button>
 
-            <button class="lobby-choice-btn" onclick="if(typeof window.fsShowHistory==='function'){ window.fsShowHistory(); showView('view-history'); } else { if(typeof window.showToast==='function') window.showToast('Match history needs Supabase configured.',4000); }">
-              <span class="lobby-choice-icon"><img src="/img/history.png" class="lobby-choice-img" alt=""></span>
-              <span class="lobby-choice-text">
-                <strong data-i18n="btnHist">Match History</strong>
-                <small data-i18n="subHist">YOUR RECENT MATCHES</small>
-              </span>
-            </button>
+              <button class="multiplayer-card queue-card" type="button" onclick="queueForGlobalMatch()">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/findmatch.png" alt="Find Match" class="card-icon-img">
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="findMatchBtn">FIND A MATCH</h4>
+                  <p class="multiplayer-card-desc" data-i18n="findMatchSub">Random opponent (21 Pts)</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- ANALYTICS SECTION -->
+          <div class="multiplayer-section">
+            <h3 class="section-label" data-i18n="catAnalytics">ANALYTICS</h3>
+            <div class="multiplayer-cards-grid two-columns">
+              <button class="multiplayer-card leaderboard-card" onclick="if(typeof window.fsShowLeaderboard==='function'){ window.fsShowLeaderboard(); showView('view-leaderboard'); } else { if(typeof window.showToast==='function') window.showToast('Leaderboard needs Supabase configured.',4000); }">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/topplayers.png" alt="Top Players" class="card-icon-img">
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="btnTop">TOP PLAYERS</h4>
+                  <p class="multiplayer-card-desc" data-i18n="subTop">Global Leaderboard</p>
+                </div>
+              </button>
+
+              <button class="multiplayer-card" onclick="if(typeof window.fsShowHistory==='function'){ window.fsShowHistory(); showView('view-history'); } else { if(typeof window.showToast==='function') window.showToast('Match history needs Supabase configured.',4000); }">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/history.png" alt="Match History" class="card-icon-img">
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="btnHist">MATCH HISTORY</h4>
+                  <p class="multiplayer-card-desc" data-i18n="subHist">Your Recent Matches</p>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1522,9 +1570,7 @@
         const sfx = document.getElementById('menu-sfx').checked;
 
         if (m === 'single') {
-          const score = document.getElementById('single-target-score').value;
-          const difficulty = document.getElementById('single-difficulty').value;
-          startGame('single', name, sfx, back, score, difficulty);
+          startGame('single', name, sfx, back, selectedTargetScore, selectedBotDifficulty);
           showView('view-game');
         } else {
           showView('view-lobby');
@@ -2466,6 +2512,8 @@
               <span data-i18n="howToPlay">How to Play</span></button>
             <button class="side-nav-link" onclick="handleNavAction('fullscreen')"><img src="/img/fullscreen.png"
                 class="btn-icon"> <span data-i18n="fullscreen">Fullscreen</span></button>
+            <button class="side-nav-link" onclick="handleNavAction('mute')" id="side-mute-btn"><img id="side-mute-icon" src="/img/volumeup.png" class="btn-icon">
+              <span id="side-mute-text">Mute</span></button>
             <button class="side-nav-link" onclick="handleNavAction('menu')"><img src="/img/menu.png" class="btn-icon">
               <span data-i18n="mainMenu">Main Menu</span></button>
           </div>
@@ -2657,17 +2705,44 @@
           expert: { name: "Lpatron (Expert)", img: "/img/expert.png" }
         };
 
-        function updateBotPreview() {
-          const level = document.getElementById('single-difficulty').value;
-          const data = botData[level];
+        // ── SINGLE PLAYER SELECTION STATE ──
+        let selectedBotDifficulty = 'medium';
+        let selectedTargetScore = 21;
 
-          if (data) {
-            document.getElementById('preview-bot-img').src = data.img;
-            document.getElementById('preview-bot-name').textContent = data.name;
+        function selectBotDifficulty(difficulty) {
+          selectedBotDifficulty = difficulty;
+
+          // Update visual selection
+          document.querySelectorAll('.bot-card').forEach(card => {
+            card.classList.remove('selected');
+          });
+          document.querySelector(`.bot-card[data-difficulty="${difficulty}"]`).classList.add('selected');
+
+          // Update expert mode visual
+          if (difficulty === 'expert') {
+            document.body.classList.add('expert-mode');
+            document.body.classList.remove('multiplayer-mode');
+          } else {
+            document.body.classList.remove('expert-mode');
           }
+        }
+
+        function selectTargetScore(score) {
+          selectedTargetScore = score;
+
+          // Update visual selection
+          document.querySelectorAll('.score-btn').forEach(btn => {
+            btn.classList.remove('selected');
+          });
+          document.querySelector(`.score-btn[data-score="${score}"]`).classList.add('selected');
+        }
+
+        function updateBotPreview() {
+          // Legacy function kept for compatibility - now handled by selectBotDifficulty
+          selectBotDifficulty(selectedBotDifficulty);
 
           // Expert Mode Visual Alert toggle on BODY (to preserve stripes/logo)
-          if (level === 'expert') {
+          if (selectedBotDifficulty === 'expert') {
             document.body.classList.add('expert-mode');
             document.body.classList.remove('multiplayer-mode');
           } else {
@@ -3443,6 +3518,11 @@
           if (action === 'rules') showRules();
           else if (action === 'menu') showMenu();
           else if (action === 'fullscreen') toggleFullscreen();
+          else if (action === 'mute') {
+            if (typeof window.radioPlayer !== 'undefined' && window.radioPlayer.toggleMute) {
+              window.radioPlayer.toggleMute();
+            }
+          }
         }
 
         // Attach listener to Yes button (needs to be done once, but here is safe)

@@ -112,11 +112,19 @@
   function toggleMute() {
     isMuted = !isMuted;
     audio.volume = isMuted ? 0 : userVolume;
+    
+    // Update radio widget mute button
     const btn = document.getElementById('radio-mute-btn');
     if (btn) {
       const muteImg = btn.querySelector('img');
       if (muteImg) muteImg.src = isMuted ? '../img/volumedown.png' : '../img/volumeup.png';
       btn.title = isMuted ? 'Unmute' : 'Mute';
+    }
+    
+    // Update side-nav mute button icon
+    const sideMuteIcon = document.getElementById('side-mute-icon');
+    if (sideMuteIcon) {
+      sideMuteIcon.src = isMuted ? '/img/volumedown.png' : '/img/volumeup.png';
     }
   }
 
