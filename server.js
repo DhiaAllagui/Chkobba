@@ -14,24 +14,6 @@ const io = new Server(server, {
 });
 
 // Utility for game logic
-function generateDeck() {
-  const suits = ['carreau', 'coeur', 'trefel', 'pique'];
-  const deck = [];
-  for (const suit of suits) {
-    for (let v = 1; v <= 10; v++) {
-      deck.push({ suit, value: v, id: `${v}${suit}` });
-    }
-  }
-  shuffle(deck);
-  return deck;
-}
-
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
 
 // ----- Static assets -----
 // Serve pages folder at root, and root folder for css/js/img etc.

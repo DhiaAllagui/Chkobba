@@ -9,13 +9,13 @@
 (function () {
   // ── Playlist ── Add/edit filenames to match your /music/ folder ─────────────
   const PLAYLIST = [
-    'Yrouli.mp3',
-    'Taht el Yasmina fellil.mp3',
+    'yrouli.mp3',
+    'tahtyasmina.mp3',
     'dernier but.mp3',
     '7oumani.mp3',
-    'nadi canadi.mp3'
+    'nadi canadi.mp3',
   ];
-
+  
   const MUSIC_BASE = '../sound/';
 
   // ── State ────────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@
     const btn = document.getElementById('radio-mute-btn');
     if (btn) {
       const muteImg = btn.querySelector('img');
-      if (muteImg) muteImg.src = isMuted ? '../img/volumedown.png' : '../img/volumeup.png';
+      if (muteImg) muteImg.src = isMuted ? '/img/volumedown.png' : '/img/volumeup.png';
       btn.title = isMuted ? 'Unmute' : 'Mute';
     }
     

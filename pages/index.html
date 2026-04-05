@@ -145,58 +145,73 @@
 
     /* Party code display */
     .party-code-wrap {
-      background: linear-gradient(135deg, rgba(201, 168, 76, 0.06), rgba(201, 168, 76, 0.02));
-      border: 2px solid rgba(201, 168, 76, 0.4);
-      border-radius: 16px;
-      padding: 24px 32px;
-      text-align: center;
       width: 100%;
+      background: rgba(201, 168, 76, 0.06);
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      border-radius: 24px;
+      padding: 26px;
+      text-align: center;
+      overflow: visible;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 35px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
     }
 
     .party-code-label {
       font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: 4px;
-      color: var(--gold);
-      opacity: 0.9;
-      margin-bottom: 10px;
+      font-size: 11px;
+      letter-spacing: 0.35em;
+      color: rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+      margin-bottom: 0;
     }
 
     .party-code {
       font-family: 'Cinzel', serif;
-      font-size: clamp(32px, 10vw, 48px);
+      font-size: clamp(28px, 6vw, 42px);
       color: var(--gold);
-      letter-spacing: 8px;
-      text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+      letter-spacing: 0.35em;
+      text-shadow: 0 0 18px rgba(201, 168, 76, 0.35);
+      background: rgba(0, 0, 0, 0.28);
+      padding: 14px 22px;
+      border-radius: 16px;
+      min-width: 220px;
     }
 
     .party-code-actions {
       display: flex;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 12px;
       justify-content: center;
-      margin-top: 14px;
+      width: 100%;
+      margin-top: 0;
     }
 
     .code-share-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid rgba(201, 168, 76, 0.3);
-      background: rgba(201, 168, 76, 0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(201, 168, 76, 0.35);
+      background: rgba(0, 0, 0, 0.38);
       color: var(--gold);
       font-family: 'Cinzel', serif;
-      font-size: 10px;
-      letter-spacing: 1px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
       cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
       text-decoration: none;
     }
 
     .code-share-btn:hover {
-      background: rgba(201, 168, 76, 0.2);
       border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.12);
+      transform: translateY(-1px);
     }
 
     /* Settings toggles */
@@ -209,6 +224,7 @@
       display: flex;
       flex-direction: column;
       gap: 14px;
+      overflow: visible;
     }
 
     .lobby-settings-label {
@@ -221,25 +237,34 @@
 
     .toggle-row {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .toggle-btn {
       flex: 1;
-      padding: 9px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(201, 168, 76, 0.2);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--parchment);
+      min-width: 110px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(201, 168, 76, 0.28);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--cream);
       font-family: 'Cinzel', serif;
-      font-size: 11px;
-      letter-spacing: 1px;
+      font-size: 13px;
+      letter-spacing: 0.08em;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .toggle-btn:hover:not(:disabled) {
+      border-color: rgba(201, 168, 76, 0.5);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-1px);
     }
 
     .toggle-btn.active {
-      background: rgba(201, 168, 76, 0.18);
+      background: rgba(201, 168, 76, 0.15);
       border-color: var(--gold);
       color: var(--gold);
     }
@@ -368,28 +393,64 @@
     /* Join screen */
     .join-input {
       width: 100%;
-      padding: 16px 20px;
-      background: var(--glass);
-      border: 1px solid rgba(201, 168, 76, 0.3);
-      border-radius: 10px;
-      color: var(--gold);
+      max-width: 320px;
+      padding: 16px 18px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 2px solid rgba(201, 168, 76, 0.35);
+      border-radius: 16px;
+      color: var(--cream);
       font-family: 'Cinzel', serif;
-      font-size: 22px;
-      letter-spacing: 6px;
+      font-size: 18px;
+      letter-spacing: 0.25em;
       text-align: center;
       outline: none;
       text-transform: uppercase;
-      transition: border-color 0.2s;
+      transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease;
+      margin: 0 auto;
     }
 
     .join-input::placeholder {
-      color: rgba(201, 168, 76, 0.3);
-      letter-spacing: 4px;
+      color: rgba(201, 168, 76, 0.35);
+      letter-spacing: 0.2em;
       font-size: 14px;
     }
 
     .join-input:focus {
       border-color: var(--gold);
+      background: rgba(0, 0, 0, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      width: auto;
+      padding: 10px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .back-btn {
+      align-self: center;
+      margin-bottom: 8px;
+    }
+
+    .wide-btn {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
     }
 
     .join-error {
@@ -405,7 +466,27 @@
       display: block;
     }
 
-    /* Start game button */
+    .lobby-screen#screen-host,
+    .lobby-screen#screen-join-input,
+    .lobby-screen#screen-guest-wait {
+      width: 100%;
+      max-width: 520px;
+      gap: 20px;
+    }
+
+    .join-input {
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .lobby-screen#screen-join-input .menu-btn,
+    .lobby-screen#screen-host .code-share-btn,
+    .lobby-screen#screen-guest-wait .menu-btn {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
     .start-game-btn {
       width: 100%;
       padding: 16px;
@@ -1045,33 +1126,33 @@
     <!-- NEW VIEWS FOR ACCOUNT, LEADERBOARD, HISTORY -->
     <div id="view-account" class="spa-view">
       <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
-      <div class="lobby-wrap">
-        <div class="lobby-screen active">
-          <h1 class="lobby-title" data-i18n="accTitle">MY ACCOUNT</h1>
-          <p class="lobby-subtitle" data-i18n="accSub">Manage your profile & login</p>
-          <div id="account-panel-slot"></div>
+      <div class="page-content-wrap">
+        <div class="page-content">
+          <h1 class="page-title" data-i18n="accTitle">MY ACCOUNT</h1>
+          <p class="page-subtitle" data-i18n="accSub">Manage your profile & login</p>
+          <div id="account-panel-slot" class="content-panel"></div>
         </div>
       </div>
     </div>
 
     <div id="view-leaderboard" class="spa-view">
       <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
-      <div class="lobby-wrap">
-        <div class="lobby-screen active">
-          <h1 class="lobby-title" data-i18n="lbTitle">TOP PLAYERS</h1>
-          <p class="lobby-subtitle" data-i18n="lbSub">Global Leaderboard</p>
-          <div id="leaderboard-out" style="width:100%;background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.01));border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:14px 16px;overflow:auto;font-family:'Crimson Pro',serif;font-size:13px;color:var(--parchment,#f5e6c8);"></div>
+      <div class="page-content-wrap">
+        <div class="page-content">
+          <h1 class="page-title" data-i18n="lbTitle">TOP PLAYERS</h1>
+          <p class="page-subtitle" data-i18n="lbSub">Global Leaderboard</p>
+          <div id="leaderboard-out" class="content-panel"></div>
         </div>
       </div>
     </div>
 
     <div id="view-history" class="spa-view">
       <button class="lobby-back-btn" onclick="showView('view-menu')" title="Back to Menu">←</button>
-      <div class="lobby-wrap">
-        <div class="lobby-screen active">
-          <h1 class="lobby-title" data-i18n="histTitle">MATCH HISTORY</h1>
-          <p class="lobby-subtitle" data-i18n="histSub">Your recent matches</p>
-          <div id="history-out" style="width:100%;background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.01));border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:14px 16px;overflow:auto;font-family:'Crimson Pro',serif;font-size:13px;color:var(--parchment,#f5e6c8);"></div>
+      <div class="page-content-wrap">
+        <div class="page-content">
+          <h1 class="page-title" data-i18n="histTitle">MATCH HISTORY</h1>
+          <p class="page-subtitle" data-i18n="histSub">Your recent matches</p>
+          <div id="history-out" class="content-panel"></div>
         </div>
       </div>
     </div>
@@ -1169,11 +1250,7 @@
 
         <!-- ─────────────── SCREEN 2: HOST (CREATE) ─────────────── -->
         <div class="lobby-screen" id="screen-host">
-          <button onclick="leaveRoom()"
-            style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
-            onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
-            onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
-            LEAVE PARTY</button>
+          <button class="secondary-btn back-btn" onclick="leaveRoom()">← LEAVE PARTY</button>
           <h1 class="lobby-title">YOUR PARTY</h1>
           <p class="lobby-subtitle">شارك الكود مع صاحبك</p>
 
@@ -1183,11 +1260,10 @@
             <div class="party-code" id="host-code">CK-••••</div>
             <div class="party-code-actions">
               <button class="code-share-btn" onclick="copyCode()">
-                <img src="/img/copy.png" class="btn-icon" style="margin-right:8px; width:16px; height:16px;"> Copy Code
+                <img src="/img/copy.png" class="btn-icon" style="width:16px; height:16px;"> Copy Code
               </button>
               <button class="code-share-btn" id="shareInviteBtn" onclick="shareInvite()">
-                <img src="/img/share.png" class="btn-icon" style="margin-right:0px; width:16px; height:16px;"> Share
-                Invite
+                <img src="/img/share.png" class="btn-icon" style="width:16px; height:16px;"> Share Invite
               </button>
             </div>
           </div>
@@ -1250,11 +1326,7 @@
 
         <!-- ─────────────── SCREEN 3: GUEST (JOIN) ─────────────── -->
         <div class="lobby-screen" id="screen-join-input">
-          <button onclick="showScreen('screen-choice')"
-            style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
-            onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
-            onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
-            BACK</button>
+          <button class="secondary-btn back-btn" onclick="showScreen('screen-choice')">← BACK</button>
           <h1 class="lobby-title">JOIN A PARTY</h1>
           <p class="lobby-subtitle">دخّل الكود تع صاحبك</p>
 
@@ -1263,16 +1335,12 @@
 
           <p class="join-error" id="join-error"></p>
 
-          <button class="menu-btn" style="width:100%;margin:0" onclick="doJoin()">JOIN PARTY →</button>
+          <button class="menu-btn wide-btn" onclick="doJoin()">JOIN PARTY →</button>
         </div>
 
         <!-- ─────────────── SCREEN 4: GUEST WAITING ROOM ─────────────── -->
         <div class="lobby-screen" id="screen-guest-wait">
-          <button onclick="leaveRoom()"
-            style="align-self:center; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.3); border-radius:20px; color:var(--gold); font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px; padding:6px 14px; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0 auto 8px auto; transition:all 0.2s;"
-            onmouseover="this.style.borderColor='var(--gold)';this.style.background='rgba(201,168,76,0.12)'"
-            onmouseout="this.style.borderColor='rgba(201,168,76,0.3)';this.style.background='rgba(0,0,0,0.4)'">←
-            LEAVE PARTY</button>
+          <button class="secondary-btn back-btn" onclick="leaveRoom()">← LEAVE PARTY</button>
           <h1 class="lobby-title">LOBBY</h1>
           <p class="lobby-subtitle" id="guest-code-display">Code: —</p>
 
@@ -1350,12 +1418,98 @@
 
 
     <script src="/socket.io/socket.io.js"></script>
-    <script>
+    <script type="text/javascript">
       let _isPopStateNav = false;
       const socket = io();
 
+      // Carousel & Settings
+      let carouselOffset = 0;
+      let selectedBack = localStorage.getItem('chkobba_back') || 'back.png';
+      let selectedTargetScore = 21;
+      let selectedBotDifficulty = 'medium';
+
+      // Matchmaking & Lobby State
       window.chkobbaRankedQueueFlow = false;
       window.chkobbaRankedStartEmitted = false;
+      let myName = localStorage.getItem('chkobba_username') || 'Player';
+      let myAvatar = localStorage.getItem('chkobba_user_pfp') || '/img/pfp.jpg';
+      let mySessionToken = localStorage.getItem('chkobba_session_token') || sessionStorage.getItem('chkobba_session_token') || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
+      sessionStorage.setItem('chkobba_session_token', mySessionToken);
+      localStorage.setItem('chkobba_session_token', mySessionToken);
+      let partyCode = '';
+      let isHost = false;
+      let isGameStarted = false;
+      window.hasReceivedInitialState = false;
+      let currentSettings = { mode: '1v1', score: 21 };
+      let dcCountdown = null;
+      let knownPlayerCount = 1;
+      let lastPlayers = [];
+      let lastTeams = { 1: [null, null], 2: [null, null] };
+
+      // Game Engine State
+      let engine, bot, mode, lastMode;
+      let selectedCard = null;
+      let selectedCapture = null;
+      let totalScores = [0, 0];
+      let isAnimating = false;
+      let sfxEnabled = (localStorage.getItem('chkobba_sfx_enabled') !== '0');
+      let lastCustomName = '';
+      let hasShownEkherJarya = false;
+      let turnTimerInterval = null;
+      let turnTimerCountdown = null;
+      let timeLeft = 25;
+      let confirmCallback = null;
+      let confirmCancelCallback = null;
+      let opponentChatMuted = localStorage.getItem('chkobba_opponent_chat_muted') === '1';
+      let firstPlayerOfRound = 0;
+      let myPlayerSlot = 0;
+      let endScreenTimer = null;
+      let botThinkTimeout = null;
+      let lastTurnForTimer = null;
+      let activeGameHandlers = {};
+
+      const botData = {
+        easy: { name: "Sami (Easy)", img: "/img/easy.png" },
+        medium: { name: "Hamdi (Medium)", img: "/img/medium.png" },
+        hard: { name: "M3allem (Hard)", img: "/img/hard.png" },
+        expert: { name: "Lpatron (Expert)", img: "/img/expert.png" }
+      };
+
+      // ══ AUDIO ASSETS ══
+      const sfxShuffle = new Audio('/sound/shuffle.mp3');
+      const sfxPlay = new Audio('/sound/play.mp3');
+      const sfxChkobba = new Audio('/sound/chkobba.mp3');
+      const sfxMessage = new Audio('/sound/message.mp3');
+      const sfx7ayya = new Audio('/sound/7ayya.mp3');
+      const sfxHover = new Audio('/sound/hover.mp3');
+      const sfxWoosh = new Audio('/sound/woosh.mp3');
+      const sfxWood = new Audio('/sound/woodbreaking.mp3');
+      const sfxFire = new Audio('/sound/fire.mp3');
+      const sfxCheer = new Audio('/sound/cheer.mp3');
+      const sfxLoser = new Audio('/sound/loser.mp3');
+      const sfxTruck = new Audio('/sound/truck.mp3');
+      const sfxMenuHover = new Audio('/sound/menuhover.mp3');
+      const sfxNewGame = new Audio('/sound/newgame.mp3');
+      const sfxEmojiKingaura = new Audio('/sound/kingaura.mp3');
+      const sfxEmojiKingmad = new Audio('/sound/kingmad.mp3');
+      const sfxEmojiQueenlauthing = new Audio('/sound/queenlauthing.mp3');
+      const sfxEmojiValletff = new Audio('/sound/valletff.mp3');
+      const sfxEmojiTy = new Audio('/sound/ty.mp3');
+
+      const emojiSounds = {
+        'kingaura': sfxEmojiKingaura,
+        'kingmad': sfxEmojiKingmad,
+        'queenlauthing': sfxEmojiQueenlauthing,
+        'valletff': sfxEmojiValletff,
+        'ty': sfxEmojiTy
+      };
+
+      const sfxAmbience = new Audio('/sound/cafeambience.mp3');
+      sfxAmbience.loop = true;
+      sfxAmbience.volume = 0.5;
+      const sfxFocusStart = new Audio('/sound/focus.mp3');
+      let isFocusMode = false;
+      let fadeInterval = null;
 
       window.showQueueMatchmakingView = function () {
         const back = (localStorage.getItem('chkobba_back') || 'back.png').replace(/[^a-z0-9._-]/gi, '') || 'back.png';
@@ -1399,20 +1553,6 @@
         if (onlineCountEl) onlineCountEl.innerText = count;
       });
 
-      let myName = localStorage.getItem('chkobba_username') || 'Player';
-      let myAvatar = localStorage.getItem('chkobba_user_pfp') || '/img/pfp.jpg';
-      let mySessionToken = localStorage.getItem('chkobba_session_token') || sessionStorage.getItem('chkobba_session_token') || ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9));
-      sessionStorage.setItem('chkobba_session_token', mySessionToken);
-      localStorage.setItem('chkobba_session_token', mySessionToken);
-      let partyCode = '';
-      let isHost = false;
-      let isGameStarted = false;
-      window.hasReceivedInitialState = false;
-      let currentSettings = { mode: '1v1', score: 21 };
-      let dcCountdown = null;
-      let knownPlayerCount = 1;
-      let lastPlayers = [];
-      let lastTeams = { 1: [null, null], 2: [null, null] };
       window.chkobbaSessionContext = {
         getName: () => myName,
         setName: (v) => { myName = (v || 'Player').trim() || 'Player'; localStorage.setItem('chkobba_username', myName); },
@@ -1471,6 +1611,14 @@
           }
         });
 
+        const yesBtn = document.getElementById('confirmYesBtn');
+        if (yesBtn) {
+          yesBtn.onclick = () => {
+            if (confirmCallback) confirmCallback();
+            closeConfirm(false);
+          };
+        }
+
         // Card Back Picker
         document.querySelectorAll('.back-option').forEach(opt => {
           if (opt.dataset.back === selectedBack) {
@@ -1508,8 +1656,7 @@
         }
 
         // Carousel Arrows Init
-        const carouselPicker = document.getElementById('back-picker');
-        if (carouselPicker) updateCarouselArrows(carouselPicker.children.length - cardLimit);
+        updateCarouselArrows();
       });
 
 
@@ -1528,12 +1675,42 @@
       };
 
       // ─── Menu / Carousel Functions ──────────────────────────────────
-     moveCarousel
+      window.moveCarousel = function(dir) {
+        const picker = document.getElementById('back-picker');
+        if (!picker) return;
+        
+        const viewport = picker.parentElement;
+        const total = picker.children.length;
+        const firstCard = picker.children[0];
+        // Dynamic detection of card width + gap (fallback 97 from CSS)
+        const itemWidth = (firstCard && firstCard.offsetWidth > 0) ? (firstCard.offsetWidth + 12) : 97;
+        const viewportWidth = viewport ? viewport.offsetWidth : 130;
+        const dynamicLimit = Math.max(1, Math.floor(viewportWidth / itemWidth));
+        const maxOffset = Math.max(0, total - dynamicLimit);
 
-      function updateCarouselArrows(maxOffset) {
+        carouselOffset += dir;
+        if (carouselOffset < 0) carouselOffset = 0;
+        if (carouselOffset > maxOffset) carouselOffset = maxOffset;
+
+        const moveX = carouselOffset * itemWidth;
+        picker.style.transform = `translateX(-${moveX}px)`;
+        updateCarouselArrows();
+      };
+
+      function updateCarouselArrows() {
+        const picker = document.getElementById('back-picker');
+        if (!picker) return;
+        const viewport = picker.parentElement;
+        const total = picker.children.length;
+        const firstCard = picker.children[0];
+        const itemWidth = (firstCard && firstCard.offsetWidth > 0) ? (firstCard.offsetWidth + 12) : 97;
+        const viewportWidth = viewport ? viewport.offsetWidth : 130;
+        const dynamicLimit = Math.max(1, Math.floor(viewportWidth / itemWidth));
+        const maxOffset = Math.max(0, total - dynamicLimit);
+
         const prev = document.getElementById('prev-back');
         const next = document.getElementById('next-back');
-        if (prev) prev.disabled = (carouselOffset === 0);
+        if (prev) prev.disabled = (carouselOffset <= 0);
         if (next) next.disabled = (carouselOffset >= maxOffset);
       }
 
@@ -1571,18 +1748,52 @@
       // --- BROWSER HISTORY ROUTING ---
    
 
-      window.onpopstate = function (event) {
-        _isPopStateNav = true; // Prevent infinite pushState loop
+      function restoreGameHistoryState() {
+        const gameUrl = window.location.pathname + window.location.search + '#game';
+        if (window.location.hash !== '#game') {
+          history.pushState({ page: 'view-game' }, '', gameUrl);
+        } else {
+          history.replaceState({ page: 'view-game' }, '', gameUrl);
+        }
+        _isPopStateNav = true;
+        showView('view-game');
+        _isPopStateNav = false;
+      }
 
-        if (event.state && event.state.page) {
-          // If the user tries to back out of an active game, safely invoke the game teardown
-          if (window.gameActive && event.state.page !== 'view-game') {
-            showMenu(); // Properly forfeit/cleanup
+      window.onpopstate = function (event) {
+        _isPopStateNav = true;
+
+        const requestedPage = event.state?.page;
+        if (requestedPage) {
+          if (window.gameActive && requestedPage !== 'view-game') {
+            showConfirm('You are currently in a game. Leave now and lose progress?', () => {
+              cleanupGame();
+              _isPopStateNav = true;
+              showView(requestedPage);
+              _isPopStateNav = false;
+            }, () => {
+              restoreGameHistoryState();
+            });
+            _isPopStateNav = false;
+            return;
+          } else if (requestedPage === 'view-game' && !window.gameActive) {
+            showMenu();
           } else {
-            showView(event.state.page);
+            showView(requestedPage);
           }
         } else {
-          // Fallback to routing logic
+          if (window.gameActive) {
+            showConfirm('You are currently in a game. Leave now and lose progress?', () => {
+              cleanupGame();
+              _isPopStateNav = true;
+              handleRouting();
+              _isPopStateNav = false;
+            }, () => {
+              restoreGameHistoryState();
+            });
+            _isPopStateNav = false;
+            return;
+          }
           handleRouting();
         }
 
@@ -1626,27 +1837,29 @@
 
       function showView(id) {
         // Ephemeral views should NOT be persistent (saved in hash or localStorage)
-        const ephemerals = ['view-game', 'view-matchmaking-queue', 'view-match-found'];
+        const ephemerals = ['view-matchmaking-queue', 'view-match-found'];
 
         if (!_isPopStateNav) {
           const hashId = id.replace('view-', '');
-          
           if (!ephemerals.includes(id)) {
-             // Permanent sections update hash and memory
-             if (id === 'view-menu') {
-                if (window.location.hash !== '' && window.location.hash !== '#') {
-                   // Return to root URL for menu
-                   history.replaceState(null, null, ' ');
-                }
+             const targetUrl = id === 'view-menu'
+               ? window.location.pathname + window.location.search
+               : window.location.pathname + window.location.search + '#' + hashId;
+             const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+             const shouldPersistHistory = id !== 'view-game' || window.gameActive;
+
+             if (currentUrl !== targetUrl) {
+               history.pushState({ page: id }, '', targetUrl);
              } else {
-                if (window.location.hash !== '#' + hashId) {
-                   window.location.hash = hashId;
-                }
+               history.replaceState({ page: id }, '', targetUrl);
              }
-             localStorage.setItem('chkobba_last_page', id);
+
+             if (shouldPersistHistory && id !== 'view-game') {
+               localStorage.setItem('chkobba_last_page', id);
+             } else {
+               localStorage.removeItem('chkobba_last_page');
+             }
           } else {
-             // Ephemeral states: Just show view without adding to browser history
-             // This ensures "Back" skips them entirely
              localStorage.removeItem('chkobba_last_page');
           }
         }
@@ -1674,6 +1887,9 @@
           if (window.currentGameMode === 'multi' || window.mode === 'online') {
             document.body.classList.add('multiplayer-mode');
             document.body.classList.remove('expert-mode');
+          }
+          if (typeof updateOpponentMuteButton === 'function') {
+            updateOpponentMuteButton();
           }
         }
 
@@ -1910,9 +2126,6 @@
         const hWaitingText = waiting ? waiting.querySelector('span') : null;
 
         const isFull = (players && players.length >= required);
-
-        // Debug visibility
-        console.log(`[LOBBY] updateStartBtn: mode=${currentSettings.mode}, players=${players ? players.length : 0}, required=${required}, isFull=${isFull}`);
 
         if (btn) btn.disabled = !isFull;
         if (waiting) waiting.style.display = isFull ? 'none' : 'flex';
@@ -2244,7 +2457,6 @@
       });
 
       socket.on('game-init', (data) => {
-        console.log('[GAME-INIT] Received:', data);
         navigateToGame(data);
       });
 
@@ -2492,6 +2704,35 @@
           <span></span>
         </div>
 
+        <!-- Global Chat Menu (Centered above the chat button) -->
+        <div class="chat-menu" id="chatMenu">
+          <div class="chat-emoji-row" style="grid-column: span 3; display: flex; justify-content: center; gap: 8px; margin-bottom: 8px;">
+            <button class="chat-emoji-btn" onclick="sendEmojiChat('kingaura')"><img src="/img/kingaura.png" alt="kingaura"></button>
+            <button class="chat-emoji-btn" onclick="sendEmojiChat('queenlauthing')"><img src="/img/queenlauthing.png" alt="queenlauthing"></button>
+            <button class="chat-emoji-btn" onclick="sendEmojiChat('kingmad')"><img src="/img/kingmad.png" alt="kingmad"></button>
+            <button class="chat-emoji-btn" onclick="sendEmojiChat('valletff')"><img src="/img/valletff.png" alt="valletff"></button>
+            <button class="chat-emoji-btn" onclick="sendEmojiChat('ty')"><img src="/img/ty.png" alt="ty"></button>
+          </div>
+          <div class="chat-phrase" onclick="sendChat('c11')" data-i18n="c11">Eyy</div>
+          <div class="chat-phrase" onclick="sendChat('c12')" data-i18n="c12">Lee</div>
+          <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
+          <div class="chat-phrase" onclick="sendChat('c2')" data-i18n="c2">CHKOBTEK!</div>
+          <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya 3andek?</div>
+          <div class="chat-phrase" onclick="sendChat('c4')" data-i18n="c4">Chkeyb lee!</div>
+          <div class="chat-phrase" onclick="sendChat('c5')" data-i18n="c5">T3allem al3eb!</div>
+          <div class="chat-phrase" onclick="sendChat('c6')" data-i18n="c6">Kesah!</div>
+          <div class="chat-phrase" onclick="sendChat('c7')" data-i18n="c7">La3ba sehla</div>
+          <div class="chat-phrase" onclick="sendChat('c8')" data-i18n="c8">Jib dineri</div>
+          <div class="chat-phrase" onclick="sendChat('c9')" data-i18n="c9">L'7ayya dour</div>
+          <div class="chat-phrase" onclick="sendChat('c10')" data-i18n="c10">Nrisky?</div>
+          <div class="chat-phrase" onclick="sendChat('c13')" data-i18n="c13">Yrawah!</div>
+          <div class="chat-phrase" onclick="sendChat('c14')" data-i18n="c14">Ija beha!</div>
+          <div class="chat-phrase" onclick="sendChat('c15')" data-i18n="c15">7otni m3ah</div>
+          <div class="chat-phrase" onclick="sendChat('c16')" data-i18n="c16">narj3ou ayy</div>
+          <div class="chat-phrase" onclick="sendChat('c17')" data-i18n="c17">ezrebelna</div>
+          <div class="chat-phrase" onclick="sendChat('c18')" data-i18n="c18">nchala sne</div>
+        </div>
+
         <!-- Side Navigation Drawer -->
         <div class="side-nav" id="sideNav">
           <div class="side-nav-header">
@@ -2511,9 +2752,7 @@
         </div>
         <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
 
-
-
-        <!-- Quick Chat Menu (Moved into player-info-card below) -->
+        <!-- Quick Chat and mute controls are now anchored to the player info card -->
 
 
         <!-- BOT / P2 Zone (Top) -->
@@ -2525,6 +2764,9 @@
             <img class="player-avatar" id="pfp-bot" src="/img/botpfp.png" alt="Bot">
             <div class="player-name" id="name-bot">Chkobba Master</div>
             <div class="player-score-display" id="score-bot">0</div>
+            <button class="mute-toggle-btn opponent-mute-corner" id="opponent-chat-mute-btn" onclick="toggleOpponentChatMute()" title="Mute Opponent Chat">
+              <img id="opponent-chat-mute-icon" src="/img/volumeup.png" alt="Mute" style="width:18px; height:18px;">
+            </button>
           </div>
         </div>
 
@@ -2547,6 +2789,7 @@
             <div id="turn-timer-bar" class="turn-timer-bar"></div>
           </div>
           <div class="status-bar" id="statusBar">Welcome to Chkobba</div>
+          <div id="opponentChatToast" class="opponent-chat-toast"></div>
         </div>
 
         <!-- P3 Right Zone (2v2 only) -->
@@ -2566,51 +2809,23 @@
           <!-- Moved player-info-card-panel for bottom player right next to the hand -->
           <div class="player-info-card info-bottom mode-2v2-info">
             <div class="streak-badge" id="streak-player">🔥0</div>
-            <!-- Quick Chat Menu (Moved here to anchor correctly) -->
-            <div class="chat-menu" id="chatMenu">
-              <div class="chat-emoji-row">
-                <button class="chat-emoji-btn" onclick="sendEmojiChat('kingaura')"><img src="/img/kingaura.png" alt="kingaura"></button>
-                <button class="chat-emoji-btn" onclick="sendEmojiChat('queenlauthing')"><img src="/img/queenlauthing.png" alt="queenlauthing"></button>
-                <button class="chat-emoji-btn" onclick="sendEmojiChat('kingmad')"><img src="/img/kingmad.png" alt="kingmad"></button>
-                <button class="chat-emoji-btn" onclick="sendEmojiChat('valletff')"><img src="/img/valletff.png" alt="valletff"></button>
-                <button class="chat-emoji-btn" onclick="sendEmojiChat('ty')"><img src="/img/ty.png" alt="ty"></button>
-              </div>
-              <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
-              <div class="chat-phrase" onclick="sendChat('c2')" data-i18n="c2">CHKOBTEK!</div>
-              <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya 3andek?</div>
-              <div class="chat-phrase" onclick="sendChat('c4')" data-i18n="c4">Chkeyb lee!</div>
-              <div class="chat-phrase" onclick="sendChat('c5')" data-i18n="c5">T3allem al3eb!</div>
-              <div class="chat-phrase" onclick="sendChat('c6')" data-i18n="c6">Kesah!</div>
-              <div class="chat-phrase" onclick="sendChat('c7')" data-i18n="c7">La3ba sehla</div>
-              <div class="chat-phrase" onclick="sendChat('c8')" data-i18n="c8">Jib dineri</div>
-              <div class="chat-phrase" onclick="sendChat('c9')" data-i18n="c9">L'7ayya dour</div>
-              <div class="chat-phrase" onclick="sendChat('c10')" data-i18n="c10">Nrisky?</div>
-              <div class="chat-phrase" onclick="sendChat('c11')" data-i18n="c11">Eyy</div>
-              <div class="chat-phrase" onclick="sendChat('c12')" data-i18n="c12">Lee</div>
-              <div class="chat-phrase" onclick="sendChat('c13')" data-i18n="c13">Yrawah!</div>
-              <div class="chat-phrase" onclick="sendChat('c14')" data-i18n="c14">Ija beha!</div>
-              <div class="chat-phrase" onclick="sendChat('c15')" data-i18n="c15">7otni m3ah</div>
-              <div class="chat-phrase" onclick="sendChat('c16')" data-i18n="c16">narj3ou ayy</div>
-              <div class="chat-phrase" onclick="sendChat('c17')" data-i18n="c17">ezrebelna</div>
-              <div class="chat-phrase" onclick="sendChat('c18')" data-i18n="c18">nchala sne</div>
-            </div>
-
             <img class="player-avatar" id="pfp-player" src="/img/pfp.jpg" alt="You">
             <div class="player-name" id="name-player">You</div>
             <div class="player-score-display" id="score-player">0</div>
 
-            <div style="display:flex; flex-direction:column; gap:8px; margin-left:12px;">
-              <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu()" title="Quick Chat">
+            <div class="player-card-controls">
+              <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu(event)" title="Quick Chat">
                 <img src="/img/message.png" alt="Chat">
               </button>
-              <button class="focus-button" id="focusBtn" onclick="toggleFocusMode()"
+            </div>
+
+            <button class="focus-button" id="focusBtn" onclick="toggleFocusMode()"
                 title="Focus Mode (Ambience Toggle)">
                 <img src="/img/focus.png" alt="Focus" id="focusIcon"
                   style="width:18px; height:18px; opacity:0.8; margin-right:6px;">
                 <span data-i18n="focus"
                   style="font-family:'Cinzel', serif; font-size:10px; letter-spacing:1px; font-weight:700;">FOCUS</span>
-              </button>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -2688,17 +2903,7 @@
 
 
       <script>
-        // ── BOT IDENTITIES ──
-        const botData = {
-          easy: { name: "Sami (Easy)", img: "/img/easy.png" },
-          medium: { name: "Hamdi (Medium)", img: "/img/medium.png" },
-          hard: { name: "M3allem (Hard)", img: "/img/hard.png" },
-          expert: { name: "Lpatron (Expert)", img: "/img/expert.png" }
-        };
-
-        // ── SINGLE PLAYER SELECTION STATE ──
-        let selectedBotDifficulty = 'medium';
-        let selectedTargetScore = 21;
+        // BOT IDENTITIES, SINGLE PLAYER SELECTION STATE & Game Globals moved to top.
 
         function selectBotDifficulty(difficulty) {
           selectedBotDifficulty = difficulty;
@@ -2741,46 +2946,7 @@
           }
         }
 
-        // ═══════════════════════════════════════════════════════════
-        //  AUDIO & GLOBALS
-        // ═══════════════════════════════════════════════════════════
-        const sfxShuffle = new Audio('/sound/shuffle.mp3');
-        const sfxPlay = new Audio('/sound/play.mp3');
-        const sfxChkobba = new Audio('/sound/chkobba.mp3');
-        const sfxMessage = new Audio('/sound/message.mp3');
-        const sfx7ayya = new Audio('/sound/7ayya.mp3');
-        const sfxHover = new Audio('/sound/hover.mp3');
-        const sfxWoosh = new Audio('/sound/woosh.mp3');
-        const sfxWood = new Audio('/sound/woodbreaking.mp3');
-        const sfxFire = new Audio('/sound/fire.mp3'); // NEW FIRE SFX
-        const sfxCheer = new Audio('/sound/cheer.mp3');
-        const sfxLoser = new Audio('/sound/loser.mp3');
-        const sfxTruck = new Audio('/sound/truck.mp3');
-        const sfxMenuHover = new Audio('/sound/menuhover.mp3');
-        const sfxNewGame = new Audio('/sound/newgame.mp3');
-
-        // Quick Chat Emoji Sounds
-        const sfxEmojiKingaura = new Audio('/sound/kingaura.mp3');
-        const sfxEmojiKingmad = new Audio('/sound/kingmad.mp3');
-        const sfxEmojiQueenlauthing = new Audio('/sound/queenlauthing.mp3');
-        const sfxEmojiValletff = new Audio('/sound/valletff.mp3');
-        const sfxEmojiTy = new Audio('/sound/ty.mp3');
-
-        const emojiSounds = {
-          'kingaura': sfxEmojiKingaura,
-          'kingmad': sfxEmojiKingmad,
-          'queenlauthing': sfxEmojiQueenlauthing,
-          'valletff': sfxEmojiValletff,
-          'ty': sfxEmojiTy
-        };
-
-        // Immersive Ambience & Focus Mode
-        const sfxAmbience = new Audio('/sound/cafeambience.mp3');
-        sfxAmbience.loop = true;
-        sfxAmbience.volume = 0.5;
-        const sfxFocusStart = new Audio('/sound/focus.mp3');
-        let isFocusMode = false;
-        let fadeInterval = null;
+        // AUDIO & GLOBALS moved to top.
 
         // ═══════════════════════════════════════════════════════════
         //  GAME ENGINE
@@ -3128,33 +3294,12 @@
           }
         }
 
-        let engine, bot, mode, lastMode;
-        let selectedCard = null;
-        let selectedCapture = null;
-        let totalScores = [0, 0];
-        let isAnimating = false;
-        let sfxEnabled = true;
-        let selectedBack = localStorage.getItem('chkobba_back') || 'back.png';
-        let carouselOffset = 0;
-        const cardLimit = 1;
-        const cardWidth = 120 + 10;
-        let lastCustomName = '';
-        let hasShownEkherJarya = false;
-
-        let turnTimerInterval = null;
-        let turnTimerCountdown = null;
-        let timeLeft = 25;
-        let confirmCallback = null;
-        let firstPlayerOfRound = 0;
-        let myPlayerSlot = 0; // Default to host
-        let endScreenTimer = null; // Auto-next round timer
-        let botThinkTimeout = null;
-        let lastTurnForTimer = null; // avoid resetting timer on every UI render (online)
+        // Game Engine Variables moved to top.
 
         // ── IN-GAME SOCKET HANDLERS ──────────────────────────────────
         // Store references to handlers so they can be detached specifically
         // without affecting the global lobby/room listeners.
-        let activeGameHandlers = {};
+        // activeGameHandlers moved to top.
 
         function detachOnlineGameSocketListeners() {
           if (typeof socket === 'undefined' || !socket || !activeGameHandlers) return;
@@ -3471,15 +3616,53 @@
           showMenu();
         }
 
-        function showConfirm(msg, callback) {
+        function showConfirm(msg, callback, cancelCallback = null) {
           document.getElementById('confirmMsg').textContent = msg;
           confirmCallback = callback;
+          confirmCancelCallback = cancelCallback;
           document.getElementById('confirmModal').classList.add('show');
         }
 
-        function closeConfirm() {
+        function updateOpponentMuteButton() {
+          const btn = document.getElementById('opponent-chat-mute-btn');
+          const icon = document.getElementById('opponent-chat-mute-icon');
+          if (!btn || !icon) return;
+          btn.classList.toggle('muted', opponentChatMuted);
+          icon.src = opponentChatMuted ? '/img/volumedown.png' : '/img/volumeup.png';
+          btn.title = opponentChatMuted ? 'Unmute Opponent Chat' : 'Mute Opponent Chat';
+        }
+
+        function toggleOpponentChatMute() {
+          opponentChatMuted = !opponentChatMuted;
+          localStorage.setItem('chkobba_opponent_chat_muted', opponentChatMuted ? '1' : '0');
+          updateOpponentMuteButton();
+          if (typeof showToast === 'function') {
+            showToast(opponentChatMuted ? 'Opponent chat muted' : 'Opponent chat unmuted', 1800);
+          }
+        }
+
+        function showOpponentChatToast(text) {
+          const toast = document.getElementById('opponentChatToast');
+          if (!toast) return;
+
+          if (text.startsWith('EMOJI:')) {
+            const emojiKey = text.substring(6);
+            toast.innerHTML = `<img src="/img/${emojiKey}.png" alt="${emojiKey}" style="width:22px;height:22px;display:block;">`;
+          } else {
+            toast.textContent = getTranslationValue(window.currentLang, text) || text;
+          }
+          toast.classList.add('show');
+          clearTimeout(toast._hideTimer);
+          toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        function closeConfirm(cancel = true) {
           document.getElementById('confirmModal').classList.remove('show');
+          if (cancel && typeof confirmCancelCallback === 'function') {
+            confirmCancelCallback();
+          }
           confirmCallback = null;
+          confirmCancelCallback = null;
         }
 
         // Hamburger Menu Logic
@@ -3515,17 +3698,6 @@
             }
           }
         }
-
-        // Attach listener to Yes button (needs to be done once, but here is safe)
-        window.addEventListener('DOMContentLoaded', () => {
-          const yesBtn = document.getElementById('confirmYesBtn');
-          if (yesBtn) {
-            yesBtn.onclick = () => {
-              if (confirmCallback) confirmCallback();
-              closeConfirm();
-            };
-          }
-        });
 
         function updateStreakBadges() {
           if (!engine) return;
@@ -3603,6 +3775,7 @@
           // ──────────────────────────────────────────────────────────────
 
           engine = new GameEngine(seed, m, gameMode);
+          window.gameActive = true;
           bot = new ChkobbaBotAI(engine, difficulty);
           selectedCard = null;
           selectedCapture = null;
@@ -3694,11 +3867,8 @@
             window.activeSocket = socket;
             if (roomCode) saveSessionState(roomCode, token);
 
-            console.log(`[SYNC] Starting online game. Room: ${roomCode}, Token: ${token}`);
-
             // 2. DEFINE HANDLERS (don't emit yet)
             activeGameHandlers['room-data'] = (data) => {
-              console.log("[SYNC] Received room-data:", data);
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
 
               // ── UI TRANSITION ──
@@ -3820,7 +3990,6 @@
             };
 
             function handleStateSync(data) {
-              console.log("[SYNC] Applying state sync:", data);
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
               const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount, isNewRound } = data;
               const sync = () => {
@@ -3880,7 +4049,6 @@
                 updateUI(true);
                 updateTurnIndicator(engine.currentPlayer);
                 setStatus(window.getTurnStatusMsg(engine.currentPlayer));
-                console.log("[SYNC] UI Updated. Hand size:", engine.players[0].hand.length);
               };
               sync();
             }
@@ -3969,11 +4137,11 @@
                   else if (results.barmila === oppTeamIdx) oppBarmila = 1;
 
                   const rows = [
-                    { img: 'img/icon_carta.png', v0: myR.cards, v1: oppR.cards, label: 'Carta' },
-                    { img: 'img/icon_dineri.png', v0: myR.dineri, v1: oppR.dineri, label: 'Dineri' },
-                    { img: 'img/icon_7ayya.png', v0: myR.sab3a ? 1 : 0, v1: oppR.sab3a ? 1 : 0, label: 'Sab3a', isBoolean: true },
-                    { img: 'img/icon_barmila.png', v0: myBarmila, v1: oppBarmila, label: 'Barmila' },
-                    { img: 'img/icon_chkobba.png', v0: myChk, v1: oppChk, label: 'Chkobba', isChkobba: true },
+                    { img: '/img/icon_carta.png', v0: myR.cards, v1: oppR.cards, label: 'Carta' },
+                    { img: '/img/icon_dineri.png', v0: myR.dineri, v1: oppR.dineri, label: 'Dineri' },
+                    { img: '/img/icon_7ayya.png', v0: myR.sab3a ? 1 : 0, v1: oppR.sab3a ? 1 : 0, label: 'Sab3a', isBoolean: true },
+                    { img: '/img/icon_barmila.png', v0: myBarmila, v1: oppBarmila, label: 'Barmila', isBoolean: true },
+                    { img: '/img/icon_chkobba.png', v0: myChk, v1: oppChk, label: 'Chkobba', isChkobba: true },
                   ];
 
                   for (const row of rows) {
@@ -3999,7 +4167,7 @@
                       <td style="text-align:left; font-weight:${leftWins ? 900 : 700}; color:${leftWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${leftWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${leftVal}</td>
                       <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
                         ${arrowLeft}
-                        <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
+                        <img src="${row.img}" class="scoreboard-icon" title="${row.label}">
                         ${arrowRight}
                       </td>
                       <td style="text-align:right; font-weight:${rightWins ? 900 : 700}; color:${rightWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${rightWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${rightVal}</td>
@@ -4045,9 +4213,7 @@
             // If the server bundled game state directly in game-init, apply it NOW
             // without waiting for the join-room → room-data roundtrip.
             if (initData && initData.myHand && initData.table) {
-              console.log('[GAME-INIT] Applying bundled game state directly.');
-
-              // Set slot from server
+                // Set slot from server
               if (initData.mySlot !== undefined) myPlayerSlot = initData.mySlot;
 
               // Apply player names
@@ -4077,7 +4243,6 @@
               updateUI(true);
               updateTurnIndicator(engine.currentPlayer);
               setStatus(window.getTurnStatusMsg(engine.currentPlayer));
-              console.log(`[GAME-INIT] Applied. Slot: ${myPlayerSlot}, Hand: ${engine.players[0].hand.length}, Table: ${engine.table.length}`);
             }
 
             // JOIN ROOM (registers socket in room for server-side tracking + fallback sync)
@@ -4280,9 +4445,18 @@
           }
         }
 
-        function toggleChatMenu() {
+        let lastChatTime = 0;
+        const chatCooldown = 1500; // 1.5 seconds
+
+        function toggleChatMenu(event) {
+          if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+          }
           const menu = document.getElementById('chatMenu');
-          menu.classList.toggle('show');
+          if (menu) {
+            menu.classList.toggle('show');
+          }
         }
 
         // Close chat menu when clicking outside
@@ -4290,13 +4464,16 @@
           const menu = document.getElementById('chatMenu');
           const btn = document.getElementById('chatBtn');
           if (menu && menu.classList.contains('show')) {
-            if (!menu.contains(e.target) && !btn.contains(e.target)) {
+            // Check if click was outside menu AND outside button
+            if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
               menu.classList.remove('show');
             }
           }
         });
 
         function sendChat(text) {
+          if (Date.now() - lastChatTime < chatCooldown) return;
+          lastChatTime = Date.now();
           if (mode === 'online') {
             socket.emit('player-msg', { text });
           } else {
@@ -4307,6 +4484,8 @@
         }
 
         window.sendEmojiChat = function(emojiKey) {
+          if (Date.now() - lastChatTime < chatCooldown) return;
+          lastChatTime = Date.now();
           if (mode === 'online') {
             socket.emit('player-msg', { text: `EMOJI:${emojiKey}` });
           } else {
@@ -4325,12 +4504,19 @@
           const target = document.querySelector(zones[seatIdx]);
           if (!target) return;
 
+          if (seatIdx !== 0 && opponentChatMuted) {
+            showOpponentChatToast(text);
+            return;
+          }
+
           // Remove old bubbles from this player to avoid clutter
           const old = target.querySelector('.bubble');
           if (old) old.remove();
 
           const bubble = document.createElement('div');
           bubble.className = 'bubble';
+
+          const shouldPlayChatSound = sfxEnabled && !(seatIdx !== 0 && opponentChatMuted);
 
           if (text.startsWith('EMOJI:')) {
             const emojiKey = text.substring(6);
@@ -4343,14 +4529,14 @@
             bubble.style.padding = '10px'; // smaller padding for images
 
             // Play unique emoji sound if enabled
-            if (sfxEnabled) {
+            if (shouldPlayChatSound) {
               const sound = emojiSounds[emojiKey] || sfxMessage;
               sound.currentTime = 0;
               sound.play().catch(e => e);
             }
           } else {
             // Play default message sound for text chat
-            if (sfxEnabled) {
+            if (shouldPlayChatSound) {
                sfxMessage.currentTime = 0;
                sfxMessage.play().catch(e => e);
             }
@@ -4694,7 +4880,7 @@
           isAnimating = true;
           playVisualMove(pidx, card, captured, () => {
             // Absolute last card check: only true if only 1 card remains across BOTH hands
-            const totalCardsInHands = engine.players[0].hand.length + engine.players[1].hand.length;
+            const totalCardsInHands = engine.players.reduce((sum, p) => sum + ((p?.hand?.length) || 0), 0);
             const isLastMoveOfEntireGame = engine.deck.length === 0 && totalCardsInHands === 1;
             const { chkobba } = engine.playCard(pidx, card, captured, isLastMoveOfEntireGame);
 
@@ -4857,11 +5043,11 @@
           if (endScreenTimer) clearInterval(endScreenTimer);
 
           const rows = [
-            { img: 'img/icon_carta.png', v0: result.s0.cards, v1: result.s1.cards, label: 'Carta' },
-            { img: 'img/icon_dineri.png', v0: result.s0.dineri, v1: result.s1.dineri, label: 'Dineri' },
-            { img: 'img/icon_7ayya.png', v0: result.s0.sab3a ? 1 : 0, v1: result.s1.sab3a ? 1 : 0, label: 'Sab3a', isBoolean: true },
-            { img: 'img/icon_barmila.png', v0: result.barmila === 0 ? 1 : 0, v1: result.barmila === 1 ? 1 : 0, label: 'Barmila' },
-            { img: 'img/icon_chkobba.png', v0: result.chkobba0, v1: result.chkobba1, label: 'Chkobba', isChkobba: true },
+            { img: '/img/icon_carta.png', v0: result.s0.cards, v1: result.s1.cards, label: 'Carta' },
+            { img: '/img/icon_dineri.png', v0: result.s0.dineri, v1: result.s1.dineri, label: 'Dineri' },
+            { img: '/img/icon_7ayya.png', v0: result.s0.sab3a ? 1 : 0, v1: result.s1.sab3a ? 1 : 0, label: 'Sab3a', isBoolean: true },
+            { img: '/img/icon_barmila.png', v0: result.barmila === 0 ? 1 : 0, v1: result.barmila === 1 ? 1 : 0, label: 'Barmila', isBoolean: true },
+            { img: '/img/icon_chkobba.png', v0: result.chkobba0, v1: result.chkobba1, label: 'Chkobba', isChkobba: true },
           ];
 
           if (isKamyoun) {
@@ -4894,7 +5080,7 @@
               let leftVal = (isTie && tieToBaji) ? 'baji' : row.v0;
               let rightVal = (isTie && tieToBaji) ? 'baji' : row.v1;
 
-              if (row.isBoolean) {
+              if (row.isBoolean && !isTie) {
                 leftVal = row.v0 ? '✓' : '✗';
                 rightVal = row.v1 ? '✓' : '✗';
               }
@@ -4907,7 +5093,7 @@
                 <td style="text-align:left; font-weight:${leftWins ? 900 : 700}; color:${leftWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${leftWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${leftVal}</td>
                 <td style="display:flex; justify-content:center; align-items:center; min-height:44px;">
                   ${arrowLeft}
-                  <img src="/${row.img}" class="scoreboard-icon" title="${row.label}">
+                  <img src="${row.img}" class="scoreboard-icon" title="${row.label}">
                   ${arrowRight}
                 </td>
                 <td style="text-align:right; font-weight:${rightWins ? 900 : 700}; color:${rightWins ? 'var(--gold)' : 'var(--parchment)'}; text-shadow:${rightWins ? '0 0 8px rgba(201,168,76,0.5)' : 'none'}">${rightVal}</td>
@@ -5036,7 +5222,7 @@
         function show7ayyaToast(pname) {
           const t = document.getElementById('hayyaToast');
 
-          // Replace 'img/cards/7_diamonds.png' with your actual path to the 7 of diamonds image
+          // Use the actual card asset path for the 7 of diamonds
           t.innerHTML = `
     <img src="/cards/7carreau.png" class="toast-card-icon" alt="7 Diamonds">
     <span>L'7AYYA! (${pname})</span>
