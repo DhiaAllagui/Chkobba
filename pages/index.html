@@ -1527,17 +1527,7 @@
       };
 
       // ─── Menu / Carousel Functions ──────────────────────────────────
-      function moveCarousel(direction) {
-        const picker = document.getElementById('back-picker');
-        const maxOffset = picker.children.length - cardLimit;
-        carouselOffset += direction;
-        if (carouselOffset < 0) carouselOffset = 0;
-        if (carouselOffset > maxOffset) carouselOffset = maxOffset;
-
-        let xOffset = -carouselOffset * cardWidth;
-        picker.style.transform = `translateX(${xOffset}px)`;
-        updateCarouselArrows(maxOffset);
-      }
+     moveCarousel
 
       function updateCarouselArrows(maxOffset) {
         const prev = document.getElementById('prev-back');
