@@ -758,10 +758,12 @@ body::after {
 }
 
 .carousel-viewport {
-  width: 130px;
+  width: 130px; /* Keep this if you want to show 1 card at a time */
   overflow: hidden;
   border-radius: 6px;
-  padding: 30px 0;
+  padding: 40px 5px; /* Added more top/bottom padding for the -15px jump */
+  display: flex;
+  align-items: center; /* Centers the card vertically in the viewport */
 }
 
 .back-picker {
@@ -769,7 +771,8 @@ body::after {
   gap: 10px;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   width: max-content;
-  justify-content: flex-start;
+  /* Remove justify-content: flex-start; it's default for display:flex */
+  will-change: transform; /* Makes the animation smoother on mobile */
 }
 
 .back-option {
