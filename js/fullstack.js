@@ -349,11 +349,32 @@
       state.profile = await api('/api/profile');
       ctx.setName(state.profile.username);
       if (state.profile.avatar_url) ctx.setAvatar(state.profile.avatar_url);
+      
+      // Sync Menu ELO Badge
+      const menuElo = document.getElementById('menu-user-elo');
+      const menuBadge = document.getElementById('menu-user-rank-badge');
+      if (menuElo) menuElo.textContent = state.profile.total_elo;
+      if (menuBadge) menuBadge.style.display = 'flex';
+
       renderAuth();
       out(`Authenticated as <b>${state.profile.username}</b>`);
     } catch (e) {
       out(e.message || 'Profile fetch failed.');
     }
+  }
+
+  // Hook into logout to hide badge
+  const originalOnAuthStateChange = state.supabase?.auth?.onAuthStateChange;
+  if (state.supabase) {
+    state.supabase.auth.onAuthStateChange((_event, sess) => {
+        state.session = sess;
+        if (!sess) {
+          state.profile = null;
+          const menuBadge = document.getElementById('menu-user-rank-badge');
+          if (menuBadge) menuBadge.style.display = 'none';
+          renderAuth();
+        }
+    });
   }
 
   function lbOut(html, append = false) {

@@ -805,9 +805,640 @@
       pointer-events: none;
     }
 
-    /* Lobby screen (inner panels) transitions */
-    .lobby-screen.entering {
-      animation: lobbySlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    /* Top-Right Navigation Features */
+    .top-right-actions {
+      position: absolute;
+      top: 30px;
+      right: 35px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 1000;
+    }
+
+    .player-count {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      color: var(--parchment);
+      letter-spacing: 1px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: #2ecc71;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #2ecc71;
+      animation: pulse-active 2s infinite;
+    }
+
+    @keyframes pulse-active {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(46, 204, 113, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    }
+
+    .quick-access-wrapper {
+      position: relative;
+    }
+
+    .action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      background: rgba(15, 15, 15, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    .action-btn:hover {
+      background: rgba(201, 168, 76, 0.15);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .btn-img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .quick-access-dropdown {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      width: 220px;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      transform-origin: top right;
+      animation: dropdown-in 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    .quick-access-dropdown.active {
+      display: flex;
+    }
+
+    @keyframes dropdown-in {
+      from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: transparent;
+      border: none;
+      color: var(--parchment);
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(201, 168, 76, 0.12);
+      color: var(--gold);
+      padding-left: 18px;
+    }
+
+    .dropdown-icon {
+      width: 16px;
+      height: 16px;
+      object-fit: contain;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: rgba(201, 168, 76, 0.15);
+      margin: 6px 8px;
+    }
+
+    .logout-item:hover {
+      background: rgba(231, 76, 60, 0.15);
+      color: #e74c3c;
+    }
+
+    /* PROFESSIONAL LOBBY LAYOUT REWRITE */
+    .lobby-layout {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0;
+      background: transparent;
+      border: none;
+      z-index: 10;
+    }
+
+    .feature-row {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+
+    .lobby-layout .info-card {
+      width: 200px;
+      height: 180px;
+      text-align: center;
+      padding: 25px;
+      background: rgba(15, 15, 15, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 20px;
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lobby-layout .info-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--gold);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .lobby-layout .active-card {
+      border-color: var(--gold);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .info-main-box {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      padding: 50px 40px 40px;
+      text-align: center;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .info-title {
+      font-family: 'Cinzel', serif;
+      font-size: 26px;
+      color: var(--gold);
+      letter-spacing: 2px;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .rank-badge-pill {
+      background: linear-gradient(135deg, var(--gold), #8e6d1c);
+      border-radius: 50px;
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+
+    .rank-badge-pill img {
+      width: 16px;
+      height: 16px;
+      filter: brightness(0) invert(1);
+    }
+
+    .rank-badge-pill span {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 900;
+      color: #000;
+      letter-spacing: 1px;
+    }
+
+    .info-text {
+      color: var(--parchment);
+      opacity: 0.8;
+      line-height: 1.8;
+      font-size: 16px;
+      font-family: 'Crimson Pro', serif;
+      max-width: 800px;
+      margin: 0 auto 40px;
+      text-align: center;
+    }
+
+    .info-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-buttons .badge {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      padding: 8px 20px;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 30px;
+      color: var(--gold);
+      letter-spacing: 1.5px;
+      position: relative;
+    }
+
+    .info-icon-box {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(201, 168, 76, 0.1);
+      border-radius: 12px;
+    }
+
+    .info-icon-box img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .shimmer-anim::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 60%, 
+        transparent 100%);
+      transform: rotate(45deg);
+      animation: shimmerLoop 5s infinite;
+    }
+
+    @keyframes shimmerLoop {
+      0% { transform: translate(-100%, -100%) rotate(45deg); }
+      20% { transform: translate(100%, 100%) rotate(45deg); }
+      100% { transform: translate(100%, 100%) rotate(45deg); }
+    }
+
+    /* Global Ticker */
+    .global-ticker {
+      width: calc(100% + 80px);
+      margin: 0 -40px -40px;
+      background: rgba(0,0,0,0.4);
+      border-top: 1px solid rgba(201, 168, 76, 0.15);
+      padding: 10px 0;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: tickerMove 25s linear infinite;
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      color: var(--parchment);
+      opacity: 0.8;
+      letter-spacing: 1px;
+    }
+
+    .ticker-item {
+      display: inline-block;
+      padding: 0 40px;
+    }
+
+    .ticker-item strong {
+      color: var(--gold);
+    }
+
+    @keyframes tickerMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    @media (max-width: 768px) {
+      .feature-row { 
+        grid-template-columns: repeat(2, 1fr); 
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .lobby-layout .info-card {
+        width: calc(50% - 15px);
+      }
+      .top-right-actions { top: 15px; right: 15px; }
+      .player-count { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .feature-row { 
+        gap: 10px;
+      }
+      .lobby-layout .info-card {
+         width: 100%;
+         height: 140px;
+      }
+      .info-header {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .info-buttons {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .info-buttons .badge {
+        flex: 1 1 40%;
+      }
+    }
+
+    .menu-hero-viewport {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .menu-info-section {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 30px;
+      border: 1px solid rgba(201, 168, 76, 0.1);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .info-card {
+      text-align: center;
+      padding: 25px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 20px;
+      border: 1px solid rgba(201, 168, 76, 0.1);
+      transition: all 0.3s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--gold);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .info-icon-box {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(201, 168, 76, 0.1);
+      border-radius: 12px;
+    }
+
+    .info-icon-box img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .info-stat {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+
+    .info-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--parchment);
+      opacity: 0.6;
+    }
+
+    .info-description {
+      text-align: center;
+      max-width: 650px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .info-title-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+
+    .info-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      color: var(--parchment);
+      letter-spacing: 2px;
+      margin: 0;
+    }
+
+    .rank-badge-mini {
+      background: linear-gradient(135deg, var(--gold-dim), #000);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    .rank-badge-mini img {
+      width: 14px;
+      height: 14px;
+      filter: drop-shadow(0 0 5px var(--gold));
+    }
+
+    .rank-badge-mini span {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .info-text {
+      color: var(--parchment);
+      opacity: 0.7;
+      line-height: 1.8;
+      font-size: 15px;
+      font-family: 'Crimson Pro', serif;
+      margin-bottom: 30px;
+    }
+
+    .info-badges {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .badge {
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      padding: 6px 15px;
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      border-radius: 999px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Shimmer Animation */
+    .shimmer-anim::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, 
+        transparent 0%, 
+        transparent 40%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 60%, 
+        transparent 100%);
+      transform: rotate(45deg);
+      animation: shimmerLoop 5s infinite;
+    }
+
+    @keyframes shimmerLoop {
+      0% { transform: translate(-100%, -100%) rotate(45deg); }
+      20% { transform: translate(100%, 100%) rotate(45deg); }
+      100% { transform: translate(100%, 100%) rotate(45deg); }
+    }
+
+    /* Global Ticker */
+    .global-ticker {
+      width: calc(100% + 80px);
+      margin: 0 -40px -40px;
+      background: rgba(0,0,0,0.4);
+      border-top: 1px solid rgba(201, 168, 76, 0.15);
+      padding: 10px 0;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .ticker-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: tickerMove 25s linear infinite;
+      font-family: 'Crimson Pro', serif;
+      font-size: 13px;
+      color: var(--parchment);
+      opacity: 0.8;
+      letter-spacing: 1px;
+    }
+
+    .ticker-item {
+      display: inline-block;
+      padding: 0 40px;
+    }
+
+    .ticker-item strong {
+      color: var(--gold);
+    }
+
+    @keyframes tickerMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    @media (max-width: 768px) {
+      .info-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 15px;
+      }
+      .top-right-actions { top: 15px; right: 15px; }
+      .player-count { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .info-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+      }
+      .info-grid > .info-card:last-child {
+        grid-column: span 2;
+      }
+      .info-title-wrapper {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .info-badges {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .badge {
+        flex: 1 1 40%;
+      }
+      .global-ticker {
+        width: calc(100% + 40px);
+        margin-left: -20px;
+        margin-right: -20px;
+        margin-bottom: -20px;
+      }
     }
   </style>
 </head>
@@ -869,64 +1500,139 @@
           <span class="pulse-dot"></span>
           <span id="online-count">0</span> <span class="online-label" data-i18n="onlineLabel">Online</span>
         </div>
-        <button onclick="openContactModal()" class="action-btn" data-i18n-title="contactUs" title="Contact Us">
-          <img src="/img/mail.png" alt="Email">
-        </button>
-        <a href="https://ba9chich.com//fr/allagui" target="_blank" class="action-btn donate-btn"
-          data-i18n-title="supportDev" title="Support the Dev">
-          <img src="/img/donate.png" alt="Donate">
-        </a>
+        <div class="quick-access-wrapper">
+          <button id="quick-access-trigger" class="action-btn" title="Quick Access">
+            <img src="/img/account.png" alt="Account" class="btn-img">
+          </button>
+          <div id="quick-access-menu" class="quick-access-dropdown">
+            <button class="dropdown-item" onclick="showView('view-account')">
+              <img src="/img/account.png" alt="Account" class="dropdown-icon">
+              <span data-i18n="accountLabel">Account</span>
+            </button>
+            <button class="dropdown-item" onclick="openContactModal()">
+              <img src="/img/mail.png" alt="Contact" class="dropdown-icon">
+              <span data-i18n="contactLabel">Contact</span>
+            </button>
+            <a href="https://ba9chich.com/fr/allagui" target="_blank" class="dropdown-item">
+              <img src="/img/donate.png" alt="Support" class="dropdown-icon">
+              <span data-i18n="supportDevLabel">Support Dev</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout-item" onclick="handleQuickLogout()">
+              <img src="/img/security.png" alt="Logout" class="dropdown-icon">
+              <span data-i18n="logoutLabel">Logout</span>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="menu-wrap">
-        <p class="menu-ornament" data-i18n="slogan">Chakkeb: Win ma t7eb, wa9t ma t7eb.</p>
-        <h1 class="menu-title" onclick="playMenuChkobbaSfx()">CHKOBBA</h1>
-        <p class="menu-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
-        <div class="menu-divider"></div>
+      <div class="menu-hero-viewport">
+        <div class="menu-wrap">
+          <p class="menu-ornament" data-i18n="slogan">Chakkeb: Win ma t7eb, wa9t ma t7eb.</p>
+          <h1 class="menu-title" onclick="playMenuChkobbaSfx()">CHKOBBA</h1>
+          <p class="menu-subtitle" data-i18n="gameSubtitle">لعبة الشكوبة التونسية</p>
+          <div class="menu-divider"></div>
 
-        <!-- New Profile Header Row -->
-        <div class="menu-profile-header">
-          <div class="avatar-wrapper" onclick="document.getElementById('pfpInput').click()">
-            <img id="pfpPreview" src="/img/pfp.jpg" alt="Profile">
-            <div class="avatar-overlay"><span>CHANGE</span></div>
+          <!-- New Profile Header Row -->
+          <div class="menu-profile-header">
+            <div class="avatar-wrapper" onclick="document.getElementById('pfpInput').click()">
+              <img id="pfpPreview" src="/img/pfp.jpg" alt="Profile">
+              <div class="avatar-overlay"><span>CHANGE</span></div>
+            </div>
+            <input type="file" id="pfpInput" accept="image/*" style="display:none">
+
+            <div class="menu-username-container">
+              <span class="settings-label" data-i18n="usernameLabel">USERNAME</span>
+              <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11">
+              <div class="profile-welcome">Welcome, <span id="welcome-name" style="color:var(--gold)">Player</span></div>
+            </div>
           </div>
-          <input type="file" id="pfpInput" accept="image/*" style="display:none">
 
-          <div class="menu-username-container">
-            <span class="settings-label" data-i18n="usernameLabel">USERNAME</span>
-            <input class="settings-input" id="menu-username" type="text" placeholder="Your name…" maxlength="11">
-            <div class="profile-welcome">Welcome, <span id="welcome-name" style="color:var(--gold)">Player</span></div>
+          <!-- New Menu Cards Grid -->
+          <div class="menu-cards-grid">
+            <button class="menu-card-btn"
+              onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
+              onclick="showView('view-single-settings')">
+              <img src="/img/solocard.png" alt="Solo">
+              <span data-i18n="playSingle">Solo</span>
+            </button>
+            <button class="menu-card-btn"
+              onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
+              onclick="showView('view-lobby')">
+              <img src="/img/multiplayercard.png" alt="Multiplayer">
+              <span data-i18n="playMulti">Multiplayer</span>
+            </button>
+            <button class="menu-card-btn"
+              onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
+              onclick="showView('view-settings')">
+              <img src="/img/settingscard.png" alt="Settings">
+              <span data-i18n="settings">Settings</span>
+            </button>
+            <button class="menu-card-btn"
+              onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
+              onclick="showRules()">
+              <img src="/img/creditscard.png" alt="How to Play">
+              <span data-i18n="howToPlay">How to Play</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Professional Game Lobby Info Section -->
+      <div class="menu-info-section lobby-layout">
+        <div class="feature-row">
+          <div class="info-card">
+            <div class="info-icon-box">
+              <img src="/img/findmatch.png" alt="Players">
+            </div>
+            <div class="info-stat" id="total-accounts-stat">...</div>
+            <div class="info-label">Active Players</div>
+          </div>
+          <div class="info-card active-card">
+            <div class="info-icon-box">
+              <img src="/img/topplayers.png" alt="Ranked">
+            </div>
+            <div class="info-stat">Ranked</div>
+            <div class="info-label">ELO System</div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon-box">
+              <img src="/img/icon_carta.png" alt="Multiplayer">
+            </div>
+            <div class="info-stat">Pro AI</div>
+            <div class="info-label">Authentic Feel</div>
           </div>
         </div>
 
-        <!-- New Menu Cards Grid -->
-        <div class="menu-cards-grid">
-          <button class="menu-card-btn"
-            onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
-            onclick="showView('view-single-settings')">
-            <img src="/img/solocard.png" alt="Solo">
-            <span data-i18n="playSingle">Solo</span>
-          </button>
-          <button class="menu-card-btn"
-            onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
-            onclick="showView('view-lobby')">
-            <img src="/img/multiplayercard.png" alt="Multiplayer">
-            <span data-i18n="playMulti">Multiplayer</span>
-          </button>
-          <button class="menu-card-btn"
-            onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
-            onclick="showView('view-settings')">
-            <img src="/img/settingscard.png" alt="Settings">
-            <span data-i18n="settings">Settings</span>
-          </button>
-          <button class="menu-card-btn"
-            onmouseenter="if(typeof sfxEnabled !== 'undefined' && sfxEnabled) sfxMenuHover.play()"
-            onclick="showRules()">
-            <img src="/img/creditscard.png" alt="How to Play">
-            <span data-i18n="howToPlay">How to Play</span>
-          </button>
+        <div class="info-main-box">
+          <div class="info-header">
+            <h2 class="info-title">The Ultimate Tunisian Chkobba Experience</h2>
+            <div class="rank-badge-pill" id="menu-user-rank-badge" style="display:none">
+              <img src="/img/topplayers.png" alt="Rank">
+              <span id="menu-user-elo">1000</span>
+            </div>
+          </div>
+          <p class="info-text">
+            Immerse yourself in the most authentic and premium digital Chkobba. 
+            Whether you're playing against our advanced Smart AI or competing in ranked matches 
+            against players from all over the world, we bring the Tunisian café atmosphere 
+            straight to your screen. High-stakes gameplay, smooth animations, and a community of legends.
+          </p>
+          <div class="info-buttons">
+            <span class="badge shimmer-anim">FREE TO PLAY</span>
+            <span class="badge shimmer-anim">REAL-TIME MULTIPLAYER</span>
+            <span class="badge shimmer-anim">EXPERT BOTS</span>
+          </div>
         </div>
 
+        <!-- Global Achievement Ticker -->
+        <div class="global-ticker">
+          <div class="ticker-content" id="global-ticker-content">
+            <span class="ticker-item">Welcome to <strong>Chkobba Online</strong>! Beta testing is live.</span>
+            <span class="ticker-item">Win ranked matches to climb the <strong>Global Leaderboard</strong>.</span>
+            <span class="ticker-item">New <strong>Royal Table Theme</strong> now available in settings.</span>
+          </div>
+        </div>
       </div>
 
       <!-- Tunisian Café Radio Widget (FAB) -->
@@ -1697,6 +2403,41 @@
 
         // Carousel Arrows Init
         updateCarouselArrows();
+
+        // ── LOAD GLOBAL STATS ──
+        async function loadGlobalStats() {
+          try {
+            // 1. Load Player Count
+            const countRes = await fetch('/api/stats/player-count');
+            const countData = await countRes.json();
+            const statEl = document.getElementById('total-accounts-stat');
+            if (statEl && countData.count !== undefined) {
+              statEl.textContent = countData.count + (countData.count === 1 ? ' Account' : ' Accounts');
+            }
+
+            // 2. Load Recent Achievements for Ticker
+            const tickerRes = await fetch('/api/stats/recent-wins');
+            const wins = await tickerRes.json();
+            const tickerEl = document.getElementById('global-ticker-content');
+            if (tickerEl && wins && wins.length > 0) {
+              const baseMsgs = [
+                'Welcome to <strong>Chkobba Online</strong>! Beta testing is live.',
+                'Win ranked matches to climb the <strong>Global Leaderboard</strong>.',
+                'New <strong>Royal Table Theme</strong> now available in settings.'
+              ];
+              // Mix in real achievements
+              const allMsgs = [...baseMsgs, ...wins];
+              tickerEl.innerHTML = allMsgs.map(m => `<span class="ticker-item">${m}</span>`).join('');
+              
+              // Recalculate animation speed based on content length
+              const speed = (allMsgs.length * 10); // roughly 10s per item
+              tickerEl.style.animationDuration = `${speed}s`;
+            }
+          } catch (e) {
+            console.error('Failed to load global stats:', e);
+          }
+        }
+        loadGlobalStats();
       });
 
 
@@ -2759,7 +3500,14 @@
         </div>
       </div>
       <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
-
+<div class="deck-area deck-pile">
+              <div class="deck-visual">
+                <div class="deck-card-back"></div>
+                <div class="deck-card-back stack-1"></div>
+                <div class="deck-card-back stack-2"></div>
+              </div>
+              <div class="deck-count"><span id="deckInfo">40</span> <small>Cards</small></div>
+            </div>
       <!-- Game Stage -->
       <div class="game-stage" id="screen-game">
         
@@ -2807,14 +3555,7 @@
                 <div id="captureConfirmArea"></div>
               </div>
             </div>
-            <div class="deck-area deck-pile">
-              <div class="deck-visual">
-                <div class="deck-card-back"></div>
-                <div class="deck-card-back stack-1"></div>
-                <div class="deck-card-back stack-2"></div>
-              </div>
-              <div class="deck-count"><span id="deckInfo">40</span> <small>Cards</small></div>
-            </div>
+            
           </div>
 
           <!-- Right Player (2v2) -->
@@ -2856,8 +3597,8 @@
         <!-- Status & Feed -->
         <div class="game-footer">
           <div class="status-bar" id="statusBar">Waiting for move...</div>
-          <div class="log-area" id="logArea"></div>
         </div>
+        <div class="log-area" id="logArea"></div>
 
       </div>
 
@@ -3039,8 +3780,9 @@
             this.VALUE_NAMES = { 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: 'M', 9: 'K', 10: 'R' };
             this.seed = seed;
             this.rng = mulberry32(this.seed);
-            this.mode = gameMode;
-            this.playerLayout = playerLayout;
+            this.roundCount = 1;
+            this.jaryaCount = 1;
+            this.maxJaryas = (playerLayout === '2v2' ? 3 : 6);
             this.reset();
           }
 
@@ -3060,6 +3802,7 @@
             this.currentPlayer = 0;
             this.lastCaptor = -1;
             this.roundOver = false;
+            this.jaryaCount = 1;
 
             // If not online, strictly do local generation and dealing
             if (this.mode !== 'online') {
@@ -3162,7 +3905,7 @@
             }
 
             if (this.mode !== 'online') {
-              this.currentPlayer = 1 - playerIdx;
+              this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
             }
             return { chkobba, captured };
           }
@@ -3848,6 +4591,8 @@
           mode = m; lastMode = m;
           lastCustomName = customName;
           winScore = parseInt(targetScore) || 21;
+          const scoreDisplay = document.getElementById('target-score-display');
+          if (scoreDisplay) scoreDisplay.textContent = `${winScore} Pts`;
 
           // ── 2v2 layout toggle ──────────────────────────────────────────
           window.currentGameMode = gameMode;
@@ -4078,7 +4823,7 @@
 
             function handleStateSync(data) {
               if (!window.gameActive || thisGameInstanceId !== window.gameInstanceId) return;
-              const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount, isNewRound } = data;
+              const { myHand, table, currentTurn, jaryaCount, maxJaryas, deckRemaining, roundCount, isNewRound, winScore } = data;
               const sync = () => {
                 if (isAnimating) { setTimeout(sync, 100); return; }
 
@@ -4123,6 +4868,12 @@
                 if (jaryaCount && maxJaryas) {
                   const statusEl = document.getElementById('match-jarya-status');
                   if (statusEl) statusEl.textContent = `Jarya ${jaryaCount} / ${maxJaryas}`;
+                }
+
+                if (winScore !== undefined) {
+                  window.winScore = winScore;
+                  const scoreDisplay = document.getElementById('target-score-display');
+                  if (scoreDisplay) scoreDisplay.textContent = `${winScore} Pts`;
                 }
 
                 const dummy = [{id:'d1'},{id:'d2'},{id:'d3'}];
@@ -4411,6 +5162,12 @@
 
           renderTable();
 
+          // Update Round & Jarya Display
+          const rEl = document.getElementById('match-round-status');
+          const jEl = document.getElementById('match-jarya-status');
+          if (rEl) rEl.textContent = `Round ${engine.roundCount || 1}`;
+          if (jEl) jEl.textContent = `Jarya ${engine.jaryaCount || 1} / ${engine.maxJaryas || 6}`;
+
           // Update turn compass
           updateTurnIndicator(engine.currentPlayer);
 
@@ -4502,10 +5259,9 @@
           }
 
           // Main Deck back update
-          const mainDeckBack = document.querySelector('.deck-card-back');
-          if (mainDeckBack) {
-            mainDeckBack.style.backgroundImage = `url('/cards/${selectedBack}')`;
-          }
+          document.querySelectorAll('.deck-card-back').forEach(el => {
+            el.style.backgroundImage = `url('/cards/${selectedBack}')`;
+          });
 
           if (animateDeal) {
             if (sfxEnabled && gameStartedByUser) {
@@ -5053,7 +5809,8 @@
                 } else if (mode !== 'online') {
                   // MID-GAME DEAL: 3 cards only
                   engine.dealHands();
-                  addLog('***New Round Deal***');
+                  if (engine.jaryaCount) engine.jaryaCount++;
+                  addLog('***New Jarya Deal***');
                   updateUI(true);
                   setStatus(window.getTurnStatusMsg(engine.currentPlayer));
                   isAnimating = false;
@@ -5318,6 +6075,8 @@
           engine.currentPlayer = firstPlayerOfRound;
           hasShownEkherJarya = false;
 
+          if (engine.roundCount) engine.roundCount++;
+          engine.jaryaCount = 1;
           engine.lastCaptor = -1;
           engine.roundOver = false;
           engine.players.forEach(p => p.currentRoundChkobbas = 0);
@@ -5438,7 +6197,29 @@
           // 3. Normal Routing (Hash or LocalStorage)
           if (typeof handleRouting === 'function') handleRouting();
           else showMenu();
+
+          // 4. Load Global Stats
+          loadGlobalStats();
         };
+
+        async function loadGlobalStats() {
+          try {
+            const res = await fetch('/api/stats/player-count');
+            const data = await res.json();
+            const statEl = document.getElementById('total-accounts-stat');
+            if (statEl && data.count !== undefined) {
+              statEl.textContent = data.count + (data.count === 1 ? ' Account' : ' Accounts');
+              // Optionally add a small animation
+              statEl.style.animation = 'none';
+              void statEl.offsetWidth;
+              statEl.style.animation = 'viewSlideIn 0.8s ease';
+            }
+          } catch (e) {
+            console.error('Failed to load global stats:', e);
+            const statEl = document.getElementById('total-accounts-stat');
+            if (statEl) statEl.textContent = 'Active';
+          }
+        }
 
 
 
@@ -5602,6 +6383,38 @@
   <script>document.getElementById('year').innerHTML = new Date().getFullYear();</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/fullstack.js"></script>
+  <script>
+    // Quick Access Dropdown Logic
+    const qaTrigger = document.getElementById('quick-access-trigger');
+    const qaMenu = document.getElementById('quick-access-menu');
+
+    if (qaTrigger && qaMenu) {
+      qaTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        qaMenu.classList.toggle('active');
+        if (typeof playClickSfx === 'function') playClickSfx();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!qaMenu.contains(e.target) && !qaTrigger.contains(e.target)) {
+          qaMenu.classList.remove('active');
+        }
+      });
+    }
+
+    function handleQuickLogout() {
+      const fsLogout = document.getElementById('fs-logout');
+      if (fsLogout) {
+        fsLogout.click();
+      } else {
+        if (window.confirm("Are you sure you want to log out?")) {
+            localStorage.removeItem('chkobba_last_username');
+            window.location.reload();
+        }
+      }
+      if (qaMenu) qaMenu.classList.remove('active');
+    }
+  </script>
 </body>
 
 </html>

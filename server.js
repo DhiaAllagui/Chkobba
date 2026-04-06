@@ -390,6 +390,31 @@ app.get('/api/leaderboard', async (req, res) => {
   res.json(data || []);
 });
 
+app.get('/api/stats/player-count', async (req, res) => {
+  if (!supabaseAdmin) return res.json({ count: 0 });
+  const { count, error } = await supabaseAdmin
+    .from('profiles')
+    .select('*', { count: 'exact', head: true });
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  res.json({ count: count || 0 });
+});
+
+app.get('/api/stats/recent-wins', async (req, res) => {
+  if (!supabaseAdmin) return res.json([]);
+  const { data, error } = await supabaseAdmin.from('match_history')
+    .select('player_id, profiles(username), match_result, created_at')
+    .eq('match_result', 'win')
+    .order('created_at', { ascending: false })
+    .limit(5);
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  
+  // Format the wins into achievement strings
+  const achievements = (data || []).map(m => {
+    return `<strong>${m.profiles?.username || 'Player'}</strong> just won a Ranked match!`;
+  });
+  res.json(achievements);
+});
+
 app.get('/api/history', authRequired, async (req, res) => {
   const { data: rows, error } = await supabaseAdmin.from('match_history')
     .select('match_id,player_id,opponent_id,player_score,opponent_score,chkobba_count,match_result,created_at')

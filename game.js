@@ -202,7 +202,11 @@ io.on('connection', (socket) => {
             currentTurn: room.gameState.currentTurn, 
             numPlayers, 
             deckRemaining: deck.length, 
-            myHand: hands[i] 
+            myHand: hands[i],
+            roundCount: room.roundCount,
+            jaryaCount: room.gameState.jaryaCount,
+            maxJaryas: room.gameState.maxJaryas,
+            winScore: room.settings.score
         });
     });
   });
@@ -225,7 +229,11 @@ io.on('connection', (socket) => {
                   currentTurn: room.gameState.currentTurn,
                   numPlayers: room.gameState.numPlayers,
                   deckRemaining: room.gameState.deck.length,
-                  totalScores: room.gameState.totalScores
+                  totalScores: room.gameState.totalScores,
+                  roundCount: room.roundCount,
+                  jaryaCount: room.gameState.jaryaCount,
+                  maxJaryas: room.gameState.maxJaryas,
+                  winScore: room.settings.score
               });
           }
       }
@@ -309,7 +317,10 @@ io.on('connection', (socket) => {
                 myHand: state.hands[i],
                 table: state.table,
                 deckRemaining: state.deck.length,
-                currentTurn: state.currentTurn
+                currentTurn: state.currentTurn,
+                roundCount: room.roundCount,
+                jaryaCount: state.jaryaCount,
+                maxJaryas: state.maxJaryas
             });
         });
     } else if (roundEnded) {
@@ -358,7 +369,10 @@ io.on('connection', (socket) => {
                   myHand: room.gameState.hands[i],
                   table: room.gameState.table,
                   currentTurn: room.gameState.currentTurn,
-                  isNewRound: true 
+                  isNewRound: true,
+                  roundCount: room.roundCount,
+                  jaryaCount: room.gameState.jaryaCount,
+                  maxJaryas: room.gameState.maxJaryas
               });
           });
       }
