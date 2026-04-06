@@ -2722,199 +2722,213 @@
     </div>
 
     <div id="view-game" class="spa-view">
+      <!-- Game HUD: Top Bar -->
+      <div class="game-hud-top">
+        <div class="hud-left">
+          <button class="hud-btn" onclick="toggleNav()" title="Menu">
+            <img src="/img/menu.png" alt="Menu">
+          </button>
+        </div>
+        <div class="hud-center">
+          <div class="match-info-badge">
+            <span id="match-round-status">Round 1</span>
+            <span class="divider">|</span>
+            <span id="match-jarya-status">Jarya 1 / 6</span>
+            <span class="divider">|</span>
+            <span id="target-score-display">21 Pts</span>
+          </div>
+        </div>
+        <div class="hud-right">
+          <button class="hud-btn" id="focusBtn" onclick="toggleFocusMode()" title="Focus Mode">
+            <img src="/img/focus.png" alt="Focus" id="focusIcon">
+          </button>
+        </div>
+      </div>
 
+      <!-- Side Navigation Drawer -->
+      <div class="side-nav" id="sideNav">
+        <div class="side-nav-header">
+          <span class="side-nav-title">GAME MENU</span>
+          <button class="side-nav-close" onclick="toggleNav()">&times;</button>
+        </div>
+        <div class="side-nav-links">
+          <button class="side-nav-link" onclick="handleNavAction('rules')"><img src="/img/rules.png" class="btn-icon"> <span>How to Play</span></button>
+          <button class="side-nav-link" onclick="handleNavAction('fullscreen')"><img src="/img/fullscreen.png" class="btn-icon"> <span>Fullscreen</span></button>
+          <button class="side-nav-link" onclick="handleNavAction('mute')" id="side-mute-btn"><img id="side-mute-icon" src="/img/volumeup.png" class="btn-icon"> <span id="side-mute-text">Mute</span></button>
+          <button class="side-nav-link" onclick="handleNavAction('menu')"><img src="/img/menu.png" class="btn-icon"> <span>Main Menu</span></button>
+        </div>
+      </div>
+      <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
 
-      <!-- CHKOBBA TOAST -->
+      <!-- Game Stage -->
+      <div class="game-stage" id="screen-game">
+        
+        <!-- Opponent Zone -->
+        <div class="stage-zone zone-top" id="zone-bot">
+          <div class="player-info-card info-top" id="bot-info-card">
+            <div class="streak-badge" id="streak-bot">🔥0</div>
+            <div class="avatar-ring">
+              <img class="player-avatar" id="pfp-bot" src="/img/botpfp.png" alt="Opponent">
+            </div>
+            <div class="player-meta">
+              <div class="player-name" id="name-bot">Chkobba Master</div>
+              <div class="player-score-display" id="score-bot">0</div>
+            </div>
+            <button class="mute-toggle-btn" id="opponent-chat-mute-btn" onclick="toggleOpponentChatMute()" title="Mute">
+              <img id="opponent-chat-mute-icon" src="/img/volumeup.png" alt="Mute">
+            </button>
+          </div>
+          <div class="hand-wrapper">
+            <div class="hand" id="hand-bot"></div>
+          </div>
+          <div class="captured-pile-visual" id="chkobba-bot"></div>
+        </div>
+
+        <!-- Middle Area (Table + Side Players) -->
+        <div class="stage-middle">
+          <!-- Left Player (2v2) -->
+          <div class="stage-zone side-zone zone-left" id="zone-p2" style="display:none;">
+            <div class="player-info-card p2-left" id="p2-info">
+              <div class="avatar-ring"><img class="player-avatar" id="pfp-p2" src="/img/pfp.jpg"></div>
+              <div class="player-name" id="name-p2">Player</div>
+              <div class="player-score-display" id="score-p2">0</div>
+            </div>
+            <div class="hand-wrapper">
+              <div class="hand hand-vertical" id="hand-p2"></div>
+            </div>
+          </div>
+
+          <!-- The Table (Tawla) -->
+          <div class="table-container">
+            <div class="table-surface">
+              <div class="table-glow"></div>
+              <div class="table-inner">
+                <div class="table-cards" id="tableCards"></div>
+                <div id="captureConfirmArea"></div>
+              </div>
+            </div>
+            <div class="deck-area deck-pile">
+              <div class="deck-visual">
+                <div class="deck-card-back"></div>
+                <div class="deck-card-back stack-1"></div>
+                <div class="deck-card-back stack-2"></div>
+              </div>
+              <div class="deck-count"><span id="deckInfo">40</span> <small>Cards</small></div>
+            </div>
+          </div>
+
+          <!-- Right Player (2v2) -->
+          <div class="stage-zone side-zone zone-right" id="zone-p3" style="display:none;">
+            <div class="player-info-card p3-right" id="p3-info">
+              <div class="avatar-ring"><img class="player-avatar" id="pfp-p3" src="/img/pfp.jpg"></div>
+              <div class="player-name" id="name-p3">Player</div>
+              <div class="player-score-display" id="score-p3">0</div>
+            </div>
+            <div class="hand-wrapper">
+              <div class="hand hand-vertical" id="hand-p3"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Zone -->
+        <div class="stage-zone zone-bottom" id="zone-player">
+          <div class="captured-pile-visual" id="chkobba-player"></div>
+          <div class="hand-wrapper">
+            <div class="hand" id="hand-player"></div>
+          </div>
+          <div class="player-info-card info-bottom active" id="player-info-card">
+            <div class="streak-badge" id="streak-player">🔥0</div>
+            <div class="avatar-ring">
+              <img class="player-avatar" id="pfp-player" src="/img/pfp.jpg" alt="You">
+            </div>
+            <div class="player-meta">
+              <div class="player-name" id="name-player">You</div>
+              <div class="player-score-display" id="score-player">0</div>
+            </div>
+            <div class="player-actions">
+              <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu(event)" title="Chat">
+                <img src="/img/message.png" alt="Chat">
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status & Feed -->
+        <div class="game-footer">
+          <div class="status-bar" id="statusBar">Waiting for move...</div>
+          <div class="log-area" id="logArea"></div>
+        </div>
+
+      </div>
+
+      <!-- Turn Indicator (Compass) -->
+      <div class="turn-indicator" id="turnIndicator">
+        <div class="turn-arrow turn-arrow-up" id="turnArrowUp">&#9650;</div>
+        <div class="turn-arrow turn-arrow-right" id="turnArrowRight">&#9654;</div>
+        <div class="turn-arrow turn-arrow-down" id="turnArrowDown">&#9660;</div>
+        <div class="turn-arrow turn-arrow-left" id="turnArrowLeft">&#9664;</div>
+      </div>
+
+      <!-- Overlays & Toasts -->
       <div class="chkobba-toast" id="chkobbaToast">+1 CHKOBBA!</div>
-      <div class="chkobba-toast" id="hayyaToast"
-        style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">
-        <img src="/cards/7carreau.png" class="toast-card-icon" alt="7 Diamonds">
+      <div class="chkobba-toast" id="hayyaToast" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #000;">
+        <img src="/cards/7carreau.png" class="toast-card-icon">
         <span>L'7AYYA!</span>
       </div>
       <div id="ekherJarya" class="ekher-jarya-toast">EKHER JARYA</div>
-
-      <!-- LOG -->
-      <div class="log-area" id="logArea"></div>
-
-      <!-- (Integrated Menu Screen removed, now in menu.html) -->
-
-      <!-- ══ GAME SCREEN ══ -->
-      <div id="screen-game" class="spa-view">
-        <!-- Hamburger Menu Icon -->
-        <div class="hamburger-menu" id="hamburgerMenu" onclick="toggleNav()">
-          <span></span>
-          <span></span>
-          <span></span>
+      <div id="opponentChatToast" class="opponent-chat-toast"></div>
+      
+      <!-- Quick Chat Menu -->
+      <div class="chat-menu" id="chatMenu">
+        <div class="chat-emoji-row">
+          <button class="chat-emoji-btn" onclick="sendEmojiChat('kingaura')"><img src="/img/kingaura.png"></button>
+          <button class="chat-emoji-btn" onclick="sendEmojiChat('queenlauthing')"><img src="/img/queenlauthing.png"></button>
+          <button class="chat-emoji-btn" onclick="sendEmojiChat('kingmad')"><img src="/img/kingmad.png"></button>
+          <button class="chat-emoji-btn" onclick="sendEmojiChat('valletff')"><img src="/img/valletff.png"></button>
+          <button class="chat-emoji-btn" onclick="sendEmojiChat('ty')"><img src="/img/ty.png"></button>
         </div>
-
-        <!-- Global Chat Menu (Centered above the chat button) -->
-        <div class="chat-menu" id="chatMenu">
-          <div class="chat-emoji-row" style="grid-column: span 3; display: flex; justify-content: center; gap: 8px; margin-bottom: 8px;">
-            <button class="chat-emoji-btn" onclick="sendEmojiChat('kingaura')"><img src="/img/kingaura.png" alt="kingaura"></button>
-            <button class="chat-emoji-btn" onclick="sendEmojiChat('queenlauthing')"><img src="/img/queenlauthing.png" alt="queenlauthing"></button>
-            <button class="chat-emoji-btn" onclick="sendEmojiChat('kingmad')"><img src="/img/kingmad.png" alt="kingmad"></button>
-            <button class="chat-emoji-btn" onclick="sendEmojiChat('valletff')"><img src="/img/valletff.png" alt="valletff"></button>
-            <button class="chat-emoji-btn" onclick="sendEmojiChat('ty')"><img src="/img/ty.png" alt="ty"></button>
-          </div>
+        <div class="chat-phrases-grid">
           <div class="chat-phrase" onclick="sendChat('c11')" data-i18n="c11">Eyy</div>
           <div class="chat-phrase" onclick="sendChat('c12')" data-i18n="c12">Lee</div>
           <div class="chat-phrase" onclick="sendChat('c1')" data-i18n="c1">Sahha!</div>
           <div class="chat-phrase" onclick="sendChat('c2')" data-i18n="c2">CHKOBTEK!</div>
-          <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya 3andek?</div>
-          <div class="chat-phrase" onclick="sendChat('c4')" data-i18n="c4">Chkeyb lee!</div>
-          <div class="chat-phrase" onclick="sendChat('c5')" data-i18n="c5">T3allem al3eb!</div>
-          <div class="chat-phrase" onclick="sendChat('c6')" data-i18n="c6">Kesah!</div>
-          <div class="chat-phrase" onclick="sendChat('c7')" data-i18n="c7">La3ba sehla</div>
-          <div class="chat-phrase" onclick="sendChat('c8')" data-i18n="c8">Jib dineri</div>
-          <div class="chat-phrase" onclick="sendChat('c9')" data-i18n="c9">L'7ayya dour</div>
-          <div class="chat-phrase" onclick="sendChat('c10')" data-i18n="c10">Nrisky?</div>
-          <div class="chat-phrase" onclick="sendChat('c13')" data-i18n="c13">Yrawah!</div>
-          <div class="chat-phrase" onclick="sendChat('c14')" data-i18n="c14">Ija beha!</div>
-          <div class="chat-phrase" onclick="sendChat('c15')" data-i18n="c15">7otni m3ah</div>
-          <div class="chat-phrase" onclick="sendChat('c16')" data-i18n="c16">narj3ou ayy</div>
-          <div class="chat-phrase" onclick="sendChat('c17')" data-i18n="c17">ezrebelna</div>
-          <div class="chat-phrase" onclick="sendChat('c18')" data-i18n="c18">nchala sne</div>
+          <div class="chat-phrase" onclick="sendChat('c3')" data-i18n="c3">7ayya?</div>
+          <div class="chat-phrase" onclick="sendChat('c5')" data-i18n="c5">Al3eb!</div>
         </div>
-
-        <!-- Side Navigation Drawer -->
-        <div class="side-nav" id="sideNav">
-          <div class="side-nav-header">
-            <span class="side-nav-title">MENU</span>
-            <button class="side-nav-close" onclick="toggleNav()">&times;</button>
-          </div>
-          <div class="side-nav-links">
-            <button class="side-nav-link" onclick="handleNavAction('rules')"><img src="/img/rules.png" class="btn-icon">
-              <span data-i18n="howToPlay">How to Play</span></button>
-            <button class="side-nav-link" onclick="handleNavAction('fullscreen')"><img src="/img/fullscreen.png"
-                class="btn-icon"> <span data-i18n="fullscreen">Fullscreen</span></button>
-            <button class="side-nav-link" onclick="handleNavAction('mute')" id="side-mute-btn"><img id="side-mute-icon" src="/img/volumeup.png" class="btn-icon">
-              <span id="side-mute-text">Mute</span></button>
-            <button class="side-nav-link" onclick="handleNavAction('menu')"><img src="/img/menu.png" class="btn-icon">
-              <span data-i18n="mainMenu">Main Menu</span></button>
-          </div>
-        </div>
-        <div class="side-nav-overlay" id="sideNavOverlay" onclick="toggleNav()"></div>
-
-        <!-- Quick Chat and mute controls are now anchored to the player info card -->
-
-
-        <!-- BOT / P2 Zone (Top) -->
-        <div class="player-zone" id="zone-bot">
-          <div class="hand" id="hand-bot"></div>
-          <!-- Moved player-info-card-panel for top player right next to the hand -->
-          <div class="player-info-card info-top mode-2v2-info">
-            <div class="streak-badge" id="streak-bot">🔥0</div>
-            <img class="player-avatar" id="pfp-bot" src="/img/botpfp.png" alt="Bot">
-            <div class="player-name" id="name-bot">Chkobba Master</div>
-            <div class="player-score-display" id="score-bot">0</div>
-            <button class="mute-toggle-btn opponent-mute-corner" id="opponent-chat-mute-btn" onclick="toggleOpponentChatMute()" title="Mute Opponent Chat">
-              <img id="opponent-chat-mute-icon" src="/img/volumeup.png" alt="Mute" style="width:18px; height:18px;">
-            </button>
-          </div>
-        </div>
-
-        <!-- P2 Left Zone (2v2 only) -->
-        <div class="player-zone side-zone zone-left" id="zone-p2" style="display:none;">
-          <div class="hand hand-vertical" id="hand-p2"></div>
-          <div class="player-info-card p2-left mode-2v2-info" id="p2-info">
-            <div class="streak-badge" id="streak-p2">🔥0</div>
-            <img class="player-avatar" id="pfp-p2" src="/img/pfp.jpg" alt="P2">
-            <div class="player-name" id="name-p2">Player</div>
-            <div class="player-score-display" id="score-p2">0</div>
-          </div>
-        </div>
-        <!-- Table -->
-        <div class="table-area">
-          <div class="table-label"> ◆ Tawla ◆ </div>
-          <div id="captureConfirmArea" style="display:flex; justify-content:center; align-items:center;"></div>
-          <div class="table-cards" id="tableCards"></div>
-          <div id="turn-timer" class="turn-timer-container" style="display:none;">
-            <div id="turn-timer-bar" class="turn-timer-bar"></div>
-          </div>
-          <div class="status-bar" id="statusBar">Welcome to Chkobba</div>
-          <div id="opponentChatToast" class="opponent-chat-toast"></div>
-        </div>
-
-        <!-- P3 Right Zone (2v2 only) -->
-        <div class="player-zone side-zone zone-right" id="zone-p3" style="display:none;">
-          <div class="hand hand-vertical" id="hand-p3"></div>
-          <div class="player-info-card p3-right mode-2v2-info" id="p3-info">
-            <div class="streak-badge" id="streak-p3">🔥0</div>
-            <img class="player-avatar" id="pfp-p3" src="/img/pfp.jpg" alt="P3">
-            <div class="player-name" id="name-p3">Player</div>
-            <div class="player-score-display" id="score-p3">0</div>
-          </div>
-        </div>
-
-        <!-- P1 Zone (Bottom) -->
-        <div class="player-zone" id="zone-player">
-          <div class="hand" id="hand-player"></div>
-          <!-- Moved player-info-card-panel for bottom player right next to the hand -->
-          <div class="player-info-card info-bottom mode-2v2-info">
-            <div class="streak-badge" id="streak-player">🔥0</div>
-            <img class="player-avatar" id="pfp-player" src="/img/pfp.jpg" alt="You">
-            <div class="player-name" id="name-player">You</div>
-            <div class="player-score-display" id="score-player">0</div>
-
-            <div class="player-card-controls">
-              <button class="chat-btn" id="chatBtn" onclick="toggleChatMenu(event)" title="Quick Chat">
-                <img src="/img/message.png" alt="Chat">
-              </button>
-            </div>
-
-            <button class="focus-button" id="focusBtn" onclick="toggleFocusMode()"
-                title="Focus Mode (Ambience Toggle)">
-                <img src="/img/focus.png" alt="Focus" id="focusIcon"
-                  style="width:18px; height:18px; opacity:0.8; margin-right:6px;">
-                <span data-i18n="focus"
-                  style="font-family:'Cinzel', serif; font-size:10px; letter-spacing:1px; font-weight:700;">FOCUS</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Old info panels were moved into zones above -->
-        <!-- Turn indicator: compass arrows, always present, styled per mode -->
-        <div class="turn-indicator" id="turnIndicator">
-          <div class="turn-arrow turn-arrow-up" id="turnArrowUp">&#9650;</div>
-          <div class="turn-arrow turn-arrow-right" id="turnArrowRight">&#9654;</div>
-          <div class="turn-arrow turn-arrow-down" id="turnArrowDown">&#9660;</div>
-          <div class="turn-arrow turn-arrow-left" id="turnArrowLeft">&#9664;</div>
-        </div>
-
-        <!-- Piles & Deck -->
-        <div class="corner-pile top-left" id="chkobba-bot"></div>
-        <div class="deck-pile left-center" style="display:flex; flex-direction:column; align-items:center;">
-          <div class="pile-bg-wrap" style="position:relative; width:var(--card-w); height:var(--card-h);">
-            <div class="pile-bg"></div>
-          </div>
-          <div class="deck-info" id="deckInfo"
-            style="color:var(--gold-dim); font-size:14px; font-weight:700; margin-top:8px; text-shadow:none;">
-            40</div>cards remaining
-        </div>
-
-        <div class="corner-pile bottom-right" id="chkobba-player"></div>
       </div>
 
-      <!-- ══ END SCREEN ══ -->
+      <!-- End Screen Overlay -->
       <div id="screen-end">
-        <p class="menu-ornament" data-i18n="roundOver">Round Over</p>
-        <div class="end-title" id="endTitle">Game Over</div>
-        <div class="end-winner" id="endWinner"></div>
-        <table class="score-table" id="scoreTable">
-          <thead>
-            <tr>
-              <th id="th-p1" style="text-align:left">You</th>
-              <th>Category</th>
-              <th id="th-p2" style="text-align:right">Opponent</th>
-            </tr>
-          </thead>
-          <tbody id="scoreTbody"></tbody>
-        </table>
-        <div id="matchStatus" class="match-status-text"></div>
-        <div class="end-btn-row">
-          <button class="menu-btn end-action-btn" id="btn-next-action" data-i18n="playAgain">Play Again</button>
+        <div class="end-card">
+          <div class="end-header">
+            <p class="end-ornament">Round Over</p>
+            <h2 class="end-title" id="endTitle">Match Success</h2>
+          </div>
+          <div class="end-score-wrap">
+            <div class="end-winner" id="endWinner">You Win!</div>
+            <table class="score-table" id="scoreTable">
+              <thead>
+                <tr>
+                  <th id="th-p1">You</th>
+                  <th>Category</th>
+                  <th id="th-p2">Bot</th>
+                </tr>
+              </thead>
+              <tbody id="scoreTbody"></tbody>
+            </table>
+          </div>
+          <div id="matchStatus" class="match-status-text"></div>
+          <div class="end-actions">
+            <button class="premium-btn" id="btn-next-action" data-i18n="playAgain">Play Again</button>
+          </div>
         </div>
-      </div> <!-- End of view-game -->
+      </div>
+
+      <div id="streak-popup" class="streak-popup">
+        <div id="streak-count-text"></div>
+        <div class="fire-text">CHKOBBA STREAK! 🔥</div>
+      </div>
+    </div> <!-- End of view-game -->
       <div id="streak-popup" class="streak-popup">
         <div id="streak-count-text"></div>
         <div class="fire-text">CHKOBBA STREAK! 🔥</div>
@@ -3714,10 +3728,8 @@
         function toggleNav() {
           const nav = document.getElementById('sideNav');
           const overlay = document.getElementById('sideNavOverlay');
-          const hamburger = document.getElementById('hamburgerMenu');
           nav.classList.toggle('open');
           overlay.classList.toggle('show');
-          hamburger.classList.toggle('active');
         }
 
         function toggleFullscreen() {
@@ -4391,8 +4403,10 @@
             if (engine.players[2]) renderHand('hand-p2', engine.players[2].hand, false, isLeftTurn);
             if (engine.players[3]) renderHand('hand-p3', engine.players[3].hand, false, isRightTurn);
           } else {
-            document.getElementById('hand-p2').innerHTML = '';
-            document.getElementById('hand-p3').innerHTML = '';
+            const h2 = document.getElementById('hand-p2');
+            const h3 = document.getElementById('hand-p3');
+            if (h2) h2.innerHTML = '';
+            if (h3) h3.innerHTML = '';
           }
 
           renderTable();
@@ -4407,16 +4421,21 @@
           const myTeamScore = totalScores[myTeamIdx] ?? 0;
           const oppTeamScore = totalScores[oppTeamIdx] ?? 0;
 
-          document.getElementById('score-player').textContent = myTeamScore;
-          document.getElementById('score-bot').textContent = (window.currentGameMode === '2v2' ? myTeamScore : oppTeamScore);
+          const sPlayer = document.getElementById('score-player');
+          const sBot = document.getElementById('score-bot');
+          if (sPlayer) sPlayer.textContent = myTeamScore;
+          if (sBot) sBot.textContent = (window.currentGameMode === '2v2' ? myTeamScore : oppTeamScore);
 
           if (window.currentGameMode === '2v2') {
-            document.getElementById('score-p2').textContent = oppTeamScore;
-            document.getElementById('score-p3').textContent = oppTeamScore;
+            const sP2 = document.getElementById('score-p2');
+            const sP3 = document.getElementById('score-p3');
+            if (sP2) sP2.textContent = oppTeamScore;
+            if (sP3) sP3.textContent = oppTeamScore;
           }
 
           const deckCount = engine.deck.length;
-          document.getElementById('deckInfo').textContent = deckCount;
+          const dInfo = document.getElementById('deckInfo');
+          if (dInfo) dInfo.textContent = deckCount;
           const deckPileEl = document.querySelector('.deck-pile');
           if (deckPileEl) deckPileEl.style.display = deckCount === 0 ? 'none' : 'flex';
 
@@ -4428,7 +4447,8 @@
 
           const cPlayer = document.getElementById('chkobba-player');
           const cBot = document.getElementById('chkobba-bot');
-          cPlayer.innerHTML = ''; cBot.innerHTML = '';
+          if (cPlayer) cPlayer.innerHTML = '';
+          if (cBot) cBot.innerHTML = '';
 
           const myTeamChkobbas = [];
           const oppTeamChkobbas = [];
@@ -4441,18 +4461,22 @@
             oppTeamChkobbas.push(...engine.players[1].chkobbas);
           }
 
-          myTeamChkobbas.forEach((c, idx) => {
-            const el = makeCardEl(c, false);
-            el.className = 'card chkobba-peek';
-            el.style.transform = `translate(${-35 - idx * 4}px, ${-18 - idx * 3}px) rotate(${-3 - idx * 2}deg)`;
-            cPlayer.appendChild(el);
-          });
-          oppTeamChkobbas.forEach((c, idx) => {
-            const el = makeCardEl(c, false);
-            el.className = 'card chkobba-peek';
-            el.style.transform = `translate(${-35 - idx * 4}px, ${-18 - idx * 3}px) rotate(${-3 - idx * 2}deg)`;
-            cBot.appendChild(el);
-          });
+          if (cPlayer) {
+            myTeamChkobbas.forEach((c, idx) => {
+              const el = makeCardEl(c, false);
+              el.className = 'card chkobba-peek';
+              el.style.transform = `translate(${-35 - idx * 4}px, ${-18 - idx * 3}px) rotate(${-3 - idx * 2}deg)`;
+              cPlayer.appendChild(el);
+            });
+          }
+          if (cBot) {
+            oppTeamChkobbas.forEach((c, idx) => {
+              const el = makeCardEl(c, false);
+              el.className = 'card chkobba-peek';
+              el.style.transform = `translate(${-35 - idx * 4}px, ${-18 - idx * 3}px) rotate(${-3 - idx * 2}deg)`;
+              cBot.appendChild(el);
+            });
+          }
 
           const myTeamHasPile = (window.currentGameMode === '2v2')
             ? (engine.players[0].pile.length > 0 || engine.players[1].pile.length > 0)
@@ -4465,16 +4489,22 @@
           if (myTeamHasPile) {
             const bg = document.createElement('div');
             bg.className = 'pile-bg'; bg.style.zIndex = '10';
-            bg.style.backgroundImage = `url('/assets/cards/${selectedBack}')`;
+            bg.style.backgroundImage = `url('/cards/${selectedBack}')`;
             bg.style.backgroundSize = 'contain'; bg.style.backgroundRepeat = 'no-repeat'; bg.style.backgroundPosition = 'center';
-            cPlayer.appendChild(bg);
+            if (cPlayer) cPlayer.appendChild(bg);
           }
           if (oppTeamHasPile) {
             const bg = document.createElement('div');
             bg.className = 'pile-bg'; bg.style.zIndex = '10';
-            bg.style.backgroundImage = `url('/assets/cards/${selectedBack}')`;
+            bg.style.backgroundImage = `url('/cards/${selectedBack}')`;
             bg.style.backgroundSize = 'contain'; bg.style.backgroundRepeat = 'no-repeat'; bg.style.backgroundPosition = 'center';
-            cBot.appendChild(bg);
+            if (cBot) cBot.appendChild(bg);
+          }
+
+          // Main Deck back update
+          const mainDeckBack = document.querySelector('.deck-card-back');
+          if (mainDeckBack) {
+            mainDeckBack.style.backgroundImage = `url('/cards/${selectedBack}')`;
           }
 
           if (animateDeal) {
@@ -4658,6 +4688,7 @@
         function renderHand(containerId, hand, interactive, isCurrentTurn) {
           if (!hand) return;
           const el = document.getElementById(containerId);
+          if (!el) return;
           const existing = Array.from(el.children);
           const cardIds = hand.map(c => c.id);
           existing.forEach(child => { if (!cardIds.includes(child.dataset.id)) child.remove(); });
@@ -4778,6 +4809,7 @@
 
         function renderTable() {
           const el = document.getElementById('tableCards');
+          if (!el) return;
           if (!engine.table || engine.table.length === 0) {
             let emptyText = window.translations?.[window.currentLang]?.tableEmpty || 'Table is empty';
             el.innerHTML = `<span style="color:var(--gold-dim);font-style:italic;font-size:14px;">${emptyText}</span>`;
