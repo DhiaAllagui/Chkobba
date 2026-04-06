@@ -110,3 +110,34 @@ drop policy if exists "match_history_owner_read" on public.match_history;
 create policy "match_history_owner_read"
 on public.match_history for select
 using (auth.uid() = player_id);
+create table if not exists public.friends (
+  id uuid primary key default gen_random_uuid(),
+  user_id_1 uuid not null references public.profiles(id) on delete cascade,
+  user_id_2 uuid not null references public.profiles(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'accepted')),
+  action_user_id uuid not null references public.profiles(id), -- the user who took the last action
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint friends_users_unique unique (user_id_1, user_id_2),
+  constraint friends_user_order check (user_id_1 < user_id_2)
+);
+
+alter table public.friends enable row level security;
+
+-- Policies for friends
+create policy "friends_select_own"
+on public.friends for select
+using (auth.uid() = user_id_1 or auth.uid() = user_id_2);
+
+create policy "friends_insert_self"
+on public.friends for insert
+with check (auth.uid() = user_id_1 or auth.uid() = user_id_2);
+
+create policy "friends_update_self"
+on public.friends for update
+using (auth.uid() = user_id_1 or auth.uid() = user_id_2)
+with check (auth.uid() = user_id_1 or auth.uid() = user_id_2);
+
+create policy "friends_delete_self"
+on public.friends for delete
+using (auth.uid() = user_id_1 or auth.uid() = user_id_2);

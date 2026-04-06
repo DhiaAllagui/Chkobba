@@ -1190,6 +1190,139 @@
       }
     }
 
+    /* SOCIAL MODAL STYLES (CENTERED) */
+    .social-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .social-modal-overlay.active { display: flex; }
+
+    .social-modal-window {
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      background: rgba(15, 15, 15, 0.95);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.9);
+      color: var(--parchment);
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .social-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .social-title { font-family: 'Cinzel', serif; font-size: 24px; color: var(--gold); letter-spacing: 2px; margin: 0; }
+    .social-close { background: none; border: none; font-size: 30px; color: var(--gold); opacity: 0.5; cursor: pointer; }
+    .social-close:hover { opacity: 1; }
+
+    .social-search-box { position: relative; margin-bottom: 30px; }
+    .social-search-box input {
+       width: 100%;
+       background: rgba(255,255,255,0.05);
+       border: 1px solid rgba(212, 175, 55, 0.2);
+       border-radius: 12px;
+       padding: 14px 20px;
+       color: #fff;
+       font-family: 'Crimson Pro', serif;
+       font-size: 16px;
+    }
+    
+    .social-section { margin-bottom: 30px; }
+    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); opacity: 0.7; margin-bottom: 12px; }
+
+    /* Fix dropdown z-index or visibility issues */
+    .quick-access-dropdown {
+       z-index: 2005;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 14px;
+      height: 14px;
+      background: #ff4d4d;
+      border-radius: 50%;
+      border: 2px solid #000;
+      box-shadow: 0 0 10px rgba(255, 77, 77, 0.6);
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+       .social-modal-window {
+          padding: 25px;
+          border-radius: 20px;
+       }
+       .social-title { font-size: 20px; }
+    }
+
+    /* RE-ADDED SOCIAL UI ELEMENTS */
+    .search-results {
+       position: absolute;
+       top: 100%;
+       left: 0;
+       width: 100%;
+       background: rgba(20, 20, 20, 0.98);
+       border: 1px solid rgba(212, 175, 55, 0.3);
+       border-top: none;
+       border-bottom-left-radius: 12px;
+       border-bottom-right-radius: 12px;
+       z-index: 10;
+       max-height: 200px;
+       overflow-y: auto;
+       display: none;
+    }
+
+    .friend-item, .result-item {
+       display: flex;
+       align-items: center;
+       gap: 15px;
+       padding: 12px;
+       background: rgba(255,255,255,0.02);
+       border-radius: 12px;
+       margin-bottom: 10px;
+       border: 1px solid rgba(255,255,255,0.03);
+    }
+    .friend-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--gold); }
+    .friend-info { flex: 1; min-width: 0; }
+    .friend-name { font-family: 'Cinzel', serif; font-size: 14px; margin-bottom: 2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+    .online-indicator { display: inline-block; width: 8px; height: 8px; background: #55ff55; border-radius: 50%; box-shadow: 0 0 10px #55ff55; margin-left: 5px; }
+
+    .social-btn {
+       padding: 6px 12px;
+       border-radius: 6px;
+       font-size: 10px;
+       font-weight: 700;
+       cursor: pointer;
+       border: 1px solid currentColor;
+       background: transparent;
+       transition: 0.2s;
+       flex-shrink: 0;
+    }
+    .btn-challenge { color: var(--gold); border-color: rgba(212, 175, 55, 0.5); }
+    .btn-challenge:hover { background: var(--gold); color: #000; }
+    .btn-remove { color: #f44336; border-color: rgba(244, 67, 54, 0.3); }
+    .btn-remove:hover { background: #f44336; color: #fff; }
+    .btn-accept { color: #4CAF50; border-color: rgba(76, 175, 80, 0.3); }
+    .btn-accept:hover { background: #4CAF50; color: #fff; }
+
     .menu-hero-viewport {
       width: 100%;
       display: flex;
@@ -1503,11 +1636,19 @@
         <div class="quick-access-wrapper">
           <button id="quick-access-trigger" class="action-btn" title="Quick Access">
             <img src="/img/account.png" alt="Account" class="btn-img">
+            <span class="notification-badge" id="quick-notif-dot" style="display:none"></span>
           </button>
           <div id="quick-access-menu" class="quick-access-dropdown">
+            
+            <div class="dropdown-divider"></div>
             <button class="dropdown-item" onclick="showView('view-account')">
               <img src="/img/account.png" alt="Account" class="dropdown-icon">
               <span data-i18n="accountLabel">Account</span>
+            </button>
+            <button class="dropdown-item" onclick="showSocialHub()">
+              <img src="/img/topplayers.png" alt="Friends" class="dropdown-icon">
+              <span>Social Hub</span>
+              <span class="notification-badge" id="quick-social-notif-dot" style="display:none"></span>
             </button>
             <button class="dropdown-item" onclick="openContactModal()">
               <img src="/img/mail.png" alt="Contact" class="dropdown-icon">
@@ -1522,6 +1663,7 @@
               <img src="/img/security.png" alt="Logout" class="dropdown-icon">
               <span data-i18n="logoutLabel">Logout</span>
             </button>
+            
           </div>
         </div>
       </div>
@@ -1577,6 +1719,8 @@
           </div>
         </div>
       </div>
+
+
 
       <!-- Professional Game Lobby Info Section -->
       <div class="menu-info-section lobby-layout">
@@ -6197,29 +6341,7 @@
           // 3. Normal Routing (Hash or LocalStorage)
           if (typeof handleRouting === 'function') handleRouting();
           else showMenu();
-
-          // 4. Load Global Stats
-          loadGlobalStats();
         };
-
-        async function loadGlobalStats() {
-          try {
-            const res = await fetch('/api/stats/player-count');
-            const data = await res.json();
-            const statEl = document.getElementById('total-accounts-stat');
-            if (statEl && data.count !== undefined) {
-              statEl.textContent = data.count + (data.count === 1 ? ' Account' : ' Accounts');
-              // Optionally add a small animation
-              statEl.style.animation = 'none';
-              void statEl.offsetWidth;
-              statEl.style.animation = 'viewSlideIn 0.8s ease';
-            }
-          } catch (e) {
-            console.error('Failed to load global stats:', e);
-            const statEl = document.getElementById('total-accounts-stat');
-            if (statEl) statEl.textContent = 'Active';
-          }
-        }
 
 
 
@@ -6375,6 +6497,60 @@
     }
   </script>
 
+      <!-- Challenge Invite Modal -->
+      <div class="modal-overlay" id="challenge-modal">
+        <div class="modal-window challenge-window">
+           <div class="modal-header">
+              <h2 class="rules-modal-main-title">NEW CHALLENGE!</h2>
+           </div>
+           <div class="modal-body" style="text-align:center;">
+              <p id="challenge-msg" style="font-size:18px; color:var(--parchment); margin-bottom:30px;"></p>
+              <div class="modal-buttons">
+                 <button class="modal-btn" id="challenge-accept-btn">ACCEPT</button>
+                 <button class="modal-btn btn-danger" id="challenge-decline-btn">DECLINE</button>
+              </div>
+           </div>
+        </div>
+      </div>
+
+      <!-- Social Modal Overlay -->
+      <div class="social-modal-overlay" id="social-hub-modal">
+        <div class="social-modal-window">
+          <div class="social-header">
+             <h2 class="social-title">SOCIAL HUB</h2>
+             <button class="social-close" id="social-hub-close">&times;</button>
+          </div>
+          
+          <div class="social-search-box">
+             <input type="text" id="social-search-input" placeholder="Search username...">
+             <div class="search-results" id="social-search-results"></div>
+          </div>
+
+          <div class="social-sections">
+             <div class="social-section" id="social-challenges-section" style="display:none">
+                <h3 class="section-label">LIVE CHALLENGES</h3>
+                <div class="request-list" id="social-challenge-list">
+                   <!-- Game invites go here -->
+                </div>
+             </div>
+
+             <div class="social-section">
+                <h3 class="section-label">FRIENDS</h3>
+                <div class="friend-list" id="social-friend-list">
+                   <!-- Populated dynamically -->
+                </div>
+             </div>
+
+             <div class="social-section">
+                <h3 class="section-label">PENDING REQUESTS</h3>
+                <div class="request-list" id="social-request-list">
+                   <!-- Populated dynamically -->
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
   <footer class="site-footer">
     &copy; <span id="year"></span> Playchkobba.tn. <span data-i18n="allRightsReserved">All Rights Reserved. By Med Dhia
       Allagui.</span>
@@ -6384,16 +6560,237 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/fullstack.js"></script>
   <script>
-    // Quick Access Dropdown Logic
     const qaTrigger = document.getElementById('quick-access-trigger');
     const qaMenu = document.getElementById('quick-access-menu');
 
+    // ── SOCIAL HUB MODAL CONTROLLER ──
+    const socialModal = document.getElementById('social-hub-modal');
+    const socialClose = document.getElementById('social-hub-close');
+    const socialSearch = document.getElementById('social-search-input');
+    const searchRes = document.getElementById('social-search-results');
+    const friendList = document.getElementById('social-friend-list');
+    const requestList = document.getElementById('social-request-list');
+    const quickSocialNotif = document.getElementById('quick-social-notif-dot');
+    const quickNotif = document.getElementById('quick-notif-dot');
+    const challengeModal = document.getElementById('challenge-modal');
+    const challengeMsg = document.getElementById('challenge-msg');
+    
+    let currentChallengerId = null;
+
+    window.showSocialHub = () => {
+      socialModal.classList.add('active');
+      quickSocialNotif.style.display = 'none';
+      quickNotif.style.display = 'none';
+      if (qaMenu) qaMenu.classList.remove('active');
+      refreshFriends();
+    };
+    
+    socialClose.onclick = () => socialModal.classList.remove('active');
+
+    // Debounced Search
+    let searchTimeout;
+    socialSearch.oninput = () => {
+      clearTimeout(searchTimeout);
+      const q = socialSearch.value.trim();
+      if (q.length < 2) { searchRes.style.display = 'none'; return; }
+      searchTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/social/search?q=${encodeURIComponent(q)}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` }
+          });
+          const data = await res.json();
+          renderSearchResults(data);
+        } catch(e) {}
+      }, 300);
+    };
+
+    function renderSearchResults(users) {
+      searchRes.innerHTML = users.map(u => `
+        <div class="result-item">
+          <img src="${u.avatar_url || '/img/pfp.jpg'}" class="friend-avatar">
+          <div class="friend-info"><div class="friend-name">${u.username}</div></div>
+          <button class="social-btn btn-challenge" onclick="sendFriendRequest('${u.id}')">ADD</button>
+        </div>
+      `).join('');
+      searchRes.style.display = 'block';
+    }
+
+    window.sendFriendRequest = async (tid) => {
+      try {
+        const res = await fetch('/api/social/friend-request', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` 
+          },
+          body: JSON.stringify({ targetId: tid })
+        });
+        const data = await res.json();
+        if (data.error) showGameToast(data.error);
+        else { showGameToast('Request sent!'); socialSearch.value = ''; searchRes.style.display = 'none'; }
+      } catch(e) {}
+    };
+
+    async function refreshFriends() {
+      try {
+        const res = await fetch('/api/social/friends', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` }
+        });
+        const data = await res.json();
+        renderFriends(data);
+      } catch(e) {}
+    }
+
+    function renderFriends(friends) {
+      const accepted = friends.filter(f => f.status === 'accepted');
+      const pending = friends.filter(f => f.status === 'pending' && f.isIncoming);
+      
+      // Render Challenges
+      const challengeSection = document.getElementById('social-challenges-section');
+      const challengeList = document.getElementById('social-challenge-list');
+      if (currentChallenges.length > 0) {
+         challengeSection.style.display = 'block';
+         challengeList.innerHTML = currentChallenges.map(c => `
+           <div class="friend-item" style="border-color:var(--gold); background:rgba(212,175,55,0.05)">
+             <div class="friend-info">
+                <div class="friend-name">${c.fromName} (Match Invite)</div>
+             </div>
+             <div style="display:flex; gap:5px;">
+                <button class="social-btn btn-accept" onclick="respondToChallenge('${c.fromId}', true)">ACCEPT</button>
+                <button class="social-btn btn-remove" onclick="respondToChallenge('${c.fromId}', false)">×</button>
+             </div>
+           </div>
+         `).join('');
+      } else {
+         challengeSection.style.display = 'none';
+      }
+
+      friendList.innerHTML = accepted.map(f => `
+        <div class="friend-item">
+          <img src="${f.avatar_url || '/img/pfp.jpg'}" class="friend-avatar">
+          <div class="friend-info">
+             <div class="friend-name">${f.username} ${f.isOnline ? '<span class="online-indicator"></span>' : ''}</div>
+          </div>
+          <div style="display:flex; gap:5px;">
+             <button class="social-btn btn-challenge" onclick="sendChallenge('${f.friendId}')" ${!f.isOnline ? 'disabled style="opacity:0.5"' : ''}>MATCH</button>
+             <button class="social-btn btn-remove" onclick="removeFriend('${f.friendId}')">×</button>
+          </div>
+        </div>
+      `).join('') || '<div style="opacity:0.3; font-size:12px;">No friends yet.</div>';
+
+      requestList.innerHTML = pending.map(f => `
+        <div class="friend-item">
+          <img src="${f.avatar_url || '/img/pfp.jpg'}" class="friend-avatar">
+          <div class="friend-info"><div class="friend-name">${f.username}</div></div>
+          <div style="display:flex; gap:5px;">
+             <button class="social-btn btn-accept" onclick="acceptFriend('${f.friendId}')">ACCEPT</button>
+             <button class="social-btn btn-remove" onclick="removeFriend('${f.friendId}')">×</button>
+          </div>
+        </div>
+      `).join('') || '<div style="opacity:0.3; font-size:12px;">No pending requests.</div>';
+    }
+
+    window.acceptFriend = async (fid) => {
+      await fetch('/api/social/friend-accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` },
+        body: JSON.stringify({ friendId: fid })
+      });
+      refreshFriends();
+    };
+
+    window.removeFriend = async (fid) => {
+      if (!confirm('Are you sure?')) return;
+      await fetch('/api/social/friend-remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` },
+        body: JSON.stringify({ friendId: fid })
+      });
+      refreshFriends();
+    };
+
+    window.sendChallenge = (fid) => {
+      socket.emit('social:challenge', fid);
+      showGameToast('Challenge sent! Waiting...');
+    };
+
+    // Socket Interactions
+    socket.on('social:notification', (data) => {
+       quickSocialNotif.style.display = 'block';
+       quickNotif.style.display = 'block';
+       if (data.type === 'friend_request') {
+          showGameToast('New Friend Request!');
+          if (socialModal.classList.contains('active')) refreshFriends();
+       }
+       if (data.type === 'challenge_declined') {
+          showGameToast('Challenge declined.');
+       }
+    });
+
+    let currentChallenges = []; 
+    let challengePopupTimer = null;
+
+    socket.on('social:challenge-received', (data) => {
+       // 1. Store the challenge for later if modal closes
+       const existingIdx = currentChallenges.findIndex(c => c.fromId === data.fromId);
+       if (existingIdx === -1) currentChallenges.push(data);
+       
+       // 2. Show the modal
+       currentChallengerId = data.fromId;
+       challengeMsg.textContent = `${data.fromName} challenged you to a 21-point match!`;
+       challengeModal.classList.add('show');
+       
+       // 3. Play sound
+       if (typeof sfxMessage !== 'undefined') sfxMessage.play().catch(e=>e);
+
+       // 4. Auto-close after 15 seconds
+       if (challengePopupTimer) clearTimeout(challengePopupTimer);
+       challengePopupTimer = setTimeout(() => {
+          challengeModal.classList.remove('show');
+          showGameToast('Challenge moved to Social Hub.');
+          refreshFriends(); // Refresh to show it in the HUB
+       }, 15000);
+
+       // Trigger badge
+       quickSocialNotif.style.display = 'block';
+       quickNotif.style.display = 'block';
+       if (socialModal.classList.contains('active')) refreshFriends();
+    });
+
+    window.respondToChallenge = (cid, accepted) => {
+       socket.emit('social:challenge-response', { challengerId: cid, accepted });
+       challengeModal.classList.remove('show');
+       if (challengePopupTimer) clearTimeout(challengePopupTimer);
+       
+       // Remove from local tracking
+       currentChallenges = currentChallenges.filter(c => c.fromId !== cid);
+       refreshFriends();
+    };
+
+    document.getElementById('challenge-accept-btn').onclick = () => {
+       respondToChallenge(currentChallengerId, true);
+    };
+    document.getElementById('challenge-decline-btn').onclick = () => {
+       respondToChallenge(currentChallengerId, false);
+    };
+
+    socket.on('social:challenge-start', (payload) => {
+       showGameToast('Joining Match...');
+       showView('view-game');
+       socket.emit('joinRoom', payload.room);
+    });
+
+    socket.on('social:status-change', () => {
+       if (socialModal.classList.contains('active')) refreshFriends();
+    });
+
+
     if (qaTrigger && qaMenu) {
-      qaTrigger.addEventListener('click', (e) => {
+      qaTrigger.onclick = (e) => {
         e.stopPropagation();
         qaMenu.classList.toggle('active');
         if (typeof playClickSfx === 'function') playClickSfx();
-      });
+      };
 
       document.addEventListener('click', (e) => {
         if (!qaMenu.contains(e.target) && !qaTrigger.contains(e.target)) {
@@ -6401,7 +6798,6 @@
         }
       });
     }
-
     function handleQuickLogout() {
       const fsLogout = document.getElementById('fs-logout');
       if (fsLogout) {

@@ -399,6 +399,25 @@ app.get('/api/stats/player-count', async (req, res) => {
   res.json({ count: count || 0 });
 });
 
+// ── SOCIAL SYSTEM STATE ──
+const connectedUsers = new Map(); // userId -> Set(socketIds)
+
+app.get('/api/social/search', authRequired, async (req, res) => {
+  const query = req.query.q || '';
+  if (query.length < 2) return res.json([]);
+  
+  if (!supabaseAdmin) return res.json([]);
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .select('id, username, avatar_url')
+    .ilike('username', `%${query}%`)
+    .neq('id', req.user.id)
+    .limit(10);
+    
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  res.json(data || []);
+});
+
 app.get('/api/stats/recent-wins', async (req, res) => {
   if (!supabaseAdmin) return res.json([]);
   const { data, error } = await supabaseAdmin.from('match_history')
@@ -413,6 +432,103 @@ app.get('/api/stats/recent-wins', async (req, res) => {
     return `<strong>${m.profiles?.username || 'Player'}</strong> just won a Ranked match!`;
   });
   res.json(achievements);
+});
+
+app.get('/api/social/friends', authRequired, async (req, res) => {
+  if (!supabaseAdmin) return res.json([]);
+  const uid = req.user.id;
+  const { data, error } = await supabaseAdmin
+    .from('friends')
+    .select(`
+      id, status, action_user_id,
+      user_id_1, user_id_2,
+      u1:profiles!user_id_1(id, username, avatar_url),
+      u2:profiles!user_id_2(id, username, avatar_url)
+    `)
+    .or(`user_id_1.eq.${uid},user_id_2.eq.${uid}`);
+
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  
+  const friends = (data || []).map(f => {
+    const friend = f.user_id_1 === uid ? f.u2 : f.u1;
+    return {
+      friendId: friend.id,
+      username: friend.username,
+      avatar_url: friend.avatar_url,
+      status: f.status, // 'pending', 'accepted'
+      isIncoming: f.status === 'pending' && f.action_user_id !== uid,
+      isOnline: connectedUsers.has(friend.id)
+    };
+  });
+  
+  res.json(friends);
+});
+
+app.post('/api/social/friend-request', authRequired, async (req, res) => {
+  const { targetId } = req.body;
+  if (!targetId || targetId === req.user.id) return res.status(400).json({ error: 'Invalid User' });
+  if (!supabaseAdmin) return res.status(503).json({ error: 'DB Offline' });
+
+  const uid = req.user.id;
+  const [u1, u2] = uid < targetId ? [uid, targetId] : [targetId, uid];
+
+  // Try to insert
+  const { data, error } = await supabaseAdmin
+    .from('friends')
+    .insert({ user_id_1: u1, user_id_2: u2, action_user_id: uid, status: 'pending' })
+    .select();
+
+  if (error) {
+    if (error.code === '23505') return res.status(400).json({ error: 'Request already exists' });
+    return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  }
+
+  // Notify via Socket
+  const targetSockets = connectedUsers.get(targetId);
+  if (targetSockets) {
+     io.to([...targetSockets]).emit('social:notification', { type: 'friend_request', from: req.user.id });
+  }
+
+  res.json({ success: true });
+});
+
+app.post('/api/social/friend-accept', authRequired, async (req, res) => {
+  const { friendId } = req.body;
+  const uid = req.user.id;
+  if (!supabaseAdmin) return res.status(503).json({ error: 'DB Offline' });
+
+  const [u1, u2] = uid < friendId ? [uid, friendId] : [friendId, uid];
+
+  const { error } = await supabaseAdmin
+    .from('friends')
+    .update({ status: 'accepted', action_user_id: uid })
+    .match({ user_id_1: u1, user_id_2: u2 });
+
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+
+  // Notify both
+  [uid, friendId].forEach(id => {
+    const s = connectedUsers.get(id);
+    if (s) io.to([...s]).emit('social:notification', { type: 'friend_accepted', with: id === uid ? friendId : uid });
+  });
+
+  res.json({ success: true });
+});
+
+app.post('/api/social/friend-remove', authRequired, async (req, res) => {
+  const { friendId } = req.body;
+  const uid = req.user.id;
+  if (!supabaseAdmin) return res.status(503).json({ error: 'DB Offline' });
+
+  const [u1, u2] = uid < friendId ? [uid, friendId] : [friendId, uid];
+
+  const { error } = await supabaseAdmin
+    .from('friends')
+    .delete()
+    .match({ user_id_1: u1, user_id_2: u2 });
+
+  if (error) return res.status(400).json({ error: mapSupabaseSetupError(error) });
+  res.json({ success: true });
 });
 
 app.get('/api/history', authRequired, async (req, res) => {
@@ -1203,7 +1319,63 @@ io.on('connection', (socket) => {
     });
   }
 
+  // ── SOCIAL & CHALLENGE HANDLERS ──
+  socket.on('social:join', async (token) => {
+    try {
+      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+      if (error || !user) return;
+      socket.userId = user.id;
+      if (!connectedUsers.has(user.id)) connectedUsers.set(user.id, new Set());
+      connectedUsers.get(user.id).add(socket.id);
+      
+      // Notify friends I'm online
+      socket.broadcast.emit('social:status-change', { userId: user.id, online: true });
+    } catch (e) {}
+  });
+
+  socket.on('social:challenge', (targetUserId) => {
+    if (!socket.userId) return;
+    const targetSockets = connectedUsers.get(targetUserId);
+    if (!targetSockets) return socket.emit('notification', { message: 'Player is offline' });
+
+    // Send invite to target
+    io.to([...targetSockets]).emit('social:challenge-received', { 
+      fromId: socket.userId, 
+      fromName: socket.username || 'Friend' 
+    });
+  });
+
+  socket.on('social:challenge-response', (data) => {
+    const { challengerId, accepted } = data;
+    const challengerSockets = connectedUsers.get(challengerId);
+    if (!challengerSockets) return;
+
+    if (accepted) {
+      const room = 'challenge-' + Math.random().toString(36).substr(2, 9);
+      const targetSockets = connectedUsers.get(socket.userId);
+      
+      const payload = { room, challengerId, targetId: socket.userId };
+      io.to([...challengerSockets]).emit('social:challenge-start', payload);
+      if (targetSockets) io.to([...targetSockets]).emit('social:challenge-start', payload);
+    } else {
+      io.to([...challengerSockets]).emit('social:notification', { 
+        type: 'challenge_declined', 
+        from: socket.userId 
+      });
+    }
+  });
+
   socket.on('disconnect', () => {
+    if (socket.userId) {
+      const userSockets = connectedUsers.get(socket.userId);
+      if (userSockets) {
+        userSockets.delete(socket.id);
+        if (userSockets.size === 0) {
+          connectedUsers.delete(socket.userId);
+          io.emit('social:status-change', { userId: socket.userId, online: false });
+        }
+      }
+    }
     io.emit('userCountUpdate', io.engine.clientsCount);
     const code = socket.data.code;
     const room = rooms[code];

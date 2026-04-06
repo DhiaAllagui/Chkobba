@@ -666,6 +666,7 @@
       state.supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       state.supabase.auth.onAuthStateChange((_event, sess) => {
         state.session = sess;
+        if (sess && window.socket) window.socket.emit('social:join', sess.access_token);
         if (!sess) {
           state.profile = null;
           renderAuth();
@@ -673,7 +674,10 @@
       });
       const current = await state.supabase.auth.getSession();
       state.session = current.data.session;
-      if (state.session) await refreshProfile();
+      if (state.session) {
+        if (window.socket) window.socket.emit('social:join', state.session.access_token);
+        await refreshProfile();
+      }
     } else {
       console.warn("[CHKOBBA] Supabase features disabled. Missing:", cfg.missingEnv);
       state.configError = cfg.missingEnv;
@@ -684,6 +688,7 @@
         await api('/api/matchmaking/cancel', { method: 'POST' });
       } catch (_) { /* ignore */ }
     };
+    window.chkobbaState = state; // Expose state for index.html
     mountPanel();
     renderAuth();
   } catch (e) {
