@@ -3417,8 +3417,8 @@
             // Play focus whoosh immediately for impact
             if (sfxEnabled && gameStartedByUser) {
               sfxFocusStart.currentTime = 0;
-              sfxFocusStart.volume = 1;
-              sfxFocusStart.play().catch(() => {});
+              sfxFocusStart.volume = 0.7;
+              sfxFocusStart.play().catch(e => e);
             }
 
             // Simultaneously fade out ambience
