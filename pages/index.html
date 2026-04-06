@@ -6595,8 +6595,10 @@
       if (q.length < 2) { searchRes.style.display = 'none'; return; }
       searchTimeout = setTimeout(async () => {
         try {
+          const token = window.chkobbaState?.session?.access_token;
+          if (!token) return;
           const res = await fetch(`/api/social/search?q=${encodeURIComponent(q)}`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` }
+            headers: { 'Authorization': `Bearer ${token}` }
           });
           const data = await res.json();
           renderSearchResults(data);
@@ -6617,11 +6619,13 @@
 
     window.sendFriendRequest = async (tid) => {
       try {
+        const token = window.chkobbaState?.session?.access_token;
+        if (!token) { showGameToast('Please login first.'); return; }
         const res = await fetch('/api/social/friend-request', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` 
+            'Authorization': `Bearer ${token}` 
           },
           body: JSON.stringify({ targetId: tid })
         });
@@ -6633,8 +6637,10 @@
 
     async function refreshFriends() {
       try {
+        const token = window.chkobbaState?.session?.access_token;
+        if (!token) return;
         const res = await fetch('/api/social/friends', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
         renderFriends(data);
@@ -6691,9 +6697,10 @@
     }
 
     window.acceptFriend = async (fid) => {
+      const token = window.chkobbaState?.session?.access_token;
       await fetch('/api/social/friend-accept', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ friendId: fid })
       });
       refreshFriends();
@@ -6701,9 +6708,10 @@
 
     window.removeFriend = async (fid) => {
       if (!confirm('Are you sure?')) return;
+      const token = window.chkobbaState?.session?.access_token;
       await fetch('/api/social/friend-remove', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('chkobba_token')}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ friendId: fid })
       });
       refreshFriends();
