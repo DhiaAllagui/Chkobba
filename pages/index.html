@@ -1506,7 +1506,7 @@
 
       const sfxAmbience = new Audio('/sound/cafeambience.mp3');
       sfxAmbience.loop = true;
-      sfxAmbience.volume = 0.5;
+      sfxAmbience.volume = 0.3;
       const sfxFocusStart = new Audio('/sound/focus.mp3');
       let isFocusMode = false;
       let fadeInterval = null;
@@ -3374,7 +3374,7 @@
             // Play focus whoosh immediately for impact
             if (sfxEnabled) {
               sfxFocusStart.currentTime = 0;
-              sfxFocusStart.volume = 1;
+              sfxFocusStart.volume = 0.7;
               sfxFocusStart.play().catch(e => e);
             }
 
