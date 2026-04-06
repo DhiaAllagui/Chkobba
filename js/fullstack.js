@@ -397,15 +397,27 @@
     node.appendChild(div);
   }
 
-  async function showLeaderboard() {
-    if (window.showGlobalLoader) window.showGlobalLoader("Fetching Leaders...");
+  let allPlayers = [];
+  async function showLeaderboard(filter = '') {
+    if (window.showGlobalLoader && !filter) window.showGlobalLoader("Fetching Leaders...");
     try {
-      const players = await api('/api/leaderboard', { headers: {} });
-      lbOut('<b data-i18n="lbTitle" style="color:var(--gold,#c9a84c);letter-spacing:2px;display:block;margin-bottom:12px;">🏆 TOP PLAYERS</b>');
+      if (!filter) {
+        allPlayers = await api('/api/leaderboard', { headers: {} });
+        const input = document.getElementById('lb-search-input');
+        if (input) input.value = ''; // Reset input on full refresh
+      }
+      const players = filter ? allPlayers.filter(p => p.username.toLowerCase().includes(filter.toLowerCase())) : allPlayers;
+
+      lbOut('<b data-i18n="lbTitle" style="color:var(--gold,#c9a84c);letter-spacing:2px;display:block;margin-bottom:12px; text-align:center;">🏆 TOP PLAYERS</b>');
+      
+      if (!players.length) {
+        lbOut('<div style="text-align:center; opacity:0.5; padding:20px;">No matching players found.</div>', true);
+      }
+
       players.forEach((p, i) => {
         const isMe = state.profile && state.profile.id === p.id;
         let borderCol = 'rgba(255,255,255,0.05)';
-        let rankIconHTML = `<div style="width:24px; text-align:center; font-weight:bold; color:var(--parchment); opacity:0.6;">${i + 1}</div>`;
+        let rankIconHTML = `<div style="width:24px; text-align:center; font-weight:bold; color:var(--parchment); opacity:0.3;">${i + 1}</div>`;
         
         if (i === 0) { borderCol = '#fbbf24'; rankIconHTML = '<img src="/img/first.png" style="width:24px;height:24px;">'; }
         else if (i === 1) { borderCol = '#9ca3af'; rankIconHTML = '<img src="/img/second.png" style="width:24px;height:24px;">'; }
@@ -415,16 +427,22 @@
         const myBadge = isMe ? '<span data-i18n="youBadge" style="font-size:9px; background:var(--gold); color:#000; padding:1px 4px; border-radius:3px; margin-left:6px; font-weight:bold;">YOU</span>' : '';
 
         const cardH = `
-          <div style="display:flex; align-items:center; background: rgba(0,0,0,0.4); border: 1px solid ${borderCol}; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; gap: 12px; ${myHighlight}">
+          <div style="display:flex; align-items:center; background: rgba(0,0,0,0.4); border: 1px solid ${borderCol}; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; gap: 12px; ${myHighlight}">
             <div style="display:flex; justify-content:center; align-items:center; min-width:30px;">
               ${rankIconHTML}
             </div>
-            <div style="flex:1;">
-              <div style="font-size:15px; font-weight:bold; color:var(--parchment);">${escapeHtml(p.username)} ${myBadge}</div>
+            <div style="flex:1; display:flex; align-items:center; gap:10px;">
+              <img src="${p.avatar_url || '/img/pfp.jpg'}" style="width:34px; height:34px; border-radius:50%; border:1px solid rgba(212,175,55,0.2);">
+              <div>
+                 <div style="font-size:15px; font-weight:bold; color:var(--parchment); cursor:pointer;" onclick="if(window.showSocialHub) window.showSocialHub()">${escapeHtml(p.username)} ${myBadge}</div>
+              </div>
             </div>
-            <div style="text-align:right;">
-               <div style="color:var(--gold); font-family:'Cinzel',serif; font-size:16px;">${p.total_elo}</div>
-               <div data-i18n="eloPoints" style="font-size:10px; color:rgba(255,255,255,0.5); text-transform:uppercase;">Elo points</div>
+            <div style="text-align:right; display:flex; align-items:center; gap:15px;">
+               <div>
+                  <div style="color:var(--gold); font-family:'Cinzel',serif; font-size:16px; font-weight:bold;">${p.total_elo}</div>
+                  <div data-i18n="eloPoints" style="font-size:8px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px;">Elo points</div>
+               </div>
+               ${!isMe ? `<button class="social-btn btn-challenge" style="font-size:9px; padding:5px 10px; border-radius:8px;" onclick="if(window.sendFriendRequest) window.sendFriendRequest('${p.id}')">ADD</button>` : ''}
             </div>
           </div>
         `;
@@ -437,6 +455,10 @@
       if (window.hideGlobalLoader) window.hideGlobalLoader();
     }
   }
+
+  window.fsFilterLeaderboard = (val) => {
+    showLeaderboard(val);
+  };
 
   async function showHistory() {
     if (!state.session) {
@@ -675,7 +697,10 @@
       const current = await state.supabase.auth.getSession();
       state.session = current.data.session;
       if (state.session) {
-        if (window.socket) window.socket.emit('social:join', state.session.access_token);
+        if (window.socket) {
+          console.log("[SOCIAL] Joining with token...", state.session.access_token.substring(0,10) + "...");
+          window.socket.emit('social:join', state.session.access_token);
+        }
         await refreshProfile();
       }
     } else {

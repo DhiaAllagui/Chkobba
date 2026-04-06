@@ -632,6 +632,23 @@
       border-color: var(--gold);
     }
 
+    .social-friend-count-bubble {
+       position: absolute;
+       top: 10px;
+       right: 10px;
+       background: var(--gold);
+       color: #000;
+       font-weight: 900;
+       font-size: 10px;
+       padding: 2px 6px;
+       border-radius: 6px;
+       min-width: 18px;
+       display: none;
+       box-shadow: 0 0 10px rgba(201,168,76,0.5);
+       font-family: 'Cinzel', serif;
+       z-index: 5;
+    }
+
     /* Disconnect overlay */
     .dc-overlay {
       position: fixed;
@@ -1584,16 +1601,17 @@
         for your help.</span>
     </p>
   </div>-->
-  <!--<div class="debug-panel">
+  <div class="debug-panel">
     <div class="debug-title">DEBUG TOOLS</div>
-    <button class="debug-btn" onclick="testScoreboard()">Scoreboard</button>
     <button class="debug-btn" onclick="testVictory()">Win Screen</button>
     <button class="debug-btn" onclick="testDefeat()">Loss Screen</button>
+    <button class="debug-btn" onclick="testSocialNotif()">Test Invite</button>
+    <button class="debug-btn" onclick="testAddFakeFriend()">Fake Friend</button>
+    <button class="debug-btn" onclick="testAddFakeRequest()">Fake Request</button>
+    <button class="debug-btn" onclick="testSocialChallenge()">Challenge Pop</button>
     <button class="debug-btn" onclick="testKamyoun()">Kamyoun</button>
     <button class="debug-btn" onclick="testChkobba()">Chkobba</button>
-    <button class="debug-btn" onclick="test7ayya()">7ayya</button>
-    <button class="debug-btn" onclick="testStreak()">Streak Pop-up</button>
-  </div> -->
+  </div>
   <div class="bg-logo"></div>
 
   <!-- Tunisian Café Radio Widget (FAB) - Moved for Global Persistence -->
@@ -1635,7 +1653,7 @@
         </div>
         <div class="quick-access-wrapper">
           <button id="quick-access-trigger" class="action-btn" title="Quick Access">
-            <img src="/img/account.png" alt="Account" class="btn-img">
+            <img src="/img/cle.png" alt="Account" class="btn-img">
             <span class="notification-badge" id="quick-notif-dot" style="display:none"></span>
           </button>
           <div id="quick-access-menu" class="quick-access-dropdown">
@@ -1646,7 +1664,7 @@
               <span data-i18n="accountLabel">Account</span>
             </button>
             <button class="dropdown-item" onclick="showSocialHub()">
-              <img src="/img/topplayers.png" alt="Friends" class="dropdown-icon">
+              <img src="/img/multiplayer.png" alt="Friends" class="dropdown-icon">
               <span>Social Hub</span>
               <span class="notification-badge" id="quick-social-notif-dot" style="display:none"></span>
             </button>
@@ -1741,10 +1759,17 @@
           </div>
           <div class="info-card">
             <div class="info-icon-box">
-              <img src="/img/icon_carta.png" alt="Multiplayer">
+              <img src="/img/multiplayer.png" alt="Multiplayer">
             </div>
             <div class="info-stat">Pro AI</div>
             <div class="info-label">Authentic Feel</div>
+          </div>
+          <div class="info-card" onclick="if(window.showSocialHub) window.showSocialHub()" style="cursor:pointer; border-color:var(--gold); background:rgba(212,175,55,0.05)">
+            <div class="info-icon-box">
+              <img src="/img/account.png" alt="Social">
+            </div>
+            <div class="info-stat"><span class="social-friend-count">0</span> Friends</div>
+            <div class="info-label">Invite Rivals</div>
           </div>
         </div>
 
@@ -1991,6 +2016,11 @@
         <div class="page-content">
           <h1 class="page-title" data-i18n="lbTitle">TOP PLAYERS</h1>
           <p class="page-subtitle" data-i18n="lbSub">Global Leaderboard</p>
+          <div class="lb-search-container" style="margin-bottom:20px; display:flex; justify-content:center;">
+             <input type="text" id="lb-search-input" placeholder="Search top players..." 
+               oninput="if(window.fsFilterLeaderboard) window.fsFilterLeaderboard(this.value)"
+               style="width:100%; max-width:350px; background:rgba(255,255,255,0.05); border:1px solid rgba(212,175,55,0.2); border-radius:12px; padding:12px 18px; color:#fff; outline:none; font-family:'Crimson Pro',serif; font-size:15px; transition:border 0.3s; text-align:center;">
+          </div>
           <div id="leaderboard-out" class="content-panel"></div>
         </div>
       </div>
@@ -2022,7 +2052,7 @@
           <!-- PROFILE SECTION -->
           <div class="multiplayer-section">
             <h3 class="section-label" data-i18n="catProfile">PROFILE</h3>
-            <div class="multiplayer-cards-grid">
+            <div class="multiplayer-cards-grid two-columns">
               <button class="multiplayer-card" onclick="showView('view-account')">
                 <div class="multiplayer-card-icon">
                   <img src="/img/account.png" alt="My Account" class="card-icon-img">
@@ -2030,6 +2060,17 @@
                 <div class="multiplayer-card-content">
                   <h4 class="multiplayer-card-title" data-i18n="btnMyAcc">MY ACCOUNT</h4>
                   <p class="multiplayer-card-desc" data-i18n="subMyAcc">Sign in & Profile</p>
+                </div>
+              </button>
+
+              <button class="multiplayer-card" onclick="if(window.showSocialHub) window.showSocialHub()">
+                <div class="multiplayer-card-icon">
+                  <img src="/img/multiplayer.png" alt="Social Hub" class="card-icon-img">
+                  <div class="social-friend-count-bubble social-friend-count" style="display:none; position:absolute; top:-5px; right:-5px; background:var(--gold); color:#000; padding:2px 6px; border-radius:50%; font-size:10px; font-weight:bold; box-shadow:0 0 10px var(--gold)">0</div>
+                </div>
+                <div class="multiplayer-card-content">
+                  <h4 class="multiplayer-card-title" data-i18n="socialHub">SOCIAL HUB</h4>
+                  <p class="multiplayer-card-desc" data-i18n="socialHubSub"><span class="social-friend-count">0</span> Friends Online</p>
                 </div>
               </button>
             </div>
@@ -2556,7 +2597,7 @@
             const countData = await countRes.json();
             const statEl = document.getElementById('total-accounts-stat');
             if (statEl && countData.count !== undefined) {
-              statEl.textContent = countData.count + (countData.count === 1 ? ' Account' : ' Accounts');
+              statEl.textContent = countData.count + (countData.count === 1 ? ' Player' : ' Players');
             }
 
             // 2. Load Recent Achievements for Ticker
@@ -6371,6 +6412,68 @@
         window.testDefeat = function () {
           if (typeof showDefeatOverlay === 'function') showDefeatOverlay();
         };
+
+        window.testSocialNotif = function() {
+           const dot = document.getElementById('quick-social-notif-dot');
+           const dot2 = document.getElementById('quick-notif-dot');
+           if (dot) dot.style.display = 'block';
+           if (dot2) dot2.style.display = 'block';
+           if (typeof showGameToast === 'function') showGameToast('New Friend Request!', false);
+        };
+
+        window.testSocialChallenge = function() {
+           const fakeData = { fromId: 'debug_bot', fromName: 'Dev Bot', roomCode: 'DEBUG-123' };
+           const msgField = document.getElementById('challenge-msg');
+           const modal = document.getElementById('challenge-modal');
+           if (msgField && modal) {
+              window.currentChallengerId = fakeData.fromId;
+              window.currentChallengeCode = fakeData.roomCode;
+              msgField.textContent = `${fakeData.fromName} challenged you to a 21-point match!`;
+              modal.classList.add('show');
+           }
+        };
+
+        window.testAddFakeFriend = function() {
+           // This is a bit tricky as the friends list is fetched from server,
+           // but we can mock the renderFriends call by spoofing the UI
+           const list = document.getElementById('social-friend-list');
+           if (list) {
+              const fakeH = `
+                <div class="friend-item" style="border-style:dashed;">
+                  <img src="/img/pfp.jpg" class="friend-avatar">
+                  <div class="friend-info">
+                     <div class="friend-name">Fake Test Friend <span class="online-indicator"></span></div>
+                  </div>
+                  <div style="display:flex; gap:5px;">
+                     <button class="social-btn btn-challenge" onclick="showGameToast('Testing MATCH...')">MATCH</button>
+                     <button class="social-btn btn-remove" onclick="this.closest('.friend-item').remove()">×</button>
+                  </div>
+                </div>
+              `;
+              // Remove empty state if present
+              if (list.innerText.includes("don't have any friends")) list.innerHTML = '';
+              list.innerHTML += fakeH;
+              showGameToast("Fake friend added (local only)!", false);
+           }
+        };
+        window.testAddFakeRequest = function() {
+           const list = document.getElementById('social-request-list');
+           if (list) {
+              const fakeH = `
+                <div class="friend-item" style="border-style:dashed;">
+                  <img src="/img/pfp.jpg" class="friend-avatar">
+                  <div class="friend-info"><div class="friend-name">Requester Test AI</div></div>
+                  <div style="display:flex; gap:5px;">
+                     <button class="social-btn btn-accept" onclick="acceptFriend('test_ai')">ACCEPT</button>
+                     <button class="social-btn btn-remove" onclick="removeFriend('test_ai')">×</button>
+                  </div>
+                </div>
+              `;
+              if (list.innerText.includes("No pending requests")) list.innerHTML = '';
+              list.innerHTML += fakeH;
+              showGameToast("Fake request added (local only)!", false);
+           }
+        };
       </script>
       <script src="/js/radio.js"></script>
     </div>
@@ -6395,11 +6498,23 @@
       <div class="confirm-window">
         <div class="confirm-msg" id="confirmMsg">Are you sure?</div>
         <div class="confirm-btns">
-          <button class="confirm-btn confirm-btn-no" onclick="closeConfirm()">No</button>
+          <button class="confirm-btn confirm-btn-no" onclick="document.getElementById('confirmModal').classList.remove('show')">No</button>
           <button class="confirm-btn confirm-btn-yes" id="confirmYesBtn">Yes</button>
         </div>
       </div>
     </div>
+
+    <script>
+       window.showGameConfirm = (msg, onYes) => {
+          const m = document.getElementById('confirmModal');
+          const txt = document.getElementById('confirmMsg');
+          const btn = document.getElementById('confirmYesBtn');
+          if (!m || !txt || !btn) return;
+          txt.textContent = msg;
+          m.classList.add('show');
+          btn.onclick = () => { m.classList.remove('show'); onYes(); };
+       };
+    </script>
 
   </div>
   </div>
@@ -6534,15 +6649,15 @@
                 </div>
              </div>
 
-             <div class="social-section">
-                <h3 class="section-label">FRIENDS</h3>
+             <div class="social-section" id="section-friends">
+                <h3 class="section-label" id="social-friends-label">FRIENDS</h3>
                 <div class="friend-list" id="social-friend-list">
                    <!-- Populated dynamically -->
                 </div>
              </div>
 
-             <div class="social-section">
-                <h3 class="section-label">PENDING REQUESTS</h3>
+             <div class="social-section" id="section-requests">
+                <h3 class="section-label" id="social-requests-label">PENDING REQUESTS</h3>
                 <div class="request-list" id="social-request-list">
                    <!-- Populated dynamically -->
                 </div>
@@ -6630,15 +6745,42 @@
           body: JSON.stringify({ targetId: tid })
         });
         const data = await res.json();
-        if (data.error) showGameToast(data.error);
-        else { showGameToast('Request sent!'); socialSearch.value = ''; searchRes.style.display = 'none'; }
+        if (data.error) showGameToast(data.error, true);
+        else { showGameToast('Request sent!', false); socialSearch.value = ''; searchRes.style.display = 'none'; }
       } catch(e) {}
     };
 
     async function refreshFriends() {
+      const token = window.chkobbaState?.session?.access_token;
+      const searchBox = document.querySelector('.social-search-container');
+      const friendsLbl = document.getElementById('social-friends-label');
+      const requestsLbl = document.getElementById('social-requests-label');
+
+      if (!token) {
+         if (searchBox) searchBox.style.display = 'none';
+         if (friendsLbl) friendsLbl.style.display = 'none';
+         if (requestsLbl) requestsLbl.style.display = 'none';
+         socialSearch.value = '';
+         searchRes.style.display = 'none';
+         friendList.innerHTML = `
+           <div style="text-align:center; padding:40px 20px; opacity:0.8;">
+             <img src="/img/account.png" style="width:48px; height:48px; margin-bottom:15px; opacity:0.5; filter: drop-shadow(0 0 5px var(--gold));">
+             <div style="font-size:14px; font-weight:bold; color:var(--gold); margin-bottom:5px;">OFFLINE HUB</div>
+             <p style="font-size:12px; margin-bottom:20px;">Please sign in to access your friends list and sent challenges.</p>
+             <button class="social-btn btn-challenge" style="padding:8px 20px;" onclick="showView('view-account'); socialModal.classList.remove('active');">LOGIN NOW</button>
+           </div>
+         `;
+         requestList.innerHTML = '';
+         document.getElementById('social-challenges-section').style.display = 'none';
+         return;
+      }
+      
+      // Cleanup for logged in state
+      if (searchBox) searchBox.style.display = 'block';
+      if (friendsLbl) friendsLbl.style.display = 'block';
+      if (requestsLbl) requestsLbl.style.display = 'block';
+
       try {
-        const token = window.chkobbaState?.session?.access_token;
-        if (!token) return;
         const res = await fetch('/api/social/friends', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -6648,13 +6790,24 @@
     }
 
     function renderFriends(friends) {
+      if (!Array.isArray(friends)) {
+         console.warn("[SOCIAL] Invalid friends data received:", friends);
+         friends = [];
+      }
+      
       const accepted = friends.filter(f => f.status === 'accepted');
       const pending = friends.filter(f => f.status === 'pending' && f.isIncoming);
       
+      // Update counts across the UI
+      document.querySelectorAll('.social-friend-count').forEach(el => {
+         el.textContent = accepted.length;
+         el.style.display = accepted.length > 0 ? 'inline-block' : 'none';
+      });
+
       // Render Challenges
       const challengeSection = document.getElementById('social-challenges-section');
       const challengeList = document.getElementById('social-challenge-list');
-      if (currentChallenges.length > 0) {
+      if (currentChallenges && currentChallenges.length > 0) {
          challengeSection.style.display = 'block';
          challengeList.innerHTML = currentChallenges.map(c => `
            <div class="friend-item" style="border-color:var(--gold); background:rgba(212,175,55,0.05)">
@@ -6678,11 +6831,11 @@
              <div class="friend-name">${f.username} ${f.isOnline ? '<span class="online-indicator"></span>' : ''}</div>
           </div>
           <div style="display:flex; gap:5px;">
-             <button class="social-btn btn-challenge" onclick="sendChallenge('${f.friendId}')" ${!f.isOnline ? 'disabled style="opacity:0.5"' : ''}>MATCH</button>
+             <button class="social-btn btn-challenge" onclick="sendChallenge('${f.friendId}')" ${!f.isOnline ? 'disabled style="opacity:0.3; cursor:default"' : ''}>MATCH</button>
              <button class="social-btn btn-remove" onclick="removeFriend('${f.friendId}')">×</button>
           </div>
         </div>
-      `).join('') || '<div style="opacity:0.3; font-size:12px;">No friends yet.</div>';
+      `).join('') || '<div style="opacity:0.6; font-size:12px; text-align:center; padding:15px; border:1px dashed rgba(255,255,255,0.1); border-radius:12px;">You don\'t have any friends added.</div>';
 
       requestList.innerHTML = pending.map(f => `
         <div class="friend-item">
@@ -6693,33 +6846,63 @@
              <button class="social-btn btn-remove" onclick="removeFriend('${f.friendId}')">×</button>
           </div>
         </div>
-      `).join('') || '<div style="opacity:0.3; font-size:12px;">No pending requests.</div>';
+      `).join('') || '<div style="opacity:0.6; font-size:12px; text-align:center; padding:15px; border:1px dashed rgba(255,255,255,0.1); border-radius:12px;">No pending requests.</div>';
     }
 
     window.acceptFriend = async (fid) => {
+      // Mock Support for Debug Panel
+      if (fid.startsWith('test_')) {
+         showGameToast("Fake friendship accepted!", false);
+         refreshFriends();
+         return;
+      }
       const token = window.chkobbaState?.session?.access_token;
       await fetch('/api/social/friend-accept', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ friendId: fid })
       });
-      refreshFriends();
+      await refreshFriends();
     };
 
     window.removeFriend = async (fid) => {
-      if (!confirm('Are you sure?')) return;
-      const token = window.chkobbaState?.session?.access_token;
-      await fetch('/api/social/friend-remove', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ friendId: fid })
+      window.showGameConfirm('Are you sure you want to remove this friend?', async () => {
+         // Mock Support for Debug Panel
+         if (fid.startsWith('test_')) {
+            refreshFriends();
+            return;
+         }
+         const token = window.chkobbaState?.session?.access_token;
+         await fetch('/api/social/friend-remove', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+           body: JSON.stringify({ friendId: fid })
+         });
+         await refreshFriends();
       });
-      refreshFriends();
     };
 
     window.sendChallenge = (fid) => {
-      socket.emit('social:challenge', fid);
-      showGameToast('Challenge sent! Waiting...');
+      const onSocialPartyCreated = ({ code }) => {
+         socket.off('party-created', onSocialPartyCreated);
+         socket.emit('social:challenge', { targetUserId: fid, roomCode: code });
+         showGameToast('Challenge sent! Waiting for response...', false);
+      };
+
+      socket.on('party-created', onSocialPartyCreated);
+      
+      // Mirror create-party logic from lobby
+      const myName = window.chkobbaSessionContext.getName();
+      const myAvatar = window.chkobbaSessionContext.getAvatar();
+      const myToken = window.chkobbaSessionContext.getToken();
+      const myUserId = window.chkobbaState?.profile?.id;
+
+      socket.emit('create-party', {
+         name: myName,
+         avatar: myAvatar,
+         sessionToken: myToken,
+         userId: myUserId
+      });
     };
 
     // Socket Interactions
@@ -6727,11 +6910,15 @@
        quickSocialNotif.style.display = 'block';
        quickNotif.style.display = 'block';
        if (data.type === 'friend_request') {
-          showGameToast('New Friend Request!');
+          showGameToast('New Friend Request!', false);
           if (socialModal.classList.contains('active')) refreshFriends();
        }
-       if (data.type === 'challenge_declined') {
-          showGameToast('Challenge declined.');
+       else if (data.type === 'friend_accepted') {
+          showGameToast('Friendship accepted!', false);
+          if (socialModal.classList.contains('active')) refreshFriends();
+       }
+       else if (data.type === 'challenge_declined') {
+          showGameToast(data.message || 'Challenge declined.', false);
        }
     });
 
@@ -6745,6 +6932,7 @@
        
        // 2. Show the modal
        currentChallengerId = data.fromId;
+       currentChallengeCode = data.roomCode; // Store the code!
        challengeMsg.textContent = `${data.fromName} challenged you to a 21-point match!`;
        challengeModal.classList.add('show');
        
@@ -6755,7 +6943,7 @@
        if (challengePopupTimer) clearTimeout(challengePopupTimer);
        challengePopupTimer = setTimeout(() => {
           challengeModal.classList.remove('show');
-          showGameToast('Challenge moved to Social Hub.');
+          showGameToast('Challenge moved to Social Hub.', false);
           refreshFriends(); // Refresh to show it in the HUB
        }, 15000);
 
@@ -6765,8 +6953,31 @@
        if (socialModal.classList.contains('active')) refreshFriends();
     });
 
-    window.respondToChallenge = (cid, accepted) => {
-       socket.emit('social:challenge-response', { challengerId: cid, accepted });
+    window.respondToChallenge = (cid, accepted, roomCode) => {
+       if (accepted && roomCode) {
+          const myName = window.chkobbaSessionContext.getName();
+          const myAvatar = window.chkobbaSessionContext.getAvatar();
+          const myToken = window.chkobbaSessionContext.getToken();
+          const myUserId = window.chkobbaState?.profile?.id;
+
+          socket.emit('join-party', {
+             code: roomCode,
+             name: myName,
+             avatar: myAvatar,
+             sessionToken: myToken,
+             userId: myUserId
+          });
+
+          // Match listener for join success/error
+          const onJoinResult = (data) => {
+             if (data.msg) showGameToast(data.msg, true);
+             socket.off('join-error', onJoinResult);
+          };
+          socket.on('join-error', onJoinResult);
+       } else {
+          socket.emit('social:challenge-response', { challengerId: cid, accepted: false });
+       }
+
        challengeModal.classList.remove('show');
        if (challengePopupTimer) clearTimeout(challengePopupTimer);
        
@@ -6776,17 +6987,12 @@
     };
 
     document.getElementById('challenge-accept-btn').onclick = () => {
-       respondToChallenge(currentChallengerId, true);
+       respondToChallenge(currentChallengerId, true, currentChallengeCode);
     };
     document.getElementById('challenge-decline-btn').onclick = () => {
        respondToChallenge(currentChallengerId, false);
     };
 
-    socket.on('social:challenge-start', (payload) => {
-       showGameToast('Joining Match...');
-       showView('view-game');
-       socket.emit('joinRoom', payload.room);
-    });
 
     socket.on('social:status-change', () => {
        if (socialModal.classList.contains('active')) refreshFriends();
