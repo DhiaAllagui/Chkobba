@@ -442,6 +442,32 @@ app.post('/api/match/finish', authRequired, async (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/match/bot-win', authRequired, async (req, res) => {
+  const { difficulty, player_won } = req.body || {};
+  if (difficulty === 'expert' && player_won) {
+    if (!supabaseAdmin) return res.status(500).json({ error: 'Database not configured.' });
+    
+    const { data: profile, error: pErr } = await supabaseAdmin
+      .from('profiles')
+      .select('id, total_elo')
+      .eq('id', req.user.id)
+      .maybeSingle();
+
+    if (pErr || !profile) return res.status(400).json({ error: 'Profile not found.' });
+
+    const newElo = (profile.total_elo || 1000) + 1;
+    const { error: uErr } = await supabaseAdmin
+      .from('profiles')
+      .update({ total_elo: newElo, updated_at: new Date().toISOString() })
+      .eq('id', req.user.id);
+
+    if (uErr) return res.status(400).json({ error: 'Failed to update Elo.' });
+    
+    return res.json({ ok: true, newElo });
+  }
+  res.json({ ok: false, msg: 'No Elo reward for this match.' });
+});
+
 io.on('connection', (socket) => {
   // Use built-in clientsCount for real-time accuracy (with tiny delay to ensure sync)
   setTimeout(() => {

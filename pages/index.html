@@ -1467,6 +1467,8 @@
       let botThinkTimeout = null;
       let lastTurnForTimer = null;
       let activeGameHandlers = {};
+      let gameStartedByUser = false;
+      let isTransitioning = false;
 
       const botData = {
         easy: { name: "Sami (Easy)", img: "/img/easy.png" },
@@ -1476,25 +1478,25 @@
       };
 
       // ══ AUDIO ASSETS ══
-      const sfxShuffle = new Audio('/sound/shuffle.mp3');
-      const sfxPlay = new Audio('/sound/play.mp3');
-      const sfxChkobba = new Audio('/sound/chkobba.mp3');
-      const sfxMessage = new Audio('/sound/message.mp3');
-      const sfx7ayya = new Audio('/sound/7ayya.mp3');
-      const sfxHover = new Audio('/sound/hover.mp3');
-      const sfxWoosh = new Audio('/sound/woosh.mp3');
-      const sfxWood = new Audio('/sound/woodbreaking.mp3');
-      const sfxFire = new Audio('/sound/fire.mp3');
-      const sfxCheer = new Audio('/sound/cheer.mp3');
-      const sfxLoser = new Audio('/sound/loser.mp3');
-      const sfxTruck = new Audio('/sound/truck.mp3');
-      const sfxMenuHover = new Audio('/sound/menuhover.mp3');
-      const sfxNewGame = new Audio('/sound/newgame.mp3');
-      const sfxEmojiKingaura = new Audio('/sound/kingaura.mp3');
-      const sfxEmojiKingmad = new Audio('/sound/kingmad.mp3');
-      const sfxEmojiQueenlauthing = new Audio('/sound/queenlauthing.mp3');
-      const sfxEmojiValletff = new Audio('/sound/valletff.mp3');
-      const sfxEmojiTy = new Audio('/sound/ty.mp3');
+      const sfxShuffle = new Audio('/sound/shuffle.mp3'); sfxShuffle.volume = 0.35;
+      const sfxPlay = new Audio('/sound/play.mp3'); sfxPlay.volume = 0.35;
+      const sfxChkobba = new Audio('/sound/chkobba.mp3'); sfxChkobba.volume = 0.35;
+      const sfxMessage = new Audio('/sound/message.mp3'); sfxMessage.volume = 0.35;
+      const sfx7ayya = new Audio('/sound/7ayya.mp3'); sfx7ayya.volume = 0.35;
+      const sfxHover = new Audio('/sound/hover.mp3'); sfxHover.volume = 0.25;
+      const sfxWoosh = new Audio('/sound/woosh.mp3'); sfxWoosh.volume = 0.35;
+      const sfxWood = new Audio('/sound/woodbreaking.mp3'); sfxWood.volume = 0.35;
+      const sfxFire = new Audio('/sound/fire.mp3'); sfxFire.volume = 0.35;
+      const sfxCheer = new Audio('/sound/cheer.mp3'); sfxCheer.volume = 0.35;
+      const sfxLoser = new Audio('/sound/loser.mp3'); sfxLoser.volume = 0.35;
+      const sfxTruck = new Audio('/sound/truck.mp3'); sfxTruck.volume = 0.35;
+      const sfxMenuHover = new Audio('/sound/menuhover.mp3'); sfxMenuHover.volume = 0.3;
+      const sfxNewGame = new Audio('/sound/newgame.mp3'); sfxNewGame.volume = 0.35;
+      const sfxEmojiKingaura = new Audio('/sound/kingaura.mp3'); sfxEmojiKingaura.volume = 0.35;
+      const sfxEmojiKingmad = new Audio('/sound/kingmad.mp3'); sfxEmojiKingmad.volume = 0.35;
+      const sfxEmojiQueenlauthing = new Audio('/sound/queenlauthing.mp3'); sfxEmojiQueenlauthing.volume = 0.35;
+      const sfxEmojiValletff = new Audio('/sound/valletff.mp3'); sfxEmojiValletff.volume = 0.35;
+      const sfxEmojiTy = new Audio('/sound/ty.mp3'); sfxEmojiTy.volume = 0.35;
 
       const emojiSounds = {
         'kingaura': sfxEmojiKingaura,
@@ -1506,8 +1508,8 @@
 
       const sfxAmbience = new Audio('/sound/cafeambience.mp3');
       sfxAmbience.loop = true;
-      sfxAmbience.volume = 0.5;
-      const sfxFocusStart = new Audio('/sound/focus.mp3');
+      sfxAmbience.volume = 0.3;
+      const sfxFocusStart = new Audio('/sound/focus.mp3'); sfxFocusStart.volume = 0.35;
       let isFocusMode = false;
       let fadeInterval = null;
 
@@ -1553,6 +1555,30 @@
         if (onlineCountEl) onlineCountEl.innerText = count;
       });
 
+      // Global listener to detect when user has interacted with the page
+      document.addEventListener('click', () => {
+        gameStartedByUser = true;
+      }, { once: true });
+      document.addEventListener('touchstart', () => {
+        gameStartedByUser = true;
+      }, { once: true });
+
+      // ── CLEAR ALL ANIMATIONS (Hard Reset) ──
+      function clearAllAnimations() {
+        // Cancel all active animations on card elements
+        document.querySelectorAll('.card').forEach(el => {
+          if (el.getAnimations && typeof el.getAnimations === 'function') {
+            el.getAnimations().forEach(anim => {
+              if (anim && typeof anim.cancel === 'function') {
+                anim.cancel();
+              }
+            });
+          }
+          // Physically remove old card DOM elements
+          el.remove();
+        });
+      }
+
       window.chkobbaSessionContext = {
         getName: () => myName,
         setName: (v) => { myName = (v || 'Player').trim() || 'Player'; localStorage.setItem('chkobba_username', myName); },
@@ -1579,12 +1605,22 @@
       }
 
       window.addEventListener('DOMContentLoaded', () => {
+        // Add autocomplete="off" to all input fields to prevent autofill errors
+        document.querySelectorAll('input').forEach(input => {
+          if (!input.hasAttribute('autocomplete')) {
+            input.setAttribute('autocomplete', 'off');
+          }
+        });
+
         // Username Init & Logic
         const menuInput = document.getElementById('menu-username');
         const welcomeDisp = document.getElementById('welcome-name');
         menuInput.value = myName;
         welcomeDisp.textContent = myName || 'Player';
 
+        // Mark user interaction on input
+        menuInput.addEventListener('click', () => { gameStartedByUser = true; });
+        menuInput.addEventListener('input', () => { gameStartedByUser = true; });
         menuInput.addEventListener('input', () => {
           const val = menuInput.value.trim();
           welcomeDisp.textContent = val || 'Player';
@@ -1597,6 +1633,8 @@
         const pfpInput = document.getElementById('pfpInput');
         if (myAvatar) pfpPreview.src = myAvatar;
 
+        pfpInput.addEventListener('click', () => { gameStartedByUser = true; });
+        pfpInput.addEventListener('change', () => { gameStartedByUser = true; });
         pfpInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
           if (file) {
@@ -1641,6 +1679,8 @@
         const sfxToggleEl = document.getElementById('menu-sfx');
         if (sfxToggleEl) {
           sfxToggleEl.checked = savedSfx !== '0';
+          sfxToggleEl.addEventListener('click', () => { gameStartedByUser = true; });
+          sfxToggleEl.addEventListener('change', () => { gameStartedByUser = true; });
           sfxToggleEl.addEventListener('change', () => {
             localStorage.setItem('chkobba_sfx_enabled', sfxToggleEl.checked ? '1' : '0');
           });
@@ -1890,6 +1930,9 @@
           }
           if (typeof updateOpponentMuteButton === 'function') {
             updateOpponentMuteButton();
+          }
+          if (typeof updateSFXMuteButton === 'function') {
+            updateSFXMuteButton();
           }
         }
 
@@ -3372,10 +3415,10 @@
             btn.classList.add('active');
 
             // Play focus whoosh immediately for impact
-            if (sfxEnabled) {
+            if (sfxEnabled && gameStartedByUser) {
               sfxFocusStart.currentTime = 0;
               sfxFocusStart.volume = 1;
-              sfxFocusStart.play().catch(e => e);
+              sfxFocusStart.play().catch(() => {});
             }
 
             // Simultaneously fade out ambience
@@ -3385,8 +3428,10 @@
           } else {
             btn.classList.remove('active');
             // Resume and fade in
-            sfxAmbience.play().catch(e => e);
-            fadeAudio(sfxAmbience, 0.5, 1500);
+            if (gameStartedByUser) {
+              sfxAmbience.play().catch(() => {});
+            }
+            fadeAudio(sfxAmbience, 0.3, 1500);
           }
         }
 
@@ -3394,7 +3439,7 @@
           if (fadeInterval) clearInterval(fadeInterval);
           sfxAmbience.pause();
           sfxAmbience.currentTime = 0;
-          sfxAmbience.volume = 0.5; // Reset for next start
+          sfxAmbience.volume = 0.3; // Reset for next start
         }
 
         function triggerTableFlip(callback) {
@@ -3404,9 +3449,9 @@
             return;
           }
 
-          if (sfxEnabled) {
+          if (sfxEnabled && gameStartedByUser) {
             sfxWood.currentTime = 0;
-            sfxWood.play().catch(e => e);
+            sfxWood.play().catch(() => {});
           }
 
           cards.forEach(card => {
@@ -3463,9 +3508,9 @@
           overlay.style.backdropFilter = 'blur(4px)';
           overlay.style.background = 'rgba(0, 0, 0, 0.4)';
 
-          if (sfxEnabled) {
+          if (sfxEnabled && gameStartedByUser) {
             sfxCheer.currentTime = 0;
-            sfxCheer.play().catch(e => e);
+            sfxCheer.play().catch(() => {});
           }
 
           startCardRain();
@@ -3693,10 +3738,27 @@
           else if (action === 'menu') showMenu();
           else if (action === 'fullscreen') toggleFullscreen();
           else if (action === 'mute') {
-            if (typeof window.radioPlayer !== 'undefined' && window.radioPlayer.toggleMute) {
-              window.radioPlayer.toggleMute();
-            }
+            toggleSFXMute();
           }
+        }
+
+        function toggleSFXMute() {
+          sfxEnabled = !sfxEnabled;
+          localStorage.setItem('chkobba_sfx_enabled', sfxEnabled ? '1' : '0');
+          updateSFXMuteButton();
+          if (typeof showToast === 'function') {
+            showToast(sfxEnabled ? 'Sound Effects enabled' : 'Sound Effects muted', 1800);
+          }
+        }
+
+        function updateSFXMuteButton() {
+          const btn = document.getElementById('side-mute-btn');
+          const icon = document.getElementById('side-mute-icon');
+          const text = document.getElementById('side-mute-text');
+          if (!icon || !btn) return;
+          icon.src = sfxEnabled ? '/img/volumeup.png' : '/img/volumedown.png';
+          btn.title = sfxEnabled ? 'Mute Sound Effects' : 'Unmute Sound Effects';
+          if (text) text.textContent = sfxEnabled ? 'Mute' : 'Unmute';
         }
 
         function updateStreakBadges() {
@@ -3748,6 +3810,15 @@
         let winScore = 21;
 
         function startGame(m, customName = '', sfx = true, back = 'back.png', targetScore = 21, difficulty = 'medium', gameMode = '1v1', explicitCode = null, explicitToken = null, initData = null) {
+          // ── HARD RESET: Clear all animations & old card elements ──
+          clearAllAnimations();
+          
+          // ── TRANSITION LOCK: Prevent new actions until board is clean ──
+          isTransitioning = true;
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 500);
+
           // 1. CLEAN UP PREVIOUS SESSION
           cleanupGame(false);
           detachOnlineGameSocketListeners();
@@ -3755,7 +3826,9 @@
 
           if (sfx) {
             sfxNewGame.currentTime = 0;
-            sfxNewGame.play().catch(e => e);
+            if (gameStartedByUser) {
+              sfxNewGame.play().catch(() => {});
+            }
           }
           const urlParams = new URLSearchParams(window.location.search);
           const seed = urlParams.get('seed') ? parseInt(urlParams.get('seed')) : Math.random() * 1000000;
@@ -3788,8 +3861,10 @@
           // Start Ambience
           if (sfxEnabled && !isFocusMode) {
             sfxAmbience.currentTime = 0;
-            sfxAmbience.volume = 0.5;
-            sfxAmbience.play().catch(e => e);
+            sfxAmbience.volume = 0.3;
+            if (gameStartedByUser) {
+              sfxAmbience.play().catch(() => {});
+            }
           }
 
           document.querySelectorAll('.pile-bg').forEach(el => {
@@ -4403,7 +4478,10 @@
           }
 
           if (animateDeal) {
-            if (sfxEnabled) { sfxShuffle.currentTime = 0; sfxShuffle.play().catch(e => e); }
+            if (sfxEnabled && gameStartedByUser) {
+              sfxShuffle.currentTime = 0;
+              sfxShuffle.play().catch(() => {});
+            }
             // Detect if it's the initial deal (deck size 30 and table has 4)
             const isInitialDeal = engine.deck.length === 30 && engine.table.length === 4;
             const targetSelectors = ['#hand-player .card', '#hand-bot .card', '#hand-p2 .card', '#hand-p3 .card'];
@@ -4505,8 +4583,7 @@
           if (!target) return;
 
           if (seatIdx !== 0 && opponentChatMuted) {
-            showOpponentChatToast(text);
-            return;
+            return; // Silently suppress opponent messages when muted - don't show toast
           }
 
           // Remove old bubbles from this player to avoid clutter
@@ -4529,23 +4606,23 @@
             bubble.style.padding = '10px'; // smaller padding for images
 
             // Play unique emoji sound if enabled
-            if (shouldPlayChatSound) {
+            if (shouldPlayChatSound && gameStartedByUser) {
               const sound = emojiSounds[emojiKey] || sfxMessage;
               sound.currentTime = 0;
-              sound.play().catch(e => e);
+              sound.play().catch(() => {});
             }
           } else {
-            // Play default message sound for text chat
-            if (shouldPlayChatSound) {
-               sfxMessage.currentTime = 0;
-               sfxMessage.play().catch(e => e);
-            }
             // Try to translate the key, fallback to the text itself (for backward compatibility)
             let localized = text;
             if (window.translations && window.currentLang && window.translations[window.currentLang][text]) {
               localized = window.translations[window.currentLang][text];
             }
             bubble.textContent = localized;
+            // Play default message sound for text chat
+            if (shouldPlayChatSound && gameStartedByUser) {
+              sfxMessage.currentTime = 0;
+              sfxMessage.play().catch(() => {});
+            }
           }
 
           target.prepend(bubble);
@@ -4773,9 +4850,9 @@
           }
 
           div.onmouseenter = () => {
-            if (sfxEnabled && !isAnimating && !div.classList.contains('selected')) {
+            if (sfxEnabled && gameStartedByUser && !isAnimating && !div.classList.contains('selected')) {
               sfxHover.currentTime = 0;
-              sfxHover.play().catch(e => e);
+              sfxHover.play().catch(() => {});
             }
           };
 
@@ -4840,7 +4917,10 @@
           startEl.style.pointerEvents = 'none'; // Instant non-interactive
           startEl.style.visibility = 'hidden'; // Ensure it's gone
 
-          if (sfxEnabled) { sfxWoosh.currentTime = 0; sfxWoosh.play().catch(e => e); }
+          if (sfxEnabled && gameStartedByUser) {
+            sfxWoosh.currentTime = 0;
+            sfxWoosh.play().catch(() => {});
+          }
 
           const ghost = makeCardEl(card, false);
           ghost.style.position = 'fixed'; ghost.style.top = startRect.top + 'px'; ghost.style.left = startRect.left + 'px'; ghost.style.zIndex = '1000'; ghost.style.margin = '0'; ghost.style.transition = 'all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
@@ -4851,7 +4931,11 @@
           const tableX = tableRect.left + tableRect.width / 2 - cardW / 2 + rx; const tableY = tableRect.top + tableRect.height / 2 - cardH / 2 + ry;
           requestAnimationFrame(() => { ghost.style.top = tableY + 'px'; ghost.style.left = tableX + 'px'; ghost.style.transform = 'scale(1.05)'; });
           setTimeout(() => {
-            ghost.style.transform = 'scale(1)'; if (sfxEnabled) { sfxPlay.currentTime = 0; sfxPlay.play().catch(e => e); }
+            ghost.style.transform = 'scale(1)';
+            if (sfxEnabled && gameStartedByUser) {
+              sfxPlay.currentTime = 0;
+              sfxPlay.play().catch(() => {});
+            }
             if (captured.length === 0) { ghost.style.opacity = '0'; setTimeout(() => { ghost.remove(); onComplete(); }, 300); }
             else {
               const capEls = captured.map(c => document.querySelector(`#tableCards .card[data-id="${c.id}"]`));
@@ -4898,9 +4982,9 @@
                 showGameToast(`+1 CHKOBBA! (${pname})`, true);
                 engine.players[pidx].currentRoundChkobbas = (engine.players[pidx].currentRoundChkobbas || 0) + 1;
                 // Always play Chkobba sound on every Chkobba.
-                if (sfxEnabled) {
+                if (sfxEnabled && gameStartedByUser) {
                   sfxChkobba.currentTime = 0;
-                  sfxChkobba.play().catch(e => e);
+                  sfxChkobba.play().catch(() => {});
                 }
                 updateStreakBadges();
                 if (window.radioPlayer) window.radioPlayer.duck();
@@ -4916,7 +5000,10 @@
               const is7ayyaCaptured = (card.id === '7carreau' || captured.some(c => c.id === '7carreau'));
               if (is7ayyaCaptured) {
                 show7ayyaToast(pname);
-                if (sfxEnabled) { sfx7ayya.currentTime = 0; sfx7ayya.play().catch(e => e); }
+                if (sfxEnabled && gameStartedByUser) {
+                  sfx7ayya.currentTime = 0;
+                  sfx7ayya.play().catch(() => {});
+                }
                 if (window.radioPlayer) window.radioPlayer.duck();
                 addLog(`♦️ L'7AYYA! for ${pname}`, 'chkobba');
               }
@@ -5028,8 +5115,24 @@
             matchStatus.textContent = isKamyoun ? 'KAMYOUN!' : `${engine.players[leaderIdx].name} is the WINNER!`;
             // Trigger Victory / Kamyoun Overlay
             setTimeout(() => {
-              if (isKamyoun) showKamyounOverlay(kamyounWinner);
-              else if (leaderIdx === 0) showVictoryOverlay(leaderIdx);
+              if (isKamyoun) {
+                showKamyounOverlay(kamyounWinner);
+                // Reward +1 Elo for Kamyoun victory against Expert bot
+                if (kamyounWinner === 0 && mode === 'single' && selectedBotDifficulty === 'expert') {
+                  if (typeof window.recordBotWinReward === 'function') {
+                    window.recordBotWinReward('expert');
+                  }
+                }
+              }
+              else if (leaderIdx === 0) {
+                showVictoryOverlay(leaderIdx);
+                // FEATURE: Reward +1 Elo for beating Expert bot
+                if (mode === 'single' && selectedBotDifficulty === 'expert') {
+                  if (typeof window.recordBotWinReward === 'function') {
+                    window.recordBotWinReward('expert');
+                  }
+                }
+              }
               else showDefeatOverlay();
             }, 500);
           } else {

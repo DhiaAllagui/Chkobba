@@ -110,49 +110,58 @@ body.multiplayer-mode {
 }
 
 /* Table theme (surface only) */
-body[data-table-theme="midnight"] {
-  --felt-bg: #050a16;
+body[data-table-theme="classic"] {
+  --felt-bg: #0a5f1a;
   --table-surface-bg:
-    radial-gradient(120% 120% at 50% 20%, rgba(30, 80, 120, 0.25), rgba(0, 0, 0, 0.55)),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 10px);
-  --table-surface-border: 1px solid rgba(120, 190, 255, 0.582);
-  --table-surface-shadow: inset 0 0 40px rgba(0, 0, 0, 0.55);
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+  --table-surface-border: 1px solid rgba(201, 168, 76, 0.6);
+  --table-surface-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+body[data-table-theme="midnight"] {
+  --felt-bg: #0a0f1f;
+  --table-surface-bg:
+    radial-gradient(120% 120% at 50% 20%, rgba(100, 150, 255, 0.35), rgba(20, 50, 100, 0.7)),
+    repeating-linear-gradient(45deg, rgba(150, 200, 255, 0.04) 0 2px, transparent 2px 10px);
+  --table-surface-border: 2px solid rgba(100, 180, 255, 0.8);
+  --table-surface-shadow: inset 0 0 50px rgba(50, 100, 200, 0.3), inset 0 0 80px rgba(0, 0, 0, 0.6);
 }
 
 body[data-table-theme="desert"] {
-  --felt-bg: #2a160b;
+  --felt-bg: #3d2415;
   --table-surface-bg:
-    radial-gradient(120% 120% at 40% 10%, rgba(255, 220, 160, 0.18), rgba(120, 60, 10, 0.35)),
-    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.06) 0 3px, transparent 3px 12px);
-  --table-surface-border: 1px solid rgba(201, 168, 76, 0.548);
-  --table-surface-shadow: inset 0 0 35px rgba(0, 0, 0, 0.45);
+    radial-gradient(120% 120% at 40% 10%, rgba(255, 200, 100, 0.3), rgba(180, 100, 30, 0.5)),
+    repeating-linear-gradient(-45deg, rgba(200, 150, 80, 0.08) 0 3px, transparent 3px 12px);
+  --table-surface-border: 2px solid rgba(255, 180, 80, 0.7);
+  --table-surface-shadow: inset 0 0 50px rgba(139, 69, 19, 0.5), inset 0 0 80px rgba(0, 0, 0, 0.5);
 }
 
 body[data-table-theme="royal"] {
-  --felt-bg: #0b0618;
+  --felt-bg: #1a0d3a;
   --table-surface-bg:
-    radial-gradient(120% 120% at 50% 20%, rgba(93, 6, 175, 0.432), rgba(43, 3, 122, 0.65)),
-    repeating-linear-gradient(90deg, rgba(201, 168, 76, 0.568) 0 2px, transparent 2px 14px);
-  --table-surface-border: 1px solid rgba(201, 168, 76, 0.568);
-  --table-surface-shadow: inset 0 0 45px rgba(0, 0, 0, 0.6);
+    radial-gradient(120% 120% at 50% 20%, rgba(168, 50, 255, 0.5), rgba(60, 10, 150, 0.75)),
+    repeating-linear-gradient(90deg, rgba(220, 180, 255, 0.08) 0 2px, transparent 2px 14px);
+  --table-surface-border: 2px solid rgba(200, 100, 255, 0.8);
+  --table-surface-shadow: inset 0 0 50px rgba(100, 20, 200, 0.4), inset 0 0 80px rgba(0, 0, 0, 0.7);
 }
 
 body[data-table-theme="pink"] {
-  --felt-bg: #190014;
+  --felt-bg: #2a0f1f;
   --table-surface-bg:
-    radial-gradient(120% 120% at 45% 15%, rgba(255, 60, 190, 0.541), rgba(0, 0, 0, 0.66)),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 11px);
-  --table-surface-border: 1px solid rgba(255, 90, 211, 0.473);
-  --table-surface-shadow: inset 0 0 50px rgba(0, 0, 0, 0.68);
+    radial-gradient(120% 120% at 45% 15%, rgba(255, 80, 200, 0.6), rgba(100, 0, 60, 0.8)),
+    repeating-linear-gradient(135deg, rgba(255, 150, 220, 0.04) 0 2px, transparent 2px 11px);
+  --table-surface-border: 2px solid rgba(255, 100, 220, 0.8);
+  --table-surface-shadow: inset 0 0 50px rgba(200, 20, 120, 0.4), inset 0 0 80px rgba(0, 0, 0, 0.7);
 }
 
 body[data-table-theme="sunset"] {
-  --felt-bg: #1a0707;
+  --felt-bg: #2a1008;
   --table-surface-bg:
-    radial-gradient(120% 120% at 50% 15%, rgba(255, 141, 60, 0.582), rgba(60, 0, 30, 0.705)),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 12px);
-  --table-surface-border: 1px solid rgba(255, 159, 80, 0.493);
-  --table-surface-shadow: inset 0 0 46px rgba(0, 0, 0, 0.62);
+    radial-gradient(120% 120% at 50% 15%, rgba(255, 180, 60, 0.5), rgba(200, 50, 50, 0.7)),
+    repeating-linear-gradient(0deg, rgba(255, 200, 100, 0.04) 0 2px, transparent 2px 12px);
+  --table-surface-border: 2px solid rgba(255, 150, 80, 0.8);
+  --table-surface-shadow: inset 0 0 50px rgba(200, 80, 20, 0.4), inset 0 0 80px rgba(0, 0, 0, 0.6);
 }
 
 body.multiplayer-mode::after {
@@ -1105,37 +1114,45 @@ body::after {
 }
 
 .theme-classic {
-  background: rgba(0, 0, 0, 0.2);
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 2px),
+    linear-gradient(135deg, #0d7a1a 0%, #083d0f 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .theme-midnight {
   background:
-    radial-gradient(120% 120% at 50% 20%, rgba(30, 80, 120, 0.438), rgba(0, 0, 0, 0.55)),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 10px);
+    radial-gradient(120% 120% at 50% 20%, rgba(100, 150, 255, 0.5), rgba(20, 50, 100, 0.8)),
+    repeating-linear-gradient(45deg, rgba(150, 200, 255, 0.06) 0 2px, transparent 2px 10px);
+  box-shadow: inset 0 1px 0 rgba(150, 200, 255, 0.3);
 }
 
 .theme-desert {
   background:
-    radial-gradient(120% 120% at 40% 10%, rgba(241, 196, 118, 0.342), rgba(120, 60, 10, 0.5)),
-    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.06) 0 3px, transparent 3px 12px);
+    radial-gradient(120% 120% at 40% 10%, rgba(255, 180, 80, 0.5), rgba(150, 80, 20, 0.7)),
+    repeating-linear-gradient(-45deg, rgba(200, 150, 80, 0.1) 0 3px, transparent 3px 12px);
+  box-shadow: inset 0 1px 0 rgba(255, 200, 100, 0.3);
 }
 
 .theme-royal {
   background:
-    radial-gradient(120% 120% at 50% 20%, rgba(156, 62, 243, 0.301), rgba(47, 2, 136, 0.65)),
-    repeating-linear-gradient(90deg, rgba(201, 168, 76, 0.06) 0 2px, transparent 2px 14px);
+    radial-gradient(120% 120% at 50% 20%, rgba(168, 80, 255, 0.6), rgba(60, 10, 150, 0.8)),
+    repeating-linear-gradient(90deg, rgba(220, 180, 255, 0.1) 0 2px, transparent 2px 14px);
+  box-shadow: inset 0 1px 0 rgba(200, 120, 255, 0.4);
 }
 
 .theme-pink {
   background:
-    radial-gradient(120% 120% at 45% 15%, rgba(255, 60, 190, 0.678), rgba(0, 0, 0, 0.66)),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0 2px, transparent 2px 11px);
+    radial-gradient(120% 120% at 45% 15%, rgba(255, 100, 220, 0.7), rgba(120, 10, 80, 0.85)),
+    repeating-linear-gradient(135deg, rgba(255, 150, 220, 0.06) 0 2px, transparent 2px 11px);
+  box-shadow: inset 0 1px 0 rgba(255, 120, 240, 0.4);
 }
 
 .theme-sunset {
   background:
-    radial-gradient(120% 120% at 50% 15%, rgba(255, 141, 60, 0.356), rgba(139, 1, 70, 0.62)),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 12px);
+    radial-gradient(120% 120% at 50% 15%, rgba(255, 180, 60, 0.6), rgba(200, 50, 50, 0.8)),
+    repeating-linear-gradient(0deg, rgba(255, 200, 100, 0.06) 0 2px, transparent 2px 12px);
+  box-shadow: inset 0 1px 0 rgba(255, 180, 100, 0.4);
 }
 
 .status-bar {
@@ -1806,7 +1823,7 @@ body::after {
   width: min(100%, 860px);
   margin: 0 auto;
   padding: 18px 14px 22px;
-  background: rgba(10, 10, 10, 0.88);
+  background: rgba(10, 10, 10, 0.4);
   border-radius: 28px;
   border: 1px solid rgba(255, 215, 0, 0.12);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);

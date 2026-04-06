@@ -625,6 +625,22 @@
       await findMatch();
     };
 
+    window.recordBotWinReward = async (difficulty) => {
+      if (!cfg.enabled || !state.session) return;
+      try {
+        const res = await api('/api/match/bot-win', {
+          method: 'POST',
+          body: JSON.stringify({ difficulty, player_won: true })
+        });
+        if (res.ok) {
+          if (typeof window.showToast === 'function') window.showToast("PATRON DEFEATED: +1 RANKED POINT!", 5000);
+          await refreshProfile();
+        }
+      } catch (e) {
+        console.warn("Elo update failed:", e);
+      }
+    };
+
     if (cfg.enabled && window.supabase?.createClient) {
       state.supabase = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
       state.supabase.auth.onAuthStateChange((_event, sess) => {
